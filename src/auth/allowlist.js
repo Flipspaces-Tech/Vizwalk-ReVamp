@@ -1,11 +1,10 @@
 const SHEET_ID = process.env.REACT_APP_ALLOWLIST_SHEET_ID;
 const GID = process.env.REACT_APP_ALLOWLIST_GID;
 
+const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}&cb=${Date.now()}`;
+
+
 let _cache = { at: 0, allowed: new Set() }; // 5 min cache
-
-
-// const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}&cb=${Date.now()}`;
-
 
 function parseCSV(text) {
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
