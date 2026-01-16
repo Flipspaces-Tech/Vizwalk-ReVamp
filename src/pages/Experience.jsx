@@ -229,7 +229,8 @@ export default function Experience() {
   const connectingRef = useRef(false);
   const mountedRef = useRef(false);
 
-  const [setHoverEnabled] = useState(true);
+  const [hoverEnabled, setHoverEnabled] = useState(true);
+
   const [firstUploadDone, setFirstUploadDone] = useState(false);
 
   // Track real user interaction + queued sequence
@@ -296,35 +297,36 @@ export default function Experience() {
   };
 
   const downloadUrlSmart = useCallback(
-    async (url, filenameHint) => {
-      const name = filenameHint || filenameFromUrl(url);
+  async (url, filenameHint) => {
+    const name = filenameHint || filenameFromUrl(url);
 
-      if (isHttpInsecure(url)) {
-        proxyHttpsDownload(url);
-        return true;
-      }
+    if (isHttpInsecure(url)) {
+      proxyHttpsDownload(url);
+      return true;
+    }
 
-      try {
-        const res = await fetch(url, { mode: "cors" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const blob = await res.blob();
+    try {
+      const res = await fetch(url, { mode: "cors" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
 
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = name;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(a.href);
-        return true;
-      } catch (e) {
-        console.warn("CORS/Fetch failed, opening URL directly:", e);
-        window.open(url, "_blank", "noopener,noreferrer");
-        return false;
-      }
-    },
-    [] // no deps
-  );
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      return true;
+    } catch (e) {
+      console.warn("CORS/Fetch failed, opening URL directly:", e);
+      window.open(url, "_blank", "noopener,noreferrer");
+      return false;
+    }
+  },
+  [proxyHttpsDownload] // ✅ add this
+);
+
 
   const downloadDataUrl = useCallback(async (dataUrl, filename) => {
     try {
@@ -647,13 +649,17 @@ export default function Experience() {
       }
     },
     [
-      downloadDataUrl,
-      downloadUrlSmart,
-      buildName,
-      sessionId,
-      firstUploadDone,
-      runIKeyClickSequence,
-    ]
+  downloadDataUrl,
+  downloadUrlSmart,
+  buildName,
+  buildVersion,
+  buildKey,
+  sessionId,
+  firstUploadDone,
+  runIKeyClickSequence,
+  setHoverEnabled
+]
+
   );
 
   const hardDisconnect = useCallback(() => {
@@ -780,12 +786,13 @@ export default function Experience() {
   ]);
 
   const toggleMouseHover = useCallback(() => {
-    setHoverEnabled((prev) => {
-      const next = !prev;
-      UIControlApp?.toggleHoveringMouse?.(next);
-      return next;
-    });
-  }, []);
+  setHoverEnabled((prev) => {
+    const next = !prev;
+    UIControlApp?.toggleHoveringMouse?.(next);
+    return next;
+  });
+}, [setHoverEnabled]);
+
 
   useEffect(() => {
     mountedRef.current = true;
