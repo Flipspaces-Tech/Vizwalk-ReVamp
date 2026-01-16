@@ -1,21 +1,15 @@
 import React, { useEffect, useMemo, useState } from "react";
 import vizIcon from "../assets/L1.png";
+import yt1 from "../assets/yt1.png";     // ✅ your YouTube icon
+import vz1 from "../assets/vz1.png";     // ✅ your Vizdom icon
 import { useAuth } from "../auth/AuthProvider";
 import "../styles/lovable-navbar.css";
 import "../styles/testimonials-marquee.css";
 
 const HERO_YOUTUBE_URL = "https://www.youtube.com/watch?v=dumslTDJfQk&feature=youtu.be";
 
-const categories2 = [
-  "All",
-  "Corporate Design",
-  "Modern Office",
-  "Executive Suite",
-  "Meeting Spaces",
-  "Retail",
-  "Hospitality",
-  "Residential",
-];
+/** ✅ EXACT chip names like your reference */
+const categories2 = ["All", "Corporate Offices", "Residential", "Multifamily Apartment", "Retail", "Co-working", "Restaurant"];
 
 /** ====== CONFIG ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
@@ -25,10 +19,11 @@ const GID = "0";
 function parseCSV(text) {
   if (!text) return [];
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
+
   const rows = [];
-  let row = [],
-    field = "",
-    inQuotes = false;
+  let row = [];
+  let field = "";
+  let inQuotes = false;
 
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
@@ -62,6 +57,131 @@ function parseCSV(text) {
   return rows;
 }
 
+/** ====== UTILS ====== */
+const norm = (s = "") => String(s).toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
+
+const headerMap = (headers) => {
+  const m = {};
+  headers.forEach((h, i) => (m[norm(h)] = i));
+  return m;
+};
+
+const safeGet = (row, idx, fallback = "") =>
+  idx != null && idx < row.length && row[idx] != null ? String(row[idx]).trim() : fallback;
+
+/** ====== FLEXIBLE HEADER ALIASES ====== */
+const COLS = {
+  status: ["status"],
+  server: ["server", "region", "country"],
+  buildName: ["build name"],
+  buildVersion: ["build version"],
+  uploadId: ["upload id"],
+  projectName: ["project slot name"],
+  projectSlot: ["project slot name", "project slot"],
+  projectSlotId: ["project slot id"],
+  sbu: ["sbu"],
+  areaSqft: ["area(sqft)", "area sqft", "area"],
+  industry: ["industry"],
+  designStyle: ["design style", "style"],
+  vizdomId: ["vizdom project id", "vizdom id"],
+  image: ["thumbnail_url", "image_url", "image url", "thumbnail", "image", "thumb"],
+  youtube: ["walkthrough link", "youtube link", "youtube"],
+};
+
+const idxOf = (headers, keys) => {
+  const map = headerMap(headers);
+  for (const k of keys) {
+    const i = map[norm(k)];
+    if (i != null) return i;
+  }
+  return null;
+};
+
+function formatSqft(n = "") {
+  const s = String(n).replace(/,/g, "").trim();
+  const val = Number(s);
+  if (Number.isFinite(val) && val > 0) return `${val.toLocaleString()} sqft`;
+  return n || "";
+}
+
+function normalizeServer(v = "") {
+  const s = norm(v);
+  if (s.includes("us")) return "us";
+  if (s.includes("india") || s === "in") return "india";
+  return "";
+}
+
+function getYouTubeEmbedUrl(url = "") {
+  if (!url) return "";
+  try {
+    const short = url.match(/youtu\.be\/([^?&/]+)/i);
+    if (short?.[1]) return `https://www.youtube.com/embed/${short[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
+    const watch = url.match(/[?&]v=([^?&]+)/i);
+    if (watch?.[1]) return `https://www.youtube.com/embed/${watch[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
+    const embed = url.match(/youtube\.com\/embed\/([^?&/]+)/i);
+    if (embed?.[1]) return `https://www.youtube.com/embed/${embed[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
+    return "";
+  } catch {
+    return "";
+  }
+}
+
+/** ====== IMAGE (Drive fallback) ====== */
+function ImageWithFallback({ src, alt, style }) {
+  const isDrive = /drive\.google\.com/i.test(src || "");
+  const extractDriveId = (url = "") => {
+    if (!url) return "";
+    const m1 = url.match(/\/d\/([^/]+)\//);
+    const m2 = url.match(/[?&]id=([^&]+)/);
+    return m1?.[1] || m2?.[1] || "";
+  };
+  const id = isDrive ? extractDriveId(src) : "";
+
+  const candidates =
+    isDrive && id
+      ? [
+          `https://lh3.googleusercontent.com/d/${id}=w1400-h900-no`,
+          `https://drive.google.com/uc?export=view&id=${id}`,
+          `https://drive.google.com/thumbnail?id=${id}&sz=w1400-h900`,
+          src,
+        ]
+      : [src || ""];
+
+  const [idx, setIdx] = useState(0);
+  const onError = () => setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
+
+  if (!src || idx === -1) {
+    return (
+      <img
+        src="https://picsum.photos/seed/vizwalk/1400/900"
+        alt={alt || "preview"}
+        style={style}
+        loading="lazy"
+        referrerPolicy="no-referrer"
+        crossOrigin="anonymous"
+      />
+    );
+  }
+
+  const bust = Date.now();
+  const current = candidates[idx]
+    ? `${candidates[idx]}${candidates[idx].includes("?") ? "&" : "?"}cb=${bust}`
+    : "";
+
+  return (
+    <img
+      src={current}
+      alt={alt || "preview"}
+      style={style}
+      loading="lazy"
+      onError={onError}
+      referrerPolicy="no-referrer"
+      crossOrigin="anonymous"
+    />
+  );
+}
+
+/** ====== NAVBAR ====== */
 function LandingNavbar({ user, signOut }) {
   const [open, setOpen] = useState(false);
   const [dd, setDd] = useState(false);
@@ -84,12 +204,10 @@ function LandingNavbar({ user, signOut }) {
     <header className="lv-header">
       <div className="lv-container">
         <nav className="lv-nav">
-          {/* Logo */}
           <a href="/" className="lv-logo" onClick={(e) => e.preventDefault()}>
             <img className="lv-logoImg" src={vizIcon} alt="Vizwalk — Powered by Flipspaces" />
           </a>
 
-          {/* Desktop links */}
           <div className="lv-links">
             <a
               className="lv-link"
@@ -113,7 +231,6 @@ function LandingNavbar({ user, signOut }) {
               Demo Videos
             </a>
 
-            {/* Projects dropdown */}
             <div className="lv-dd" ref={ddRef}>
               <button type="button" className="lv-link lv-ddBtn" onClick={() => setDd((v) => !v)}>
                 Projects{" "}
@@ -167,7 +284,6 @@ function LandingNavbar({ user, signOut }) {
             </a>
           </div>
 
-          {/* Right actions */}
           <div className="lv-actions">
             <button type="button" className="lv-iconBtn" title="Settings">
               ⚙
@@ -180,13 +296,11 @@ function LandingNavbar({ user, signOut }) {
             </button>
           </div>
 
-          {/* Mobile */}
           <button className="lv-mobileBtn" type="button" onClick={() => setOpen((v) => !v)}>
             {open ? "✕" : "☰"}
           </button>
         </nav>
 
-        {/* Mobile menu */}
         {open && (
           <div className="lv-mobileMenu">
             <a
@@ -256,126 +370,75 @@ function LandingNavbar({ user, signOut }) {
   );
 }
 
-/** ====== UTILS ====== */
-const norm = (s = "") => String(s).toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
-
-const headerMap = (headers) => {
-  const m = {};
-  headers.forEach((h, i) => (m[norm(h)] = i));
-  return m;
-};
-
-const safeGet = (row, idx, fallback = "") =>
-  idx != null && idx < row.length && row[idx] != null ? String(row[idx]).trim() : fallback;
-
-/** ====== FLEXIBLE HEADER ALIASES ====== */
-const COLS = {
-  status: ["status"],
-  server: ["server", "region", "country"],
-  buildName: ["build name"],
-  buildVersion: ["build version"],
-  uploadId: ["upload id"],
-  projectName: ["project slot name"],
-  projectSlot: ["project slot name", "project slot"],
-  projectSlotId: ["project slot id"],
-  sbu: ["sbu"],
-  areaSqft: ["area(sqft)", "area sqft", "area"],
-  industry: ["industry"],
-  designStyle: ["design style", "style"],
-  vizdomId: ["vizdom project id", "vizdom id"],
-  image: ["thumbnail_url", "image_url", "image url", "thumbnail", "image", "thumb"],
-  youtube: ["walkthrough link", "youtube link", "youtube"],
-};
-
-const idxOf = (headers, keys) => {
-  const map = headerMap(headers);
-  for (const k of keys) {
-    const i = map[norm(k)];
-    if (i != null) return i;
-  }
-  return null;
-};
-
-/** ====== IMAGE (Drive fallback) ====== */
-function ImageWithFallback({ src, alt, style }) {
-  const isDrive = /drive\.google\.com/i.test(src || "");
-  const extractDriveId = (url = "") => {
-    if (!url) return "";
-    const m1 = url.match(/\/d\/([^/]+)\//);
-    const m2 = url.match(/[?&]id=([^&]+)/);
-    return m1?.[1] || m2?.[1] || "";
-  };
-  const id = isDrive ? extractDriveId(src) : "";
-
-  const candidates =
-    isDrive && id
-      ? [
-          `https://lh3.googleusercontent.com/d/${id}=w1400-h900-no`,
-          `https://drive.google.com/uc?export=view&id=${id}`,
-          `https://drive.google.com/thumbnail?id=${id}&sz=w1400-h900`,
-          src,
-        ]
-      : [src || ""];
-
-  const [idx, setIdx] = useState(0);
-  const onError = () => setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
-
-  if (!src || idx === -1) {
-    return (
-      <img
-        src="https://picsum.photos/seed/vizwalk/1400/900"
-        alt={alt || "preview"}
-        style={style}
-        loading="lazy"
-        referrerPolicy="no-referrer"
-        crossOrigin="anonymous"
-      />
-    );
-  }
-
-  const bust = Date.now();
-  const current = candidates[idx]
-    ? `${candidates[idx]}${candidates[idx].includes("?") ? "&" : "?"}cb=${bust}`
-    : "";
-
+/** ====== ICON (hover float) ====== */
+function HoverIcon({ src, alt, href, title }) {
+  const [hover, setHover] = useState(false);
   return (
-    <img
-      src={current}
-      alt={alt || "preview"}
-      style={style}
-      loading="lazy"
-      onError={onError}
-      referrerPolicy="no-referrer"
-      crossOrigin="anonymous"
-    />
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      title={title}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 26,
+        height: 26,
+        borderRadius: 6,
+        transform: hover ? "translateY(-2px)" : "translateY(0)",
+        transition: "transform 0.15s ease",
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <img src={src} alt={alt} style={{ width: 22, height: 22, display: "block" }} />
+    </a>
   );
 }
 
-/** ====== HELPERS ====== */
-function formatSqft(n = "") {
-  const s = String(n).replace(/,/g, "").trim();
-  const val = Number(s);
-  if (Number.isFinite(val) && val > 0) return `${val.toLocaleString()} sqft`;
-  return n || "";
-}
-
-function normalizeServer(v = "") {
-  const s = norm(v);
-  if (s.includes("us")) return "us";
-  if (s.includes("india") || s.includes("in")) return "india";
-  return "";
-}
-
 /** ====== Featured Card ====== */
-function FeaturedCard({ item, onOpenVizwalk, onOpenGallery }) {
-  const category = item.designStyle || item.industry || "Modern Office";
+function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwalk }) {
+  const category = item.designStyle || item.industry || "Corporate Offices";
+  const serverLabel = item.server === "india" ? "India Server" : item.server === "us" ? "US Server" : "";
+
+  const [hover, setHover] = useState(false);
 
   return (
     <div style={sx.fpCard}>
-      <div style={sx.fpMedia} onClick={onOpenGallery} role="button" tabIndex={0}>
+      {/* media */}
+      <div
+        style={sx.fpMedia}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+      >
         <ImageWithFallback src={item.thumb} alt={item.buildName} style={sx.fpImg} />
+
+        {/* ✅ hover overlay */}
+        <div
+          style={{
+            ...sx.fpHoverOverlay,
+            opacity: hover ? 1 : 0,
+            pointerEvents: hover ? "auto" : "none",
+          }}
+        >
+          <button
+            type="button"
+            style={sx.fpHoverBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenVizwalk();
+            }}
+          >
+            Open Vizwalk
+          </button>
+        </div>
+
+        {/* server pill */}
+        {serverLabel ? <div style={sx.fpServerPill}>{serverLabel}</div> : null}
       </div>
 
+      {/* body */}
       <div style={sx.fpBody}>
         <div style={sx.fpName}>{item.buildName || "Project"}</div>
 
@@ -388,22 +451,35 @@ function FeaturedCard({ item, onOpenVizwalk, onOpenGallery }) {
         <div style={sx.fpDivider} />
 
         <div style={sx.fpRow}>
-          {/* left icons */}
           <div style={sx.fpLeftIcons}>
             {item.youtube ? (
-              <a href={item.youtube} target="_blank" rel="noreferrer" style={sx.fpIconBtn} title="Watch on YouTube">
-                ▶
-              </a>
+              <HoverIcon src={yt1} alt="YouTube" href={item.youtube} title="Watch on YouTube" />
             ) : (
-              <span style={{ ...sx.fpIconBtn, opacity: 0.25, pointerEvents: "none" }}>▶</span>
+              <span style={{ opacity: 0.25, pointerEvents: "none" }}>
+                <img src={yt1} alt="YouTube disabled" style={{ width: 22, height: 22 }} />
+              </span>
             )}
 
-            {/* second small icon (matches Image1 visual rhythm) */}
-            <span style={sx.fpIconDot} title={item.server === "india" ? "India Server" : "US Server"} />
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenVizdom();
+              }}
+              style={{ display: "inline-flex", cursor: "pointer" }}
+              title="Open in Vizdom"
+            >
+              <img src={vz1} alt="Vizdom" style={{ width: 22, height: 22, display: "block" }} />
+            </span>
           </div>
 
-          {/* right CTA */}
-          <button type="button" style={sx.fpDetail} onClick={onOpenVizwalk}>
+          <button
+            type="button"
+            style={sx.fpDetail}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenScreenshotGallery();
+            }}
+          >
             View Detail <span style={{ marginLeft: 6 }}>→</span>
           </button>
         </div>
@@ -434,8 +510,7 @@ function TestimonialsOnly() {
     {
       name: "Vivek Khemani",
       role: "Quantiphi",
-      quote:
-        "Flipspaces was a one-stop solution for our office expansion, using VR technology to perfectly visualize and execute our vision.",
+      quote: "Flipspaces was a one-stop solution for our office expansion, using VR technology to perfectly visualize and execute our vision.",
     },
     {
       name: "Pankaj Tripathi",
@@ -452,8 +527,7 @@ function TestimonialsOnly() {
     {
       name: "Vishal Soni",
       role: "Tacza",
-      quote:
-        "Flipspaces delivered our project on time with professionalism and excellence. Grateful for their hard work and eager to collaborate again!",
+      quote: "Flipspaces delivered our project on time with professionalism and excellence. Grateful for their hard work and eager to collaborate again!",
     },
   ];
 
@@ -464,16 +538,15 @@ function TestimonialsOnly() {
       id="clients"
       className="lv-testimonials"
       style={{
-        background: "#EAEAE8", // ✅ match your Image2 bg
-        padding: "54px 0 44px",
+        background: "#EAEAE8",
+        padding: "90px 0 44px", // ✅ increases top gap
+
       }}
     >
       <div className="lv-container">
         <div className="lv-testimonialsHead">
           <h2 className="lv-testimonialsTitle">What Our Clients Say</h2>
-          <div className="lv-testimonialsDesc">
-            Trusted by leading businesses across industries for exceptional workspace transformations
-          </div>
+          <div className="lv-testimonialsDesc">Trusted by leading businesses across industries for exceptional workspace transformations</div>
         </div>
 
         <div className="lv-marquee">
@@ -500,22 +573,19 @@ function TestimonialsOnly() {
   );
 }
 
-/** ✅ FOOTER updated to match Image1 */
+/** ✅ FOOTER (keep your existing sx.footer styles) */
 function FooterFullBleed() {
   return (
     <footer style={sx.footerBleed}>
       <div style={sx.container}>
         <div style={sx.footerGrid}>
-          {/* Left brand */}
           <div style={sx.footerBrand}>
-  <img src={vizIcon} alt="Vizwalk" style={sx.footerLogoImg} />
-  <div style={sx.footerDesc}>
-    Next-generation architectural visualization platform. Bring your designs to life with stunning realism.
-  </div>
-</div>
+            <img src={vizIcon} alt="Vizwalk" style={sx.footerLogoImg} />
+            <div style={sx.footerDesc}>
+              Next-generation architectural visualization platform. Bring your designs to life with stunning realism.
+            </div>
+          </div>
 
-
-          {/* Product */}
           <div style={sx.footerCol}>
             <div style={sx.footerColTitle}>PRODUCT</div>
             <a href="#featured-projects" style={sx.footerLink}>
@@ -529,7 +599,6 @@ function FooterFullBleed() {
             </a>
           </div>
 
-          {/* Resources */}
           <div style={sx.footerCol}>
             <div style={sx.footerColTitle}>RESOURCES</div>
             <a href="/docs" style={sx.footerLink}>
@@ -560,27 +629,6 @@ function FooterFullBleed() {
   );
 }
 
-function getYouTubeEmbedUrl(url = "") {
-  if (!url) return "";
-  try {
-    const short = url.match(/youtu\.be\/([^?&/]+)/i);
-    if (short?.[1]) {
-      return `https://www.youtube.com/embed/${short[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
-    }
-    const watch = url.match(/[?&]v=([^?&]+)/i);
-    if (watch?.[1]) {
-      return `https://www.youtube.com/embed/${watch[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
-    }
-    const embed = url.match(/youtube\.com\/embed\/([^?&/]+)/i);
-    if (embed?.[1]) {
-      return `https://www.youtube.com/embed/${embed[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
-    }
-    return "";
-  } catch {
-    return "";
-  }
-}
-
 /** ====== PAGE ====== */
 export default function Landing() {
   const { user, signOut } = useAuth();
@@ -588,15 +636,11 @@ export default function Landing() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Server toggle (India / US)
   const [selectedServer, setSelectedServer] = useState("india");
-
-  // Featured projects controls
   const [activeCategory2, setActiveCategory2] = useState("All");
   const [searchQuery2, setSearchQuery2] = useState("");
   const [showAll2, setShowAll2] = useState(false);
 
-  // Locbar
   const [showLocbar, setShowLocbar] = useState(true);
   const handleContinue = () => setShowLocbar(false);
 
@@ -671,6 +715,36 @@ export default function Landing() {
     })();
   }, []);
 
+const handleOpenVizwalk = (item) => {
+  if (!item) return;
+
+  const bust = Date.now();
+  const projectLabel = item.projectName || item.buildName || "project";
+
+  const sessionId = `${projectLabel
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+
+  const id = projectLabel
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+  const params = new URLSearchParams({
+    project: id,
+    s: String(bust),
+    session: sessionId,
+    build: item.buildName || item.projectName || "Build",
+    ver: item.buildVersion || "",
+  });
+
+  window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
+};
+
+
+
+
+  /** ✅ filter logic: map your chip text to your sheet values */
   const filtered = useMemo(() => {
     const q = norm(searchQuery2);
 
@@ -679,45 +753,44 @@ export default function Landing() {
       if (selectedServer && !it.server) return false;
 
       if (activeCategory2 !== "All") {
-        const cat = norm(`${it.designStyle || ""} ${it.industry || ""}`);
-        if (!cat.includes(norm(activeCategory2))) return false;
+        const hay = norm(`${it.designStyle || ""} ${it.industry || ""}`);
+
+        // ✅ chip label → matching keywords
+        const key =
+          activeCategory2 === "Corporate Offices"
+            ? "corporate"
+            : activeCategory2 === "Multifamily Apartment"
+            ? "multifamily"
+            : activeCategory2 === "Co-working"
+            ? "co-working"
+            : norm(activeCategory2);
+
+        if (!hay.includes(key)) return false;
       }
 
       if (!q) return true;
-      const hay = `${it.projectName} ${it.buildName} ${it.buildVersion} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
-      return norm(hay).includes(q);
+      const big = `${it.projectName} ${it.buildName} ${it.buildVersion} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
+      return norm(big).includes(q);
     });
   }, [items, selectedServer, activeCategory2, searchQuery2]);
 
-  const handleOpenVizwalk = (item) => {
-    const bust = Date.now();
-    const sessionId = `${(item.projectName || "project").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${new Date()
-      .toISOString()
-      .replace(/[:.]/g, "-")}`;
-
-    const id = (item.projectName || "project")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
+  /** ✅ View Detail -> ScreenshotGallery.jsx (your /gallery route) */
+  const handleOpenScreenshotGallery = (item) => {
     const params = new URLSearchParams({
-      project: id,
-      s: bust,
-      session: sessionId,
       build: item.buildName || item.projectName || "Build",
       ver: item.buildVersion || "",
     });
-
-    window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
+    window.open(`/gallery?${params.toString()}`, "_blank", "noopener,noreferrer");
   };
 
-  const handleOpenGallery = (item) => {
-    const params = new URLSearchParams({
-      build: item.buildName || item.projectName || "Build",
-      ver: item.buildVersion || "",
-    });
+  /** ✅ vz1 -> open Vizdom (update base URL if needed) */
+  const handleOpenVizdom = (item) => {
+    const id = item.vizdomId || item.projectSlotId || item.projectName || item.buildName || "";
+    if (!id) return;
 
-    window.open(`/gallery?${params.toString()}`, "_blank", "noopener,noreferrer");
+    // IMPORTANT: change this if your Vizdom URL is different
+    const url = `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(id)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   if (loading) return <div style={{ ...sx.page, padding: 24 }}>Loading…</div>;
@@ -729,9 +802,7 @@ export default function Landing() {
         <div className="lv-locbar">
           <div className="lv-container">
             <div className="lv-locbarInner">
-              <div className="lv-locbarText">
-                Choose another country or region to see content specific to your location
-              </div>
+              <div className="lv-locbarText">Choose another country or region to see content specific to your location</div>
 
               <div className="lv-locbarRight">
                 <div className="lv-togglePills">
@@ -761,7 +832,6 @@ export default function Landing() {
         </div>
       )}
 
-      {/* Navbar */}
       <LandingNavbar user={user} signOut={signOut} />
 
       {/* Hero */}
@@ -774,8 +844,8 @@ export default function Landing() {
             </div>
 
             <div className="lv-heroDesc">
-              Interactive virtual walkthrough offering clients an immersive experience with real-time design
-              modifications using Flipspaces&apos; integrated product library
+              Interactive virtual walkthrough offering clients an immersive experience with real-time design modifications using Flipspaces&apos;
+              integrated product library
             </div>
 
             <div className="lv-heroBtns">
@@ -799,15 +869,7 @@ export default function Landing() {
 
           <div className="lv-heroRight">
             <div className="lv-heroCard" style={{ overflow: "hidden" }}>
-              <div
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  height: 320,
-                  overflow: "hidden",
-                  borderRadius: 18,
-                }}
-              >
+              <div style={{ position: "relative", width: "100%", height: 320, overflow: "hidden", borderRadius: 18 }}>
                 <iframe
                   src={getYouTubeEmbedUrl(HERO_YOUTUBE_URL)}
                   title="Vizwalk demo"
@@ -829,92 +891,89 @@ export default function Landing() {
         </section>
       </div>
 
-      {/* ===== PART 2: Featured Projects ===== */}
-<section
+      {/* Featured Projects */}
+      <section
   id="featured-projects"
   style={{
     background: "#FFFFFF",
-    padding: "56px 0 24px", // ✅ more like Image1
+    padding: "56px 0 80px", // ✅ more bottom gap
   }}
 >
-  <div style={sx.container}>
-    <div style={sx.fpHeader}>
-      <div>
-        <div style={sx.fpTitle}>Featured Projects</div>
-        <div style={sx.fpSub}>
-          Explore our projects showcasing tech-enabled interior design expertise
+
+        <div style={sx.container}>
+          <div style={sx.fpHeader}>
+            <div>
+              <div style={sx.fpTitle}>Featured Projects</div>
+              <div style={sx.fpSub}>Explore our projects showcasing tech-enabled interior design expertise</div>
+            </div>
+          </div>
+
+          {/* ✅ one line: chips + search */}
+          <div style={sx.fpControls}>
+            <div style={sx.fpChips}>
+              {categories2.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  style={{ ...sx.chip, ...(activeCategory2 === c ? sx.chipActive : {}) }}
+                  onClick={() => {
+                    setActiveCategory2(c);
+                    setShowAll2(false);
+                  }}
+                  // ✅ removes the “focus ring/border” that you’re seeing
+                  onMouseDown={(e) => e.preventDefault()}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+
+            <div style={sx.fpSearchWrap}>
+              <span style={sx.fpSearchIcon}>🔍</span>
+              <input
+                value={searchQuery2}
+                onChange={(e) => setSearchQuery2(e.target.value)}
+                placeholder="Search Projects.."
+                style={sx.fpSearchInput}
+              />
+            </div>
+          </div>
+
+          <div style={sx.fpGrid}>
+            {(showAll2 ? filtered : filtered.slice(0, 6)).map((item, idx) => (
+             <FeaturedCard
+  key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
+  item={item}
+  onOpenScreenshotGallery={() => handleOpenScreenshotGallery(item)}
+  onOpenVizdom={() => handleOpenVizdom(item)}
+  onOpenVizwalk={() => handleOpenVizwalk(item)}   // ✅ THIS
+/>
+
+
+            ))}
+          </div>
+
+          {filtered.length === 0 && (
+            <div style={{ textAlign: "center", padding: "24px 0", opacity: 0.75, fontWeight: 700 }}>No projects found matching your criteria.</div>
+          )}
+
+          {!showAll2 && filtered.length > 6 && (
+            <div style={sx.fpBottom}>
+              <button type="button" style={sx.fpViewAllBottom} onClick={() => setShowAll2(true)}>
+                View All Projects →
+              </button>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+      </section>
 
-    <div style={sx.fpControls}>
-      {/* chips (left) */}
-      <div style={sx.fpChips}>
-        {categories2.map((c) => (
-          <button
-            key={c}
-            type="button"
-            style={{ ...sx.chip, ...(activeCategory2 === c ? sx.chipActive : {}) }}
-            onClick={() => {
-              setActiveCategory2(c);
-              setShowAll2(false);
-            }}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-
-      {/* search (right) */}
-      <div style={sx.fpSearchWrap}>
-        <span style={sx.fpSearchIcon}>🔍</span>
-        <input
-          value={searchQuery2}
-          onChange={(e) => setSearchQuery2(e.target.value)}
-          placeholder="Search Projects.."
-          style={sx.fpSearchInput}
-        />
-      </div>
-    </div>
-
-    <div style={sx.fpGrid}>
-      {(showAll2 ? filtered : filtered.slice(0, 6)).map((item, idx) => (
-        <FeaturedCard
-          key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
-          item={item}
-          onOpenGallery={() => handleOpenGallery(item)}
-          onOpenVizwalk={() => handleOpenVizwalk(item)}
-        />
-      ))}
-    </div>
-
-    {filtered.length === 0 && (
-      <div style={{ textAlign: "center", padding: "24px 0", opacity: 0.75, fontWeight: 700 }}>
-        No projects found matching your criteria.
-      </div>
-    )}
-
-    {!showAll2 && filtered.length > 6 && (
-      <div style={sx.fpBottom}>
-        <button type="button" style={sx.fpViewAllBottom} onClick={() => setShowAll2(true)}>
-          View All Projects →
-        </button>
-      </div>
-    )}
-  </div>
-</section>
-
-
-      {/* Testimonials */}
       <TestimonialsOnly />
-
-      {/* Footer */}
       <FooterFullBleed />
     </div>
   );
 }
 
-/** ====== STYLES ====== */
+/** ====== STYLES (CLEAN: no duplicates) ====== */
 const sx = {
   page: {
     minHeight: "100vh",
@@ -928,130 +987,219 @@ const sx = {
     margin: "0 auto",
   },
 
-  /* Featured Projects */
   fpHeader: {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "flex-start",
-  gap: 14,
-  marginBottom: 10,            // ✅ adds the same header spacing
-},
-  fpTitle: { fontSize: 26, fontWeight: 800, fontFamily: "var(--font-heading)" },
-  fpSub: { marginTop: 6, fontSize: 13, opacity: 0.72, fontFamily: "var(--font-sans)" },
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    gap: 14,
+    marginBottom: 10,
+  },
 
-  fpViewAllTop: {
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-    fontWeight: 700,
-    opacity: 0.75,
+  fpTitle: {
+    fontSize: 44,
+    fontWeight: 900,
+    letterSpacing: -0.6,
+    fontFamily: "var(--font-heading)",
+  },
+
+  fpSub: {
+    marginTop: 10,
+    fontSize: 16,
+    lineHeight: 1.6,
+    opacity: 0.72,
+    fontWeight: 500,
     fontFamily: "var(--font-sans)",
   },
 
+  /** ✅ one line layout */
   fpControls: {
-  marginTop: 16,               // ✅ a bit more like image1
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: 14,
-  flexWrap: "wrap",
-},
+    marginTop: 22,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 18,
+    flexWrap: "nowrap",
+  },
 
-fpGrid: {
-  marginTop: 18,
-  display: "grid",
-  gridTemplateColumns: "repeat(3, 1fr)",
-  gap: 18,                     // ✅ slightly airier like image1
-},
+  /** ✅ NO SCROLL BAR */
   fpChips: {
     display: "flex",
-    gap: 8,
-    flexWrap: "wrap",
     alignItems: "center",
+    gap: 10,
+    flexWrap: "nowrap",
+    overflow: "visible",
+    minWidth: 0,
   },
+
+  /** ✅ chip: light/regular + subtle border like search (#EAEAE8) */
   chip: {
-    padding: "7px 12px",
+    height: 32,
+    padding: "0 12px",
     borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.12)",
-    background: "rgba(255,255,255,0.85)",
+    border: "1px solid #EAEAE8",
+    background: "#fff",
     cursor: "pointer",
-    fontWeight: 700,
+    fontWeight: 400,
     fontSize: 12,
+    color: "#111",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
     fontFamily: "var(--font-sans)",
+    whiteSpace: "nowrap",
+
+    // ✅ kill focus outline/ring that looks like a border
+    outline: "none",
+    boxShadow: "none",
+    WebkitTapHighlightColor: "transparent",
   },
+
+  /** ✅ active is YELLOW (your ask) and no border ring */
   chipActive: {
-    background: "#f5a524",
-    borderColor: "rgba(0,0,0,0.10)",
+    background: "#FFC702",
+    color: "#111",
+    fontWeight: 500,
+    borderColor: "transparent",
+    outline: "none",
+    boxShadow: "none",
   },
 
   fpSearchWrap: {
+    height: 34,
     display: "flex",
     alignItems: "center",
-    gap: 8,
-    background: "rgba(255,255,255,0.90)",
-    border: "1px solid rgba(0,0,0,0.10)",
+    gap: 10,
+    background: "#fff",
+    border: "1px solid #EAEAE8",
     borderRadius: 999,
-    padding: "8px 12px",
-    minWidth: 240,
-    fontFamily: "var(--font-sans)",
+    padding: "0 14px",
+    width: 260,
+    flex: "0 0 auto",
   },
-  fpSearchIcon: { opacity: 0.7, fontSize: 12 },
+
+  fpSearchIcon: {
+    opacity: 0.65,
+    fontSize: 14,
+  },
+
   fpSearchInput: {
     border: "none",
     outline: "none",
+    boxShadow: "none",
     background: "transparent",
-    fontSize: 12,
-    flex: 1,
+    fontSize: 13,
+    width: "100%",
     fontFamily: "var(--font-sans)",
   },
 
+  fpGrid: {
+    marginTop: 18,
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: 18,
+  },
 
-  
+  /** ✅ Card (slightly taller) + card base color */
+  fpCard: {
+    background: "#F1F0EA",
+    border: "1px solid rgba(0,0,0,0.10)",
+    borderRadius: 18,
+    overflow: "hidden",
+    boxShadow: "0 14px 40px rgba(0,0,0,0.08)",
+  },
+
+  fpMedia: {
+    position: "relative",
+    cursor: "pointer",
+  },
+
+  /** ✅ bigger height */
+  fpImg: {
+    width: "100%",
+    height: 255,
+    objectFit: "cover",
+    display: "block",
+  },
+
+  /** ✅ server pill like your screenshot */
   fpServerPill: {
     position: "absolute",
-    right: 10,
-    bottom: 10,
-    background: "rgba(0,0,0,0.55)",
+    right: 14,
+    bottom: 12,
+    background: "rgba(0,0,0,0.65)",
     color: "#fff",
-    padding: "6px 10px",
+    padding: "6px 12px",
     borderRadius: 999,
     fontSize: 11,
-    fontWeight: 700,
+    fontWeight: 800,
+    fontFamily: "var(--font-sans)",
+    boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+  },
+
+  fpBody: {
+    padding: 14,
+    background: "#F1F0EA",
+  },
+
+  fpName: {
+    fontSize: 20,
+    fontWeight: 900,
+    fontFamily: "var(--font-heading)",
+  },
+
+  /** ✅ tag like your Image3 */
+  fpCatRow: { marginTop: 8 },
+
+  fpCatPill: {
+    display: "inline-block",
+    padding: "4px 10px",
+    borderRadius: 6,
+    background: "rgba(255,199,2,0.22)",
+    color: "#a56100",
+    fontSize: 12,
+    fontWeight: 800,
     fontFamily: "var(--font-sans)",
   },
 
+  fpArea: {
+    marginTop: 8,
+    fontSize: 13,
+    opacity: 0.75,
+    fontFamily: "var(--font-sans)",
+    fontWeight: 500,
+  },
+
+  fpDivider: {
+    marginTop: 12,
+    height: 1,
+    background: "rgba(0,0,0,0.08)",
+  },
 
   fpRow: {
-    marginTop: 10,
+    marginTop: 12,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 10,
   },
-  fpYt: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "#fff",
-    display: "grid",
-    placeItems: "center",
-    textDecoration: "none",
-    color: "#111",
-    fontWeight: 800,
-    fontSize: 12,
-    fontFamily: "var(--font-sans)",
+
+  fpLeftIcons: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
   },
+
   fpDetail: {
     border: "none",
     background: "transparent",
     cursor: "pointer",
-    fontSize: 12,
-    fontWeight: 700,
-    opacity: 0.75,
+    fontSize: 13,
+    fontWeight: 650,
+    opacity: 0.8,
     fontFamily: "var(--font-sans)",
   },
 
+  fpBottom: { display: "flex", justifyContent: "center", padding: "18px 0 0" },
 
   fpViewAllBottom: {
     border: "1px solid rgba(0,0,0,0.14)",
@@ -1063,10 +1211,10 @@ fpGrid: {
     fontFamily: "var(--font-sans)",
   },
 
-  /* ✅ Footer (Image1) */
+  /* Footer */
   footerBleed: {
     width: "100%",
-    background: "#d0d0cc", // Image1 feel
+    background: "#d0d0cc",
     padding: "42px 0 22px",
   },
   footerGrid: {
@@ -1076,24 +1224,22 @@ fpGrid: {
     alignItems: "start",
   },
   footerBrand: {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "flex-start",
-  justifyContent: "flex-start",
-  gap: 10,
-  paddingLeft: 0,
-  marginLeft: 0,
-},
-
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+    gap: 10,
+    paddingLeft: 0,
+    marginLeft: 0,
+  },
   footerLogoImg: {
-  display: "block",
-  height: 44,        // adjust if needed
-  width: "auto",
-  margin: 0,
-  padding: 0,
-  objectFit: "contain",
-},
-
+    display: "block",
+    height: 44,
+    width: "auto",
+    margin: 0,
+    padding: 0,
+    objectFit: "contain",
+  },
   footerDesc: {
     maxWidth: 360,
     fontSize: 13,
@@ -1138,306 +1284,46 @@ fpGrid: {
     color: "rgba(0,0,0,0.60)",
     textDecoration: "none",
   },
-  fpCard: {
-  background: "#fff",
-  border: "1px solid rgba(0,0,0,0.08)",
-  borderRadius: 16,
-  overflow: "hidden",
-  boxShadow: "0 10px 26px rgba(0,0,0,0.06)",
-  fontFamily: "var(--font-sans)",
-},
-
-fpMedia: { position: "relative", cursor: "pointer" },
-
-fpImg: {
-  width: "100%",
-  height: 210,              // ✅ closer to your reference
-  objectFit: "cover",
-  display: "block",
-},
-
-fpBody: {
-  padding: "14px 16px 12px",
-  background: "#EFEDE8",     // ✅ grey panel like reference
-},
-
-fpName: {
-  fontSize: 22,
-  fontWeight: 900,
-  fontFamily: "var(--font-heading)",
-  lineHeight: 1.1,
-},
-
-fpCatPill: {
-  display: "inline-block",
-  padding: "3px 10px",
-  borderRadius: 6,
-  background: "rgba(245,165,36,0.22)",
-  color: "#a56100",
-  fontSize: 11,
-  fontWeight: 900,
-},
-
-fpArea: {
-  marginTop: 8,
-  fontSize: 12,
-  opacity: 0.75,
-  fontWeight: 700,
-},
-
-fpDivider: {
-  height: 1,
-  background: "rgba(0,0,0,0.10)",
-  marginTop: 12,
-  marginBottom: 10,
-},
-
-fpBottomRow: {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 12,
-},
-
-fpIconRow: {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-},
-
-fpIconBtn: {
-  width: 22,
-  height: 18,
-  borderRadius: 4,
-  display: "grid",
-  placeItems: "center",
-  border: "none",
+  fpMedia: {
+  position: "relative",
   cursor: "pointer",
-  fontSize: 11,
-  fontWeight: 900,
-  lineHeight: 1,
 },
 
-fpIconBtnYT: {
-  background: "#FF0000",
-  color: "#fff",
-  textDecoration: "none",
+fpHoverOverlay: {
+  position: "absolute",
+  inset: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 10,
+  background: "rgba(0,0,0,0.18)",
+  opacity: 0,
+  pointerEvents: "none",
+  transition: "opacity 0.18s ease",
+  borderRadius: 0, // image already clipped by card overflow
 },
 
-fpIconBtnAlt: {
+fpHoverBtn: {
+  height: 40,
+  padding: "0 16px",
+  borderRadius: 999,
+  border: "1px solid rgba(255,255,255,0.65)",
   background: "#FFC702",
   color: "#111",
-},
-
-fpDetail: {
-  border: "none",
-  background: "transparent",
-  cursor: "pointer",
-  fontSize: 12,
   fontWeight: 800,
-  opacity: 0.8,
-  fontFamily: "var(--font-sans)",
-},
-
-fpHeader: {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "flex-start",
-},
-
-fpTitle: {
-  fontSize: 44,              // ✅ Image1 big title
-  fontWeight: 900,
-  letterSpacing: -0.6,
-  fontFamily: "var(--font-heading)",
-},
-
-fpSub: {
-  marginTop: 10,
-  fontSize: 16,              // ✅ Image1 subtitle size
-  lineHeight: 1.6,
-  opacity: 0.72,
-  fontWeight: 500,
-  fontFamily: "var(--font-sans)",
-},
-
-fpControls: {
-  marginTop: 22,             // ✅ more breathing space like Image1
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  gap: 16,
-  flexWrap: "wrap",
-},
-
-fpChips: {
-  display: "flex",
-  gap: 10,
-  flexWrap: "wrap",
-  alignItems: "center",
-},
-
-chip: {
-  padding: "10px 14px",
-  borderRadius: 999,
-  border: "1px solid rgba(0,0,0,0.14)",
-  background: "#fff",
   cursor: "pointer",
-  fontWeight: 650,           // ✅ less bold like Image1
-  fontSize: 13,
-  fontFamily: "var(--font-sans)",
 },
 
-chipActive: {
-  background: "#FFC702",     // ✅ Image1 yellow
-  borderColor: "rgba(0,0,0,0.10)",
-  color: "#111",
-  boxShadow: "0 10px 24px rgba(255, 199, 2, 0.25)",
-},
-
-fpSearchWrap: {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-  background: "#fff",
-  border: "1px solid rgba(0,0,0,0.14)",
-  borderRadius: 999,
-  padding: "10px 14px",
-  minWidth: 280,             // ✅ Image1 wide search pill
+fpHoverBtnGhost: {
   height: 40,
-},
-
-fpSearchIcon: {
-  opacity: 0.7,
-  fontSize: 14,
-},
-
-fpSearchInput: {
-  border: "none",
-  outline: "none",
-  background: "transparent",
-  fontSize: 13,
-  flex: 1,
-  fontFamily: "var(--font-sans)",
-},
-
-fpGrid: {
-  marginTop: 18,
-  display: "grid",
-  gridTemplateColumns: "repeat(3, 1fr)",
-  gap: 18,
-},
-
-fpCard: {
-  background: "#F1F0EA",     // ✅ card base like your Emirates sample
-  border: "1px solid rgba(0,0,0,0.10)",
-  borderRadius: 18,
-  overflow: "hidden",
-  boxShadow: "0 14px 40px rgba(0,0,0,0.08)",
-},
-
-fpMedia: { position: "relative", cursor: "pointer" },
-
-fpImg: {
-  width: "100%",
-  height: 220,               // ✅ taller image like sample
-  objectFit: "cover",
-  display: "block",
-},
-
-fpBody: {
-  padding: 14,
-},
-
-fpName: {
-  fontSize: 20,
-  fontWeight: 900,
-  fontFamily: "var(--font-heading)",
-},
-
-fpCatRow: {
-  marginTop: 8,
-},
-
-fpCatPill: {
-  display: "inline-block",
-  padding: "4px 10px",
-  borderRadius: 6,
-  background: "rgba(255,199,2,0.25)",
-  color: "#a56100",
-  fontSize: 12,
-  fontWeight: 800,
-  fontFamily: "var(--font-sans)",
-},
-
-fpArea: {
-  marginTop: 8,
-  fontSize: 13,
-  opacity: 0.75,
-  fontFamily: "var(--font-sans)",
-},
-
-fpDivider: {
-  marginTop: 12,
-  height: 1,
-  background: "rgba(0,0,0,0.08)",
-},
-
-fpRow: {
-  marginTop: 12,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  gap: 10,
-},
-
-fpLeftIcons: {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-},
-
-fpIconBtn: {
-  width: 30,
-  height: 22,
-  borderRadius: 6,
-  background: "#fff",
-  border: "1px solid rgba(0,0,0,0.12)",
-  display: "grid",
-  placeItems: "center",
-  textDecoration: "none",
-  color: "#111",
-  fontWeight: 900,
-  fontSize: 12,
-},
-
-fpIconDot: {
-  width: 18,
-  height: 18,
+  padding: "0 16px",
   borderRadius: 999,
-  background: "#00B894",     // small accent dot (just visual balance)
-  display: "inline-block",
-  opacity: 0.9,
-},
-
-fpDetail: {
-  border: "none",
-  background: "transparent",
+  border: "1px solid rgba(255,255,255,0.65)",
+  background: "rgba(255,255,255,0.18)",
+  color: "#fff",
+  fontWeight: 800,
   cursor: "pointer",
-  fontSize: 13,
-  fontWeight: 750,
-  opacity: 0.8,
-  fontFamily: "var(--font-sans)",
 },
-
-
-
-
-
-
-
-
-
 
 
 
