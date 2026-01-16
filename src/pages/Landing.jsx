@@ -1,10 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
-import vizIcon from "../assets/vizdom.png";
+import vizIcon from "../assets/vizdom.png"; // your provided PNG
+
 import { useAuth } from "../auth/AuthProvider";
+
 
 /** ====== CONFIG ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const GID = "0";
+
+
 
 /** ====== CSV PARSER (robust) ====== */
 function parseCSV(text) {
@@ -13,7 +17,6 @@ function parseCSV(text) {
   let row = [],
     field = "",
     inQuotes = false;
-
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
     if (inQuotes) {
@@ -49,18 +52,17 @@ function parseCSV(text) {
 /** ====== UTILS ====== */
 const norm = (s = "") =>
   s.toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
-
 const headerMap = (headers) => {
   const m = {};
   headers.forEach((h, i) => (m[norm(h)] = i));
   return m;
 };
-
 const safeGet = (row, idx, fallback = "") =>
   idx != null && idx < row.length && row[idx] != null
     ? String(row[idx]).trim()
     : fallback;
 
+/** ====== FLEXIBLE HEADER ALIASES ====== */
 const COLS = {
   status: ["status"],
   buildName: ["build name"],
@@ -74,17 +76,9 @@ const COLS = {
   industry: ["industry"],
   designStyle: ["design style", "style"],
   vizdomId: ["vizdom project id", "vizdom id"],
-  image: [
-    "thumbnail_url",
-    "image_url",
-    "image url",
-    "thumbnail",
-    "image",
-    "thumb",
-  ],
+  image: ["thumbnail_url", "image_url", "image url", "thumbnail", "image", "thumb"],
   youtube: ["walkthrough link", "youtube link", "youtube"],
 };
-
 const idxOf = (headers, keys) => {
   const map = headerMap(headers);
   for (const k of keys) {
@@ -94,14 +88,7 @@ const idxOf = (headers, keys) => {
   return null;
 };
 
-function formatSqft(n = "") {
-  const s = String(n).replace(/,/g, "").trim();
-  const val = Number(s);
-  if (Number.isFinite(val) && val > 0) return `${val.toLocaleString()} sqft`;
-  return n || "";
-}
-
-/** ====== IMAGE (Drive fallback) ====== */
+/** ====== IMAGE (Google Drive fallback) ====== */
 function ImageWithFallback({ src, alt, style }) {
   const isDrive = /drive\.google\.com/i.test(src || "");
   const extractDriveId = (url = "") => {
@@ -115,21 +102,24 @@ function ImageWithFallback({ src, alt, style }) {
   const candidates =
     isDrive && id
       ? [
-          `https://lh3.googleusercontent.com/d/${id}=w1400-h900-no`,
+          `https://lh3.googleusercontent.com/d/${id}=w1200-h800-no`,
           `https://drive.google.com/uc?export=view&id=${id}`,
-          `https://drive.google.com/thumbnail?id=${id}&sz=w1400-h900`,
+          `https://drive.google.com/uc?export=download&id=${id}`,
+          `https://drive.googleusercontent.com/uc?export=download&id=${id}`,
+          `https://drive.google.com/thumbnail?id=${id}&sz=w1200-h800`,
           src,
         ]
       : [src || ""];
 
   const [idx, setIdx] = useState(0);
+
   const onError = () =>
     setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
 
   if (!src || idx === -1) {
     return (
       <img
-        src="https://picsum.photos/seed/vizwalk/1400/900"
+        src="https://picsum.photos/seed/office/1200/800"
         alt={alt || "preview"}
         style={style}
         loading="lazy"
@@ -141,7 +131,9 @@ function ImageWithFallback({ src, alt, style }) {
 
   const bust = Date.now();
   const current = candidates[idx]
-    ? `${candidates[idx]}${candidates[idx].includes("?") ? "&" : "?"}cb=${bust}`
+    ? `${candidates[idx]}${
+        candidates[idx].includes("?") ? "&" : "?"
+      }cb=${bust}`
     : "";
 
   return (
@@ -157,24 +149,39 @@ function ImageWithFallback({ src, alt, style }) {
   );
 }
 
-/** ====== UI: Small chip ====== */
-function Chip({ active, children, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        ...sx.chip,
-        ...(active ? sx.chipActive : null),
-      }}
-    >
-      {children}
-    </button>
-  );
+/** ====== HELPERS ====== */
+function formatSqft(n = "") {
+  const s = String(n).replace(/,/g, "").trim();
+  const val = Number(s);
+  if (Number.isFinite(val) && val > 0) return `${val.toLocaleString()} sqft`;
+  return n || "";
 }
 
-/** ====== CARD (Image2 vibe) ====== */
-function ProjectCard({ item, onOpenVizwalk, onOpenGallery }) {
+/** ====== CARD ====== */
+function BuildCard({
+  id,
+  item,
+  onOpenVizwalk,
+  onOpenGallery,
+  onSelect,
+  selected,
+}) {
+  const [cardHover, setCardHover] = React.useState(false);
+  const [mediaHover, setMediaHover] = React.useState(false);
+  const [ytHover, setYtHover] = React.useState(false);
+  const [vizHover, setVizHover] = React.useState(false);
+
+  const cardStyle = {
+    ...styles.card,
+    ...(cardHover ? styles.cardHover : null),
+    ...(selected ? styles.cardSelected : null),
+  };
+
+  const handleCardClick = () => {
+    onSelect?.(id);
+    onOpenGallery?.(); // clicking white area => gallery
+  };
+
   const vizdomHref = item.vizdomId
     ? `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(
         item.vizdomId
@@ -182,89 +189,170 @@ function ProjectCard({ item, onOpenVizwalk, onOpenGallery }) {
     : null;
 
   return (
-    <div style={sx.card}>
-      <div style={sx.cardMedia} onClick={onOpenGallery} role="button" tabIndex={0}>
-        <ImageWithFallback src={item.thumb} alt={item.buildName} style={sx.cardImg} />
-        {item.sbu ? <div style={sx.badge}>{item.sbu}</div> : null}
-      </div>
-
-      <div style={sx.cardBody}>
-        <div style={sx.cardTitleRow}>
-          <div style={sx.cardTitle}>
-            {item.buildName || "Build"}
-            {item.buildVersion ? (
-              <span style={sx.cardVer}> {item.buildVersion}</span>
-            ) : null}
-          </div>
+    <div
+      style={cardStyle}
+      onMouseEnter={() => setCardHover(true)}
+      onMouseLeave={() => {
+        setCardHover(false);
+      }}
+      onClick={handleCardClick}
+      tabIndex={0}
+      role="button"
+    >
+      {/* media (click -> vizwalk/experience) with overlay pill */}
+      <div
+        style={styles.mediaWrap}
+        onMouseEnter={() => setMediaHover(true)}
+        onMouseLeave={() => setMediaHover(false)}
+        onClick={(e) => {
+          e.stopPropagation(); // don’t trigger gallery
+          onOpenVizwalk?.();
+        }}
+        onFocus={() => setMediaHover(true)}
+        onBlur={() => setMediaHover(false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            e.stopPropagation();
+            setMediaHover(false);
+            onOpenVizwalk?.();
+          }
+        }}
+        tabIndex={0}
+        role="button"
+        aria-label="Open Vizwalk"
+        title="Open Vizwalk"
+      >
+        {/* image wrapper with blur on hover */}
+        <div
+          style={{
+            ...styles.heroWrap,
+            ...(mediaHover ? styles.heroWrapBlur : null),
+          }}
+        >
+          <ImageWithFallback
+            src={item.thumb}
+            alt={item.projectName}
+            style={styles.hero}
+          />
         </div>
 
-        <div style={sx.cardSub}>
-          {item.projectName || item.projectSlot || "Project Slot"}
-        </div>
-
-        <div style={sx.cardMeta}>
-          {item.areaSqft ? (
-            <div>
-              <span style={sx.metaK}>Area:</span> {formatSqft(item.areaSqft)}
-            </div>
-          ) : null}
-          {item.industry ? (
-            <div>
-              <span style={sx.metaK}>Type:</span> {item.industry}
-            </div>
-          ) : null}
-        </div>
-
-        <div style={sx.cardActions}>
-          <button type="button" style={sx.primaryBtn} onClick={onOpenVizwalk}>
+        {/* centered overlay pill */}
+        <div
+          style={{
+            ...styles.mediaOverlay,
+            ...(mediaHover ? styles.mediaOverlayOn : null),
+          }}
+        >
+          <button
+            type="button"
+            style={styles.mediaBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              setMediaHover(false);
+              onOpenVizwalk?.();
+            }}
+          >
             Open Vizwalk
           </button>
-
-          <div style={sx.iconRow}>
-            {item.youtube ? (
-              <a
-                href={item.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={sx.iconBtn}
-                title="Watch walkthrough"
-              >
-                ▶
-              </a>
-            ) : null}
-
-            {vizdomHref ? (
-              <a
-                href={vizdomHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={sx.iconBtn}
-                title="Open in Vizdom"
-              >
-                <span
-                  style={{
-                    width: 18,
-                    height: 18,
-                    display: "inline-block",
-                    backgroundColor: "#111",
-                    WebkitMaskImage: `url(${vizIcon})`,
-                    maskImage: `url(${vizIcon})`,
-                    WebkitMaskRepeat: "no-repeat",
-                    maskRepeat: "no-repeat",
-                    WebkitMaskPosition: "center",
-                    maskPosition: "center",
-                    WebkitMaskSize: "contain",
-                    maskSize: "contain",
-                  }}
-                />
-              </a>
-            ) : null}
-
-            <button type="button" style={sx.iconBtn} onClick={onOpenGallery} title="Open Gallery">
-              ⧉
-            </button>
-          </div>
         </div>
+      </div>
+
+      {/* Title + Version */}
+      <div style={styles.titleWrap}>
+        <div style={styles.titleText}>
+          {item.buildName || "Build Name"}
+          <span style={styles.versionText}>
+            {item.buildVersion ? ` ${item.buildVersion}` : ""}
+          </span>
+        </div>
+        <div style={styles.subLink}>
+          {item.projectName || item.projectSlot || "Project Slot Name"}
+        </div>
+      </div>
+
+      {/* Meta lines */}
+      <div style={styles.metaBlock}>
+        {item.areaSqft ? (
+          <div>
+            <strong>Area</strong> - {formatSqft(item.areaSqft)}
+          </div>
+        ) : null}
+        {item.industry ? (
+          <div>
+            <strong>Construction Type</strong> - {item.industry}
+          </div>
+        ) : null}
+      </div>
+
+      {/* Bottom-right actions */}
+      <div style={styles.actionsRow}>
+        {/* YouTube */}
+        {item.youtube ? (
+          <a
+            href={item.youtube}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.stopPropagation();
+              setYtHover(false);
+            }}
+            onMouseDown={() => setYtHover(false)}
+            title="Watch walkthrough"
+            style={styles.iconBtnClear}
+            onMouseEnter={() => setYtHover(true)}
+            onMouseLeave={() => setYtHover(false)}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              style={{
+                ...styles.ytSvg,
+                ...(ytHover ? styles.ytSvgHover : null),
+                ...(ytHover ? styles.ytGlowHover : null),
+              }}
+              aria-hidden
+            >
+              <rect
+                x="2.8"
+                y="6.2"
+                width="18.4"
+                height="11.6"
+                rx="3.2"
+                fill={ytHover ? "#FF0000" : "#0D0D0D"}
+              />
+              <path d="M10 9v6l5-3-5-3z" fill="#FFFFFF" />
+            </svg>
+          </a>
+        ) : null}
+
+        {/* Vizdom */}
+        {vizdomHref ? (
+          <a
+            href={vizdomHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.stopPropagation();
+              setVizHover(false);
+            }}
+            onMouseDown={() => setVizHover(false)}
+            title="Open in Vizdom"
+            style={styles.iconBtnClear}
+            onMouseEnter={() => setVizHover(true)}
+            onMouseLeave={() => setVizHover(false)}
+          >
+            <span
+              style={{ ...styles.vizGlow, ...(vizHover ? styles.vizGlowOn : null) }}
+            />
+            <span
+              style={{
+                ...styles.vizMask,
+                ...(vizHover ? styles.vizMaskHover : null),
+              }}
+              aria-hidden
+            />
+          </a>
+        ) : null}
       </div>
     </div>
   );
@@ -272,13 +360,17 @@ function ProjectCard({ item, onOpenVizwalk, onOpenGallery }) {
 
 /** ====== PAGE ====== */
 export default function Landing() {
-  const { user, signOut } = useAuth();
-
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [selectedId, setSelectedId] = useState(null);
   const [query, setQuery] = useState("");
-  const [activeSbu, setActiveSbu] = useState("all");
+
+  const onSelect = (id) => setSelectedId((prev) => (prev === id ? null : id));
+
+  const { user, signOut } = useAuth();
+
+  const [logoutHover, setLogoutHover] = useState(false);
+
 
   useEffect(() => {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&id=${SHEET_ID}&gid=${GID}`;
@@ -292,7 +384,9 @@ export default function Landing() {
         const headers = rows[0];
         const body = rows
           .slice(1)
-          .filter((r) => r.some((c) => String(c || "").trim() !== ""));
+          .filter((r) =>
+            r.some((c) => String(c || "").trim() !== "")
+          );
 
         const iStatus = idxOf(headers, COLS.status);
         const iSBU = idxOf(headers, COLS.sbu);
@@ -313,7 +407,6 @@ export default function Landing() {
           .map((r) => {
             const status = norm(safeGet(r, iStatus, "Active"));
             if (status !== "active") return null;
-
             return {
               sbu: safeGet(r, iSBU),
               projectName: safeGet(r, iProjectName),
@@ -342,488 +435,421 @@ export default function Landing() {
     })();
   }, []);
 
-  const sbus = useMemo(() => {
-    const set = new Set(items.map((x) => (x.sbu || "").trim()).filter(Boolean));
-    return ["all", ...Array.from(set)];
-  }, [items]);
-
   const filtered = useMemo(() => {
     const q = norm(query);
+    if (!q) return items;
     return items.filter((it) => {
-      if (activeSbu !== "all" && norm(it.sbu) !== norm(activeSbu)) return false;
-
-      if (!q) return true;
-      const hay = `${it.projectName} ${it.buildName} ${it.buildVersion} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
+      const hay = `${it.projectName} ${it.buildName} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
       return norm(hay).includes(q);
     });
-  }, [items, query, activeSbu]);
+  }, [items, query]);
 
-  const heroItem = filtered[0] || items[0] || null;
+  const groups = useMemo(() => {
+    const g = new Map();
+    filtered.forEach((it) => {
+      const key = it.sbu || "SBU";
+      if (!g.has(key)) g.set(key, []);
+      g.get(key).push(it);
+    });
+    const arr = Array.from(g.entries());
+    const order = ["enterprise", "sme", "us"];
+    arr.sort(
+      (a, b) =>
+        order.indexOf((a[0] || "").toLowerCase()) -
+        order.indexOf((b[0] || "").toLowerCase())
+    );
+    return arr;
+  }, [filtered]);
 
   const handleOpenVizwalk = (item) => {
     const bust = Date.now();
     const sessionId = `${(item.projectName || "project")
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+      .replace(/[^a-z0-9]+/g, "-")}-${new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-")}`;
 
-    const id = (item.projectName || "project")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
-    const params = new URLSearchParams({
-      project: id,
-      s: bust,
-      session: sessionId,
-      build: item.buildName || item.projectName || "Build",
-      ver: item.buildVersion || "",
-    });
-
-    const href = `/experience?${params.toString()}`;
+    let href;
+    if (item.url && /^https?:\/\//i.test(item.url)) {
+      const u = new URL(item.url);
+      u.searchParams.set("session", sessionId);
+      u.searchParams.set("build", item.buildName || item.projectName || "Build");
+      href = u.toString();
+    } else {
+      const id = (item.projectName || "project")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+      const params = new URLSearchParams({
+        project: id,
+        s: bust,
+        session: sessionId,
+        build: item.buildName || item.projectName || "Build",
+        ver: item.buildVersion || "",      // 👈 add this line
+      });
+      href = `/experience?${params.toString()}`;
+    }
     window.open(href, "_blank", "noopener,noreferrer");
   };
 
   const handleOpenGallery = (item) => {
-    const params = new URLSearchParams({
-      build: item.buildName || item.projectName || "Build",
-      ver: item.buildVersion || "",
-    });
+  const params = new URLSearchParams({
+    build: item.buildName || item.projectName || "Build",
+    ver: item.buildVersion || "",          // 👈 pass V1 / V2 etc.
+  });
 
-    const href = `/gallery?${params.toString()}`;
-    window.open(href, "_blank", "noopener,noreferrer");
-  };
+  const href = `/gallery?${params.toString()}`;
+  window.open(href, "_blank", "noopener,noreferrer");
+};
 
-  const scrollToProjects = () => {
-    const el = document.getElementById("featured-projects");
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
 
-  if (loading) {
-    return <div style={{ ...sx.page, padding: 24 }}>Loading…</div>;
-  }
+
+  if (loading) return <div style={styles.page}>Loading…</div>;
 
   return (
-    <div style={sx.page}>
-      {/* Navbar */}
-      <div style={sx.navWrap}>
-        <div style={sx.container}>
-          <div style={sx.nav}>
-            <div style={sx.brand}>
-              <div style={sx.brandDot} />
-              <div>
-                <div style={sx.brandName}>Vizwalk</div>
-                <div style={sx.brandSub}>Project Showcase</div>
-              </div>
-            </div>
-
-            <div style={sx.navLinks}>
-              <a style={sx.navLink} href="#featured-projects" onClick={(e) => { e.preventDefault(); scrollToProjects(); }}>
-                Featured Projects
-              </a>
-              <a style={sx.navLink} href="#clients" onClick={(e) => e.preventDefault()}>
-                Clients
-              </a>
-              <a style={sx.navLink} href="#support" onClick={(e) => e.preventDefault()}>
-                Support
-              </a>
-            </div>
-
-            <div style={sx.navRight}>
-              <div style={sx.userPill} title={user?.email || ""}>
-                {user?.email ? user.email : "Signed in"}
-              </div>
-              <button onClick={signOut} style={sx.logoutBtn}>
+    <div style={styles.wrapper}>
+      <div style={styles.page}>
+        {/* Sticky search bar */}
+        <div style={styles.searchBarWrap}>
+          <div style={styles.searchInner}>
+            <span style={styles.searchIcon} aria-hidden>
+              🔎
+            </span>
+            <button
+                onClick={signOut}
+                style={{
+                  ...styles.logoutBtn,
+                  ...(logoutHover ? styles.logoutBtnHover : null),
+                }}
+                onMouseEnter={() => setLogoutHover(true)}
+                onMouseLeave={() => setLogoutHover(false)}
+                title={user?.email || "Logout"}
+              >
+                <span style={styles.logoutDot} />
                 Logout
               </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Hero */}
-      <div style={sx.container}>
-        <div style={sx.hero}>
-          <div>
-            <div style={sx.heroKicker}>Bring Spaces</div>
-            <div style={sx.heroTitle}>
-              To <span style={sx.heroAccent}>Life</span>
-            </div>
-            <div style={sx.heroText}>
-              Browse interactive walkthroughs from our latest builds and explore
-              design styles across industries.
-            </div>
-
-            <div style={sx.heroCtas}>
-              <button style={sx.ctaPrimary} onClick={scrollToProjects}>
-                Browse Demo
-              </button>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search projects, builds, industries…"
+              style={styles.searchInput}
+              aria-label="Search projects"
+            />
+            {query ? (
               <button
-                style={sx.ctaSecondary}
-                onClick={() => setActiveSbu("all")}
+                type="button"
+                onClick={() => setQuery("")}
+                style={styles.clearBtn}
+                aria-label="Clear search"
+                title="Clear"
               >
-                Explore Projects
+                ×
               </button>
-            </div>
-          </div>
-
-          <div style={sx.heroMedia}>
-            <div style={sx.heroMediaInner}>
-              <ImageWithFallback
-                src={heroItem?.thumb}
-                alt="Hero"
-                style={sx.heroImg}
-              />
-            </div>
+            ) : null}
           </div>
         </div>
 
-        {/* Featured Projects */}
-        <div id="featured-projects" style={sx.section}>
-          <div style={sx.sectionHeader}>
-            <div>
-              <div style={sx.sectionTitle}>Featured Projects</div>
-              <div style={sx.sectionSub}>
-                Explore our curated projects and instantly launch a Vizwalk
-                walkthrough.
-              </div>
+        <div style={styles.columns}>
+          {groups.map(([sbu, arr]) => (
+            <div key={sbu} style={styles.col}>
+              <div style={{ display: "none" }}>{sbu}</div>
+              {arr.map((item, i) => {
+                const id =
+                  (item.projectName || "project")
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-") +
+                  "-" +
+                  i;
+                return (
+                  <BuildCard
+                    key={id}
+                    id={id}
+                    item={item}
+                    onOpenVizwalk={() => handleOpenVizwalk(item)}
+                    onOpenGallery={() => handleOpenGallery(item)}
+                    onSelect={onSelect}
+                    selected={selectedId === id}
+                  />
+                );
+              })}
             </div>
-
-            <div style={sx.searchWrap}>
-              <span style={sx.searchIcon}>🔎</span>
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search projects, builds, industries…"
-                style={sx.searchInput}
-              />
-              {query ? (
-                <button style={sx.clearBtn} onClick={() => setQuery("")} title="Clear">
-                  ×
-                </button>
-              ) : null}
-            </div>
-          </div>
-
-          <div style={sx.chipsRow}>
-            {sbus.map((s) => (
-              <Chip
-                key={s}
-                active={norm(activeSbu) === norm(s)}
-                onClick={() => setActiveSbu(s)}
-              >
-                {s === "all" ? "All" : s}
-              </Chip>
-            ))}
-          </div>
-
-          <div style={sx.grid}>
-            {filtered.map((it, i) => (
-              <ProjectCard
-                key={`${it.buildName}-${it.buildVersion}-${i}`}
-                item={it}
-                onOpenVizwalk={() => handleOpenVizwalk(it)}
-                onOpenGallery={() => handleOpenGallery(it)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Testimonials */}
-        <div id="clients" style={sx.section}>
-          <div style={sx.sectionTitle}>What Our Clients Say</div>
-          <div style={sx.testGrid}>
-            {[
-              {
-                n: "Enterprise PM",
-                t: "Vizwalk made internal reviews faster — stakeholders could explore without long calls.",
-              },
-              {
-                n: "Design Manager",
-                t: "We now present iterations as interactive walkthroughs. Approvals got smoother.",
-              },
-              {
-                n: "Client Team",
-                t: "Clearer understanding of finishes and zoning before execution.",
-              },
-              {
-                n: "Ops Lead",
-                t: "Teams love the speed. Easy to open builds and view screenshots.",
-              },
-            ].map((x, idx) => (
-              <div key={idx} style={sx.testCard}>
-                <div style={sx.testName}>{x.n}</div>
-                <div style={sx.testText}>{x.t}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div id="support" style={sx.footer}>
-          <div style={{ opacity: 0.8 }}>
-            © {new Date().getFullYear()} Vizwalk • Flipspaces
-          </div>
-          <div style={{ display: "flex", gap: 14 }}>
-            <span style={{ opacity: 0.7 }}>Help</span>
-            <span style={{ opacity: 0.7 }}>Privacy</span>
-            <span style={{ opacity: 0.7 }}>Terms</span>
-          </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
 
-/** ====== STYLES (Image2 tone) ====== */
-const sx = {
-  page: {
-    minHeight: "100vh",
-    background: "#f7f4ef",
-    color: "#141414",
+/** ====== STYLES ====== */
+const styles = {
+  wrapper: {
+    width: "100%",
+    height: "100vh",
+    overflowY: "auto",
+    background: "#e9eefc",
   },
-  container: {
-    width: "min(1180px, 92vw)",
-    margin: "0 auto",
+  page: {
+    padding: 24,
+    fontFamily:
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
   },
 
-  navWrap: {
+  /** Search bar */
+  searchBarWrap: {
     position: "sticky",
     top: 0,
-    zIndex: 50,
-    background: "rgba(247,244,239,0.92)",
-    backdropFilter: "blur(10px)",
-    borderBottom: "1px solid rgba(0,0,0,0.06)",
+    zIndex: 20,
+    padding: "8px 0 32px 0",
+    background: "linear-gradient(#e9eefc 60%, rgba(233,238,252,0.7))",
+    backdropFilter: "saturate(1.05)",
   },
-  nav: {
-    height: 68,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 16,
-  },
-  brand: { display: "flex", alignItems: "center", gap: 10 },
-  brandDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 999,
-    background: "#f5a524",
-    boxShadow: "0 0 0 6px rgba(245,165,36,0.18)",
-  },
-  brandName: { fontWeight: 900, letterSpacing: 0.2 },
-  brandSub: { fontSize: 12, opacity: 0.65, marginTop: 1 },
-
-  navLinks: {
-    display: "flex",
-    gap: 18,
-    alignItems: "center",
-    opacity: 0.85,
-  },
-  navLink: {
-    textDecoration: "none",
-    color: "#141414",
-    fontWeight: 700,
-    fontSize: 14,
-  },
-
-  navRight: { display: "flex", alignItems: "center", gap: 10 },
-  userPill: {
-    padding: "8px 10px",
-    borderRadius: 999,
-    background: "rgba(0,0,0,0.05)",
-    fontSize: 12,
-    fontWeight: 800,
-    maxWidth: 220,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  logoutBtn: {
-    padding: "10px 14px",
-    borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "#fff",
-    fontWeight: 900,
-    cursor: "pointer",
-  },
-
-  hero: {
-    padding: "28px 0 10px",
-    display: "grid",
-    gridTemplateColumns: "1.1fr 1fr",
-    gap: 24,
-    alignItems: "center",
-  },
-  heroKicker: { fontSize: 34, fontWeight: 900, lineHeight: 1.05 },
-  heroTitle: { fontSize: 44, fontWeight: 950, lineHeight: 1.02, marginTop: 4 },
-  heroAccent: { color: "#f5a524" },
-  heroText: { marginTop: 12, fontSize: 15, opacity: 0.8, maxWidth: 520 },
-  heroCtas: { marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" },
-  ctaPrimary: {
-    padding: "12px 16px",
-    borderRadius: 10,
-    border: "1px solid rgba(0,0,0,0.08)",
-    background: "#f5a524",
-    color: "#141414",
-    fontWeight: 950,
-    cursor: "pointer",
-  },
-  ctaSecondary: {
-    padding: "12px 16px",
-    borderRadius: 10,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "#fff",
-    fontWeight: 950,
-    cursor: "pointer",
-  },
-
-  heroMedia: {
-    background: "rgba(255,255,255,0.65)",
-    border: "1px solid rgba(0,0,0,0.06)",
-    borderRadius: 18,
-    padding: 12,
-    boxShadow: "0 18px 46px rgba(0,0,0,0.08)",
-  },
-  heroMediaInner: { borderRadius: 14, overflow: "hidden" },
-  heroImg: { width: "100%", height: 280, objectFit: "cover", display: "block" },
-
-  section: { padding: "18px 0 26px" },
-  sectionHeader: {
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: 16,
-    flexWrap: "wrap",
-  },
-  sectionTitle: { fontSize: 22, fontWeight: 950 },
-  sectionSub: { marginTop: 6, fontSize: 13, opacity: 0.75 },
-
-  searchWrap: {
+  searchInner: {
+    width: "min(1100px, 92vw)",
+    margin: "0 auto",
     display: "flex",
     alignItems: "center",
     gap: 8,
-    background: "rgba(255,255,255,0.85)",
-    border: "1px solid rgba(0,0,0,0.08)",
+    background: "#fff",
     borderRadius: 999,
-    padding: "10px 12px",
-    minWidth: 320,
+    border: "1px solid #e5eaf6",
+    boxShadow: "0 6px 22px rgba(91, 125, 255, 0.15)",
+    padding: "10px 14px",
   },
-  searchIcon: { opacity: 0.7 },
+  searchIcon: { fontSize: 18, opacity: 0.7, marginLeft: 6 },
   searchInput: {
+    flex: 1,
     border: "none",
     outline: "none",
+    fontSize: 16,
+    padding: "6px 10px",
     background: "transparent",
-    flex: 1,
-    fontSize: 14,
   },
   clearBtn: {
-    width: 26,
-    height: 26,
-    borderRadius: 999,
     border: "none",
-    background: "rgba(0,0,0,0.06)",
+    background: "#f0f3ff",
+    width: 28,
+    height: 28,
+    borderRadius: "50%",
+    fontSize: 18,
+    lineHeight: "28px",
     cursor: "pointer",
-    fontSize: 16,
-    lineHeight: "26px",
   },
 
-  chipsRow: { marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" },
-  chip: {
-    padding: "9px 12px",
-    borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "rgba(255,255,255,0.75)",
-    fontWeight: 900,
-    cursor: "pointer",
-    fontSize: 13,
-  },
-  chipActive: {
-    background: "#141414",
-    color: "#fff",
-    borderColor: "#141414",
-  },
-
-  grid: {
-    marginTop: 14,
+  // Grid
+  columns: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-    gap: 14,
+    gridTemplateColumns: "repeat(3, 360px)",
+    gap: 36,
+    justifyContent: "center",
   },
+  col: { display: "flex", flexDirection: "column", gap: 36 },
 
+  // Card
   card: {
-    background: "rgba(255,255,255,0.90)",
-    border: "1px solid rgba(0,0,0,0.08)",
-    borderRadius: 14,
-    overflow: "hidden",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
-  },
-  cardMedia: { position: "relative", cursor: "pointer" },
-  cardImg: { width: "100%", height: 160, objectFit: "cover", display: "block" },
-  badge: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    background: "rgba(255,255,255,0.9)",
-    border: "1px solid rgba(0,0,0,0.08)",
-    padding: "6px 10px",
-    borderRadius: 999,
-    fontSize: 12,
-    fontWeight: 950,
-  },
-  cardBody: { padding: 12 },
-  cardTitleRow: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  cardTitle: { fontSize: 16, fontWeight: 950, lineHeight: 1.2 },
-  cardVer: { fontSize: 13, fontWeight: 900, opacity: 0.6 },
-  cardSub: { marginTop: 6, fontSize: 13, fontWeight: 800, opacity: 0.75 },
-  cardMeta: { marginTop: 10, fontSize: 13, opacity: 0.85, lineHeight: 1.55 },
-  metaK: { fontWeight: 950 },
-
-  cardActions: { marginTop: 12, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 },
-  primaryBtn: {
-    padding: "10px 12px",
-    borderRadius: 10,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "#f5a524",
-    fontWeight: 950,
-    cursor: "pointer",
-    whiteSpace: "nowrap",
-  },
-  iconRow: { display: "flex", gap: 8, alignItems: "center" },
-  iconBtn: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    border: "1px solid rgba(0,0,0,0.10)",
+    position: "relative",
+    width: 360,
+    borderRadius: 18,
     background: "#fff",
+    border: "1px solid #eef1fb",
+    boxShadow: "0 10px 30px rgba(110,129,255,0.18)",
+    padding: 10,
+    display: "flex",
+    flexDirection: "column",
+    transition: "transform 140ms ease, box-shadow 140ms ease",
+    cursor: "pointer",
+  },
+  cardHover: {
+    transform: "translateY(-2px)",
+    boxShadow: "0 16px 38px rgba(110,129,255,0.26)",
+  },
+  cardSelected: {
+    boxShadow:
+      "0 18px 40px rgba(26,115,232,0.22), 0 0 0 2px rgba(26,115,232,0.32) inset",
+  },
+
+  // Media
+  mediaWrap: { position: "relative", borderRadius: 12, overflow: "hidden" },
+  hero: {
+    width: "100%",
+    aspectRatio: "1 / 0.62",
+    height: "auto",
+    objectFit: "cover",
+    display: "block",
+  },
+  heroWrap: {
+    position: "relative",
+    transition: "filter 200ms ease, transform 200ms ease",
+  },
+  heroWrapBlur: {
+    filter: "blur(4px) brightness(0.9)",
+    transform: "scale(1.02)",
+  },
+
+  // Overlay pill
+  mediaOverlay: {
+    position: "absolute",
+    inset: 0,
     display: "grid",
     placeItems: "center",
+    pointerEvents: "none",
+    opacity: 0,
+    transition: "opacity 160ms ease",
+  },
+  mediaOverlayOn: { opacity: 1 },
+  mediaBtn: {
+    pointerEvents: "auto",
+    appearance: "none",
+    border: "1px solid rgba(255,255,255,0.75)",
+    background: "rgba(255,255,255,0.85)",
+    backdropFilter: "blur(6px)",
+    WebkitBackdropFilter: "blur(6px)",
+    color: "#1d2433",
+    fontSize: 18,
+    fontWeight: 800,
+    padding: "10px 18px",
+    borderRadius: 999,
+    boxShadow: "0 10px 24px rgba(0,0,0,0.18)",
     cursor: "pointer",
-    textDecoration: "none",
-    color: "#111",
-    fontWeight: 950,
+    transform: "translateY(0)",
+    transition:
+      "transform 140ms ease, box-shadow 140ms ease, background 140ms ease",
   },
 
-  testGrid: {
-    marginTop: 12,
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+  // Title block
+  titleWrap: { marginTop: 12 },
+  titleText: {
+    fontSize: 22,
+    fontWeight: 800,
+    lineHeight: 1.15,
+    color: "#1d2433",
+  },
+  versionText: {
+    fontSize: 18,
+    color: "#9aa4b2",
+    marginLeft: 6,
+    fontWeight: 700,
+  },
+  subLink: {
+    marginTop: 4,
+    fontSize: 15,
+    fontWeight: 700,
+    color: "#3b82f6",
+  },
+
+  // Meta
+  metaBlock: { marginTop: 10, color: "#3b3b3b", fontSize: 15, lineHeight: 1.45 },
+
+  // Actions
+  actionsRow: {
+    position: "absolute",
+    right: 12,
+    bottom: 12,
+    display: "flex",
     gap: 12,
   },
-  testCard: {
-    background: "rgba(255,255,255,0.85)",
-    border: "1px solid rgba(0,0,0,0.08)",
-    borderRadius: 14,
-    padding: 14,
-    boxShadow: "0 10px 24px rgba(0,0,0,0.05)",
-  },
-  testName: { fontWeight: 950 },
-  testText: { marginTop: 8, fontSize: 13, opacity: 0.8, lineHeight: 1.55 },
 
-  footer: {
-    padding: "18px 0 34px",
-    borderTop: "1px solid rgba(0,0,0,0.08)",
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 14,
-    flexWrap: "wrap",
+  iconBtnClear: {
+    width: 44,
+    height: 44,
+    position: "relative",
+    display: "grid",
+    placeItems: "center",
+    background: "transparent",
+    border: "none",
+    padding: 0,
+    cursor: "pointer",
   },
+
+  ytSvg: {
+    position: "absolute",
+    left: "75%",
+    top: "50%",
+    transform: "translate(-50%, -50%) scale(1.2)",
+    width: 38,
+    height: 26,
+    pointerEvents: "none",
+    transition: "transform 140ms ease",
+  },
+  ytSvgHover: {
+    transform: "translate(-50%, -50%) scale(1.2)",
+  },
+
+
+  vizMask: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%, -50%) scale(0.9)",
+    width: 34,
+    height: 34,
+    backgroundColor: "#0D0D0D",
+    WebkitMaskImage: `url(${vizIcon})`,
+    maskImage: `url(${vizIcon})`,
+    WebkitMaskRepeat: "no-repeat",
+    maskRepeat: "no-repeat",
+    WebkitMaskPosition: "center",
+    maskPosition: "center",
+    WebkitMaskSize: "contain",
+    maskSize: "contain",
+    pointerEvents: "none",
+    zIndex: 1,
+    transition:
+      "transform 140ms ease, background-color 140ms ease",
+  },
+  vizMaskHover: {
+    transform: "translate(-50%, -50%) scale(0.9)",
+    backgroundColor: "#06B6D4",
+  },
+
+  vizGlow: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    pointerEvents: "none",
+    opacity: 0,
+    transition: "opacity 160ms ease",
+    zIndex: 0,
+ 
+    filter:
+      "blur(4px) drop-shadow(0 6px 16px rgba(6,182,212,0.30)) drop-shadow(0 0 14px rgba(6,182,212,0.26))",
+  },
+  vizGlowOn: {
+    opacity: 1,
+  },
+
+
+  logoutBtn: {
+  border: "1px solid #e5eaf6",
+  background: "#ffffff",
+  color: "#1d2433",
+  fontWeight: 900,
+  fontSize: 13,
+  padding: "8px 12px",
+  borderRadius: 999,
+  cursor: "pointer",
+  boxShadow: "0 6px 18px rgba(110,129,255,0.10)",
+  transition: "transform 140ms ease, box-shadow 140ms ease, background 140ms ease",
+  whiteSpace: "nowrap",
+},
+logoutBtnHover: {
+  transform: "translateY(-1px)",
+  boxShadow: "0 10px 24px rgba(110,129,255,0.18)",
+  background: "#f8faff",
+},
+logoutDot: {
+  display: "inline-block",
+  width: 8,
+  height: 8,
+  borderRadius: 99,
+  background: "#06B6D4",
+  marginRight: 8,
+  boxShadow:
+    "0 0 0 3px rgba(6,182,212,0.12), 0 8px 18px rgba(6,182,212,0.18)",
+},
+
 };

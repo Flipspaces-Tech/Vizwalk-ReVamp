@@ -313,3 +313,21 @@ html, body {
 }
 
 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body{
+  background: #f7f4ef; /* light warm like Image2 */
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  overflow-y: auto;
+}
+
+/* only lock scroll in Experience */
+body.no-scroll{
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+}
