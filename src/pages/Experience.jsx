@@ -780,14 +780,11 @@ export default function Experience() {
 
     connectingRef.current = false;
   }, [
-    downloadDataUrl,
-  downloadUrlSmart,
+  
   buildName,
   buildVersion,
-  buildKey,
-  sessionId,
-  firstUploadDone,
-  runIKeyClickSequence,
+    sessionId,
+
   setHoverEnabled,
     attachVideoAutoplaySafe,
     handleResponseApp,
