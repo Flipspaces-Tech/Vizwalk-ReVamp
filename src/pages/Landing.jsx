@@ -689,8 +689,9 @@ export default function Landing() {
 const sx = {
   page: {
     minHeight: "100vh",
-    background: "#ffffff", // ✅ make Image1/page background white
+    background: "#ffffff",
     color: "#141414",
+    fontFamily: "var(--font-sans)",
   },
 
   container: {
@@ -703,6 +704,7 @@ const sx = {
     background: "#ffffff",
     borderBottom: "1px solid rgba(0,0,0,0.06)",
     fontSize: 12,
+    fontFamily: "var(--font-sans)",
   },
   topBarInner: {
     height: 38,
@@ -734,6 +736,7 @@ const sx = {
     fontWeight: 800,
     cursor: "pointer",
     fontSize: 12,
+    fontFamily: "var(--font-sans)",
   },
   pillBtnActive: {
     borderColor: "rgba(0,0,0,0.18)",
@@ -748,6 +751,7 @@ const sx = {
     fontWeight: 950,
     cursor: "pointer",
     fontSize: 12,
+    fontFamily: "var(--font-sans)",
   },
 
   /* Navbar */
@@ -758,6 +762,7 @@ const sx = {
     background: "rgba(255,255,255,0.92)",
     backdropFilter: "blur(10px)",
     borderBottom: "1px solid rgba(0,0,0,0.06)",
+    fontFamily: "var(--font-sans)",
   },
   nav: {
     height: 64,
@@ -775,8 +780,14 @@ const sx = {
     display: "grid",
     placeItems: "center",
     fontWeight: 950,
+    fontFamily: "var(--font-heading)",
   },
-  brandName: { fontWeight: 950, letterSpacing: 0.2, lineHeight: 1.1 },
+  brandName: {
+    fontWeight: 950,
+    letterSpacing: 0.2,
+    lineHeight: 1.1,
+    fontFamily: "var(--font-heading)",
+  },
   brandSub: { fontSize: 11, opacity: 0.65, marginTop: 2 },
 
   navLinks: {
@@ -792,6 +803,7 @@ const sx = {
     fontWeight: 800,
     fontSize: 13,
     opacity: 0.8,
+    fontFamily: "var(--font-sans)",
   },
   navRight: { display: "flex", alignItems: "center", gap: 10 },
 
@@ -805,6 +817,7 @@ const sx = {
     placeItems: "center",
     cursor: "pointer",
     fontWeight: 900,
+    fontFamily: "var(--font-sans)",
   },
   userMini: {
     maxWidth: 220,
@@ -817,6 +830,7 @@ const sx = {
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
     border: "1px solid rgba(0,0,0,0.06)",
+    fontFamily: "var(--font-sans)",
   },
   logoutMini: {
     padding: "10px 14px",
@@ -825,6 +839,7 @@ const sx = {
     background: "#fff",
     fontWeight: 950,
     cursor: "pointer",
+    fontFamily: "var(--font-sans)",
   },
 
   /* Hero */
@@ -838,9 +853,10 @@ const sx = {
   heroLeft: { paddingRight: 10 },
   heroTitle: {
     fontSize: 54,
-    fontWeight: 950,
+    fontWeight: 800,
     lineHeight: 1.02,
     letterSpacing: -0.8,
+    fontFamily: "var(--font-heading)",
   },
   heroAccent: { color: "#f5a524" },
   heroDesc: {
@@ -849,6 +865,7 @@ const sx = {
     opacity: 0.75,
     maxWidth: 480,
     lineHeight: 1.7,
+    fontFamily: "var(--font-sans)",
   },
   heroButtons: { marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" },
   heroPrimary: {
@@ -856,16 +873,19 @@ const sx = {
     border: "1px solid rgba(0,0,0,0.10)",
     padding: "12px 16px",
     borderRadius: 12,
-    fontWeight: 950,
+    fontWeight: 800,
     cursor: "pointer",
+    fontFamily: "var(--font-sans)",
+    boxShadow: "var(--shadow-yellow)",
   },
   heroSecondary: {
     background: "#fff",
     border: "1px solid rgba(0,0,0,0.18)",
     padding: "12px 16px",
     borderRadius: 12,
-    fontWeight: 950,
+    fontWeight: 800,
     cursor: "pointer",
+    fontFamily: "var(--font-sans)",
   },
   heroRight: { display: "flex", justifyContent: "flex-end" },
   heroImageCard: {
@@ -874,7 +894,7 @@ const sx = {
     overflow: "hidden",
     border: "1px solid rgba(0,0,0,0.07)",
     background: "#fff",
-    boxShadow: "0 26px 70px rgba(0,0,0,0.14)",
+    boxShadow: "var(--shadow-yellow)",
   },
   heroImg: {
     width: "100%",
@@ -883,22 +903,23 @@ const sx = {
     display: "block",
   },
 
-  /* Featured Projects (Part 2) */
+  /* Featured Projects */
   fpHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
     gap: 14,
   },
-  fpTitle: { fontSize: 26, fontWeight: 950 },
-  fpSub: { marginTop: 6, fontSize: 13, opacity: 0.72 },
+  fpTitle: { fontSize: 26, fontWeight: 800, fontFamily: "var(--font-heading)" },
+  fpSub: { marginTop: 6, fontSize: 13, opacity: 0.72, fontFamily: "var(--font-sans)" },
 
   fpViewAllTop: {
     background: "transparent",
     border: "none",
     cursor: "pointer",
-    fontWeight: 900,
+    fontWeight: 700,
     opacity: 0.75,
+    fontFamily: "var(--font-sans)",
   },
 
   fpControls: {
@@ -921,8 +942,9 @@ const sx = {
     border: "1px solid rgba(0,0,0,0.12)",
     background: "rgba(255,255,255,0.85)",
     cursor: "pointer",
-    fontWeight: 850,
+    fontWeight: 700,
     fontSize: 12,
+    fontFamily: "var(--font-sans)",
   },
   chipActive: {
     background: "#f5a524",
@@ -938,6 +960,7 @@ const sx = {
     borderRadius: 999,
     padding: "8px 12px",
     minWidth: 240,
+    fontFamily: "var(--font-sans)",
   },
   fpSearchIcon: { opacity: 0.7, fontSize: 12 },
   fpSearchInput: {
@@ -946,6 +969,7 @@ const sx = {
     background: "transparent",
     fontSize: 12,
     flex: 1,
+    fontFamily: "var(--font-sans)",
   },
 
   fpGrid: {
@@ -959,7 +983,8 @@ const sx = {
     border: "1px solid rgba(0,0,0,0.08)",
     borderRadius: 12,
     overflow: "hidden",
-    boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+    boxShadow: "var(--shadow-card)",
+    fontFamily: "var(--font-sans)",
   },
   fpMedia: { position: "relative", cursor: "pointer" },
   fpImg: { width: "100%", height: 170, objectFit: "cover", display: "block" },
@@ -973,7 +998,8 @@ const sx = {
     padding: "6px 10px",
     borderRadius: 999,
     fontSize: 11,
-    fontWeight: 900,
+    fontWeight: 700,
+    fontFamily: "var(--font-sans)",
   },
 
   fpBody: { padding: 12 },
@@ -984,10 +1010,11 @@ const sx = {
     background: "rgba(245,165,36,0.18)",
     color: "#a56100",
     fontSize: 11,
-    fontWeight: 950,
+    fontWeight: 800,
+    fontFamily: "var(--font-sans)",
   },
-  fpName: { marginTop: 8, fontSize: 14, fontWeight: 950 },
-  fpArea: { marginTop: 6, fontSize: 12, opacity: 0.75 },
+  fpName: { marginTop: 8, fontSize: 14, fontWeight: 800, fontFamily: "var(--font-heading)" },
+  fpArea: { marginTop: 6, fontSize: 12, opacity: 0.75, fontFamily: "var(--font-sans)" },
 
   fpRow: {
     marginTop: 10,
@@ -1006,16 +1033,18 @@ const sx = {
     placeItems: "center",
     textDecoration: "none",
     color: "#111",
-    fontWeight: 950,
+    fontWeight: 800,
     fontSize: 12,
+    fontFamily: "var(--font-sans)",
   },
   fpDetail: {
     border: "none",
     background: "transparent",
     cursor: "pointer",
     fontSize: 12,
-    fontWeight: 900,
+    fontWeight: 700,
     opacity: 0.75,
+    fontFamily: "var(--font-sans)",
   },
 
   fpBottom: {
@@ -1028,14 +1057,15 @@ const sx = {
     background: "rgba(255,255,255,0.9)",
     borderRadius: 999,
     padding: "10px 16px",
-    fontWeight: 950,
+    fontWeight: 800,
     cursor: "pointer",
+    fontFamily: "var(--font-sans)",
   },
 
   /* Part 3 */
-  part3Wrap: { padding: "38px 0 16px" },
-  part3Title: { textAlign: "center", fontSize: 28, fontWeight: 950 },
-  part3Sub: { textAlign: "center", marginTop: 8, fontSize: 13, opacity: 0.72, fontWeight: 700 },
+  part3Wrap: { padding: "38px 0 16px", fontFamily: "var(--font-sans)" },
+  part3Title: { textAlign: "center", fontSize: 28, fontWeight: 800, fontFamily: "var(--font-heading)" },
+  part3Sub: { textAlign: "center", marginTop: 8, fontSize: 13, opacity: 0.72, fontWeight: 600 },
 
   part3CardsRow: {
     marginTop: 18,
@@ -1058,20 +1088,22 @@ const sx = {
     background: "#f5a524",
     display: "grid",
     placeItems: "center",
-    fontWeight: 950,
+    fontWeight: 800,
     fontSize: 12,
+    fontFamily: "var(--font-heading)",
   },
-  part3Name: { fontWeight: 950, fontSize: 12 },
-  part3Role: { marginTop: 2, fontSize: 11, opacity: 0.7, fontWeight: 750 },
+  part3Name: { fontWeight: 800, fontSize: 12, fontFamily: "var(--font-heading)" },
+  part3Role: { marginTop: 2, fontSize: 11, opacity: 0.7, fontWeight: 600 },
   part3Quote: { marginTop: 10, fontSize: 11.5, opacity: 0.82, lineHeight: 1.55, fontStyle: "italic" },
 
-  /* Footer (full width like Figma) */
+  /* Footer */
   footerBleed: {
     width: "100%",
     background: "rgba(0,0,0,0.14)",
     borderTop: "1px solid rgba(0,0,0,0.10)",
     marginTop: 10,
     padding: "22px 0 14px",
+    fontFamily: "var(--font-sans)",
   },
   footerGrid: {
     display: "grid",
@@ -1088,34 +1120,37 @@ const sx = {
     background: "#f5a524",
     display: "grid",
     placeItems: "center",
-    fontWeight: 950,
+    fontWeight: 800,
     flex: "0 0 auto",
+    fontFamily: "var(--font-heading)",
   },
-  footerBrandName: { fontWeight: 950, fontSize: 14, lineHeight: 1.1 },
+  footerBrandName: { fontWeight: 800, fontSize: 14, lineHeight: 1.1, fontFamily: "var(--font-heading)" },
   footerBrandSub: {
     marginTop: 6,
     maxWidth: 420,
     opacity: 0.78,
     fontSize: 12,
     lineHeight: 1.55,
-    fontWeight: 700,
+    fontWeight: 600,
   },
   footerCol: { paddingTop: 4 },
   footerColTitle: {
-    fontWeight: 950,
+    fontWeight: 800,
     fontSize: 11,
     opacity: 0.75,
     marginBottom: 10,
     letterSpacing: 0.3,
+    fontFamily: "var(--font-sans)",
   },
   footerLink: {
     display: "block",
     fontSize: 12,
-    fontWeight: 850,
+    fontWeight: 700,
     opacity: 0.82,
     marginBottom: 10,
     textDecoration: "none",
     color: "#141414",
+    fontFamily: "var(--font-sans)",
   },
   footerBottom: {
     borderTop: "1px solid rgba(0,0,0,0.12)",
@@ -1126,13 +1161,18 @@ const sx = {
     gap: 12,
     fontSize: 11,
     opacity: 0.82,
-    fontWeight: 850,
+    fontWeight: 700,
   },
   footerSocial: { display: "flex", gap: 18, alignItems: "center" },
   footerSocialLink: {
     textDecoration: "none",
     color: "#141414",
-    fontWeight: 850,
+    fontWeight: 700,
     opacity: 0.85,
+    fontFamily: "var(--font-sans)",
   },
+
+  /* Unchanged */
+  fpServerPill: undefined,
 };
+

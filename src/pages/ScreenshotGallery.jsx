@@ -3,21 +3,24 @@ import React, { useEffect, useMemo, useRef, useState, useCallback } from "react"
 import vizIcon from "../assets/vizdom.png";
 import placeholderImg from "../assets/Flipspace - Logo - Black.png";
 
+/** ====== CONFIG ====== */
 const GDRIVE_API_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
 
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const GID = "0";
 
+/** ====== QUERY ====== */
 function getQuery(key, def = "") {
   const u = new URL(window.location.href);
   return u.searchParams.get(key) || def;
 }
 
-/** ===== CSV PARSER (robust) ===== */
+/** ====== CSV PARSER (robust) ====== */
 function parseCSV(text) {
   if (!text) return [];
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
+
   const rows = [];
   let row = [],
     field = "",
@@ -54,7 +57,7 @@ function parseCSV(text) {
   return rows;
 }
 
-/** ===== UTILS ===== */
+/** ====== UTILS ====== */
 const norm = (s = "") =>
   String(s || "")
     .toLowerCase()
@@ -75,7 +78,7 @@ const safeGet = (row, idx, fallback = "") =>
 
 const COLS = {
   status: ["status"],
-  server: ["server"], // optional if you later add this in sheet
+  server: ["server"],
   buildName: ["build name"],
   buildVersion: ["build version"],
   projectName: ["project slot name"],
@@ -85,7 +88,15 @@ const COLS = {
   industry: ["industry"],
   designStyle: ["design style", "style"],
   vizdomId: ["vizdom project id", "vizdom id"],
-  image: ["thumbnail_url", "Thumbnail_URL", "image_url", "image url", "thumbnail", "image", "thumb"],
+  image: [
+    "thumbnail_url",
+    "Thumbnail_URL",
+    "image_url",
+    "image url",
+    "thumbnail",
+    "image",
+    "thumb",
+  ],
   youtube: ["walkthrough link", "youtube link", "youtube"],
 };
 
@@ -112,7 +123,7 @@ function formatSqft(n = "") {
   return n || "";
 }
 
-/** ===== PRETTY DATE ===== */
+/** ====== PRETTY DATE FOR GROUP LABELS ===== */
 function prettyDate(ts) {
   const d = new Date(ts);
   if (Number.isNaN(d.getTime())) return "Date";
@@ -124,7 +135,7 @@ function prettyDate(ts) {
   return `Date: ${dd}/${mm} ${wk} ${hh}:${mn}`;
 }
 
-/** ===== IMAGE (Drive fallback) ===== */
+/** ====== IMAGE (Drive fallback) ====== */
 function ImageWithFallback({ src, alt, style }) {
   const isDrive = /drive\.google\.com/i.test(src || "");
   const extractDriveId = (url = "") => {
@@ -191,27 +202,25 @@ export default function ScreenshotGallery() {
 
   const [screenshotsGroups, setScreenshotsGroups] = useState([]);
   const [loadingShots, setLoadingShots] = useState(false);
-
   const [refreshKey, setRefreshKey] = useState(0);
 
   const rowRefs = useRef({});
 
+  /** ====== QUERY PARAMS ====== */
   const buildQuery = getQuery("build", "Build");
   const verQuery = getQuery("ver", "");
   const thumbQuery = getQuery("thumb", "");
-  const serverQuery = normalizeServer(getQuery("server", "india")); // optional param
+  const serverQuery = normalizeServer(getQuery("server", "india"));
   const catQuery = getQuery("cat", "Corporate Design");
   const areaQuery = getQuery("area", "");
 
-  // Derived header values
+  /** ====== DERIVED BUILD KEY ====== */
   const buildName = headerItem?.buildName || buildQuery;
   const version = headerItem?.buildVersion || verQuery || "";
-
-  // IMPORTANT: Build key used for screenshots
   const buildBase = (buildName || "").trim();
   const buildKey = version ? `${buildBase} ${version}` : buildBase;
 
-  /** ====== LOAD HEADER DATA (like Landing) ====== */
+  /** ====== LOAD HEADER DATA (from sheet) ====== */
   useEffect(() => {
     (async () => {
       setLoadingHeader(true);
@@ -269,7 +278,8 @@ export default function ScreenshotGallery() {
           match =
             items.find(
               (x) =>
-                (norm(x.buildName) === qBuild || norm(x.projectName) === qBuild) &&
+                (norm(x.buildName) === qBuild ||
+                  norm(x.projectName) === qBuild) &&
                 norm(x.buildVersion || "") === qVer
             ) ||
             items.find((x) => norm(x.buildName) === qBuild) ||
@@ -303,6 +313,7 @@ export default function ScreenshotGallery() {
 
       const res = await fetch(url.toString(), { cache: "no-store" });
       const json = await res.json();
+
       if (json?.ok) setScreenshotsGroups(json.groups || []);
       else {
         console.warn("listscreenshots error", json);
@@ -320,13 +331,13 @@ export default function ScreenshotGallery() {
     fetchScreenshots();
   }, [fetchScreenshots, refreshKey]);
 
-  // Auto-refresh screenshots every 20s
+  // Auto-refresh every 20 seconds
   useEffect(() => {
     const interval = setInterval(() => setRefreshKey((k) => k + 1), 20000);
     return () => clearInterval(interval);
   }, []);
 
-  /** ===== actions ===== */
+  /** ====== ACTIONS ====== */
   const openImage = (url) => {
     if (!url) return;
     window.open(url, "_blank", "noopener,noreferrer");
@@ -348,10 +359,14 @@ export default function ScreenshotGallery() {
     if (!headerItem) return;
 
     const bust = Date.now();
-    const projectLabel = headerItem.projectName || headerItem.buildName || "project";
+    const projectLabel =
+      headerItem.projectName || headerItem.buildName || "project";
+
     const sessionId = `${projectLabel
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+      .replace(/[^a-z0-9]+/g, "-")}-${new Date()
+      .toISOString()
+      .replace(/[:.]/g, "-")}`;
 
     const id = projectLabel
       .toLowerCase()
@@ -366,7 +381,11 @@ export default function ScreenshotGallery() {
       ver: headerItem.buildVersion || "",
     });
 
-    window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
+    window.open(
+      `/experience?${params.toString()}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
   };
 
   const vizdomHref = headerItem?.vizdomId
@@ -375,6 +394,7 @@ export default function ScreenshotGallery() {
       )}#Project#Summary`
     : null;
 
+  /** ====== DISPLAY VALUES ====== */
   const category = headerItem?.designStyle || headerItem?.industry || catQuery;
   const server = headerItem?.server || serverQuery;
   const serverLabel = server === "us" ? "US Server" : "India Server";
@@ -433,7 +453,11 @@ export default function ScreenshotGallery() {
                 type="button"
                 style={sx.logoutMini}
                 onClick={() =>
-                  window.open("https://vizwalk.com", "_blank", "noopener,noreferrer")
+                  window.open(
+                    "https://vizwalk.com",
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
                 }
                 title="Logout"
               >
@@ -451,7 +475,9 @@ export default function ScreenshotGallery() {
             type="button"
             style={sx.backBtn}
             onClick={() =>
-              window.history.length > 1 ? window.history.back() : (window.location.href = "/")
+              window.history.length > 1
+                ? window.history.back()
+                : (window.location.href = "/")
             }
           >
             ← <span style={{ marginLeft: 8 }}>Back to Projects</span>
@@ -467,16 +493,12 @@ export default function ScreenshotGallery() {
               </div>
             ) : (
               <>
-                <div style={sx.bigTitle}>
-                  {buildName || "Project"}
-                </div>
+                <div style={sx.bigTitle}>{buildName || "Project"}</div>
 
                 <div style={sx.metaRow}>
                   <div style={sx.catPill}>{category}</div>
                   <div style={sx.dot}>•</div>
-                  <div style={sx.metaText}>
-                    Area – {areaDisplay || "—"}
-                  </div>
+                  <div style={sx.metaText}>Area – {areaDisplay || "—"}</div>
                   <div style={sx.dot}>•</div>
                   <div style={sx.metaText}>🇮🇳 {serverLabel}</div>
                   {version ? (
@@ -498,13 +520,19 @@ export default function ScreenshotGallery() {
                     disabled={!headerItem?.youtube}
                     onClick={() => {
                       if (!headerItem?.youtube) return;
-                      window.open(headerItem.youtube, "_blank", "noopener,noreferrer");
+                      window.open(
+                        headerItem.youtube,
+                        "_blank",
+                        "noopener,noreferrer"
+                      );
                     }}
                   >
                     <span style={sx.demoIcon}>▶</span>
                     <div style={{ textAlign: "left" }}>
                       <div style={sx.demoTitle}>Vizwalk Demo Video</div>
-                      <div style={sx.demoSub}>See the interactive finish video</div>
+                      <div style={sx.demoSub}>
+                        See the interactive finish video
+                      </div>
                     </div>
                   </button>
 
@@ -514,11 +542,13 @@ export default function ScreenshotGallery() {
                   </button>
 
                   {/* Vizdom */}
-                  {vizdomHref ? (
+                  {/* {vizdomHref ? (
                     <button
                       type="button"
                       style={sx.vizdomBtn}
-                      onClick={() => window.open(vizdomHref, "_blank", "noopener,noreferrer")}
+                      onClick={() =>
+                        window.open(vizdomHref, "_blank", "noopener,noreferrer")
+                      }
                       title="Open in Vizdom"
                     >
                       <span style={sx.vizdomIconWrap}>
@@ -526,7 +556,7 @@ export default function ScreenshotGallery() {
                       </span>
                       Open in Vizdom
                     </button>
-                  ) : null}
+                  ) : null} */}
                 </div>
               </>
             )}
@@ -534,8 +564,17 @@ export default function ScreenshotGallery() {
 
           {/* Hero */}
           <div style={sx.heroCard}>
-            <div style={sx.heroImgWrap} role="button" tabIndex={0} onClick={openVizwalk}>
-              <ImageWithFallback src={heroImg} alt={buildName} style={sx.heroImg} />
+            <div
+              style={sx.heroImgWrap}
+              role="button"
+              tabIndex={0}
+              onClick={openVizwalk}
+            >
+              <ImageWithFallback
+                src={heroImg}
+                alt={buildName}
+                style={sx.heroImg}
+              />
               <button
                 type="button"
                 style={sx.heroCta}
@@ -583,77 +622,89 @@ export default function ScreenshotGallery() {
             </button>
           </div>
 
-          {/* CONTENT */}
-          {activeTab !== "screenshots" ? (
-            <div style={sx.emptyWrap}>
-              <div style={sx.emptyIcon}>▷</div>
-              <div style={sx.emptyTitle}>Walkthroughs coming soon</div>
-              <div style={sx.emptySub}>This section will appear here when available</div>
-            </div>
-          ) : loadingShots ? (
-            <div style={sx.emptyWrap}>
-              <div style={sx.emptyIcon}>⧉</div>
-              <div style={sx.emptyTitle}>Loading screenshots…</div>
-              <div style={sx.emptySub}>Content will appear here when available</div>
-            </div>
-          ) : !hasAnyScreenshots ? (
-            <div style={sx.emptyWrap}>
-              <div style={sx.emptyIcon}>🖼</div>
-              <div style={sx.emptyTitle}>No screenshots available yet</div>
-              <div style={sx.emptySub}>Content will appear here when available</div>
-            </div>
-          ) : (
-            <div style={sx.groupsWrap}>
-              {screenshotsGroups.map((group, idx) => {
-                const key = group.group || idx;
-                const items = group.items || [];
-                if (!items.length) return null;
+          <div style={sx.panelBody}>
+            {activeTab !== "screenshots" ? (
+              <div style={sx.emptyWrap}>
+                <div style={sx.emptyIcon}>▷</div>
+                <div style={sx.emptyTitle}>Walkthroughs coming soon</div>
+                <div style={sx.emptySub}>
+                  This section will appear here when available
+                </div>
+              </div>
+            ) : loadingShots ? (
+              <div style={sx.emptyWrap}>
+                <div style={sx.emptyIcon}>⧉</div>
+                <div style={sx.emptyTitle}>Loading screenshots…</div>
+                <div style={sx.emptySub}>
+                  Content will appear here when available
+                </div>
+              </div>
+            ) : !hasAnyScreenshots ? (
+              <div style={sx.emptyWrap}>
+                <div style={sx.emptyIcon}>🖼</div>
+                <div style={sx.emptyTitle}>No screenshots available yet</div>
+                <div style={sx.emptySub}>
+                  Content will appear here when available
+                </div>
+              </div>
+            ) : (
+              <div style={sx.groupsWrap}>
+                {screenshotsGroups.map((group, idx) => {
+                  const key = group.group || idx;
+                  const items = group.items || [];
+                  if (!items.length) return null;
 
-                return (
-                  <div key={key} style={sx.group}>
-                    <div style={sx.groupHeader}>
-                      <div style={sx.groupTitle}>{prettyDate(group.ts || group.group)}</div>
-
-                      <button
-                        type="button"
-                        style={sx.groupBtn}
-                        onClick={() => items.forEach((img) => dl(img.url))}
-                      >
-                        Download All
-                      </button>
-                    </div>
-
-                    {/* grid like Figma (cleaner than horizontal scroller) */}
-                    <div style={sx.grid}>
-                      {items.map((img, i) => (
-                        <div
-                          key={(img.url || "") + i}
-                          style={sx.card}
-                          onClick={() => openImage(img.url)}
-                          role="button"
-                          tabIndex={0}
-                        >
-                          <ImageWithFallback src={img.url} alt="Screenshot" style={sx.cardImg} />
-
-                          <button
-                            type="button"
-                            style={sx.dlPill}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              dl(img.url);
-                            }}
-                            title="Download"
-                          >
-                            ⬇
-                          </button>
+                  return (
+                    <div key={key} style={sx.group}>
+                      <div style={sx.groupHeader}>
+                        <div style={sx.groupTitle}>
+                          {prettyDate(group.ts || group.group)}
                         </div>
-                      ))}
+
+                        <button
+                          type="button"
+                          style={sx.groupBtn}
+                          onClick={() => items.forEach((img) => dl(img.url))}
+                        >
+                          Download All
+                        </button>
+                      </div>
+
+                      <div style={sx.grid}>
+                        {items.map((img, i) => (
+                          <div
+                            key={(img.url || "") + i}
+                            style={sx.card}
+                            onClick={() => openImage(img.url)}
+                            role="button"
+                            tabIndex={0}
+                          >
+                            <ImageWithFallback
+                              src={img.url}
+                              alt="Screenshot"
+                              style={sx.cardImg}
+                            />
+
+                            <button
+                              type="button"
+                              style={sx.dlPill}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                dl(img.url);
+                              }}
+                              title="Download"
+                            >
+                              ⬇
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
 
         <div style={{ height: 40 }} />
@@ -662,17 +713,20 @@ export default function ScreenshotGallery() {
   );
 }
 
-/** ====== STYLES (Figma-like) ====== */
+/** ====== STYLES (tuned to match your Figma) ====== */
 const sx = {
   page: {
     minHeight: "100vh",
-    background: "#ffffff",
+    background: "#F6F2EC",
     color: "#141414",
-    fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
+    // ✅ Use your global fonts (Poppins body). DO NOT hardcode Inter.
+    fontFamily:
+      'Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
   },
   container: {
     width: "min(1180px, 92vw)",
     margin: "0 auto",
+    paddingBottom: 60,
   },
 
   /* Navbar */
@@ -700,9 +754,17 @@ const sx = {
     display: "grid",
     placeItems: "center",
     fontWeight: 950,
+    fontFamily:
+      'Maven Pro, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
   },
-  brandName: { fontWeight: 950, letterSpacing: 0.2, lineHeight: 1.1 },
-  brandSub: { fontSize: 11, opacity: 0.65, marginTop: 2 },
+  brandName: {
+    fontWeight: 950,
+    letterSpacing: 0.2,
+    lineHeight: 1.1,
+    fontFamily:
+      'Maven Pro, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
+  },
+  brandSub: { fontSize: 11, opacity: 0.65, marginTop: 2, fontWeight: 600 },
   navLinks: {
     display: "flex",
     gap: 18,
@@ -765,6 +827,8 @@ const sx = {
     fontWeight: 950,
     letterSpacing: -0.7,
     lineHeight: 1.05,
+    fontFamily:
+      'Maven Pro, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
   },
   metaRow: {
     marginTop: 12,
@@ -787,7 +851,13 @@ const sx = {
   dot: { opacity: 0.35, fontWeight: 900 },
   metaText: { fontSize: 12, fontWeight: 850, opacity: 0.75 },
 
-  btnStack: { marginTop: 18, display: "flex", flexDirection: "column", gap: 12, maxWidth: 420 },
+  btnStack: {
+    marginTop: 18,
+    display: "flex",
+    flexDirection: "column",
+    gap: 12,
+    maxWidth: 420,
+  },
 
   demoBtn: {
     display: "flex",
@@ -869,59 +939,65 @@ const sx = {
     boxShadow: "0 26px 70px rgba(0,0,0,0.14)",
   },
   heroImgWrap: { position: "relative", cursor: "pointer" },
-  heroImg: { width: "100%", height: 280, objectFit: "cover", display: "block" },
+  heroImg: { width: "100%", height: 240, objectFit: "cover", display: "block" },
   heroCta: {
     position: "absolute",
     left: "50%",
     top: "50%",
     transform: "translate(-50%,-50%)",
-    padding: "10px 14px",
+    padding: "10px 18px",
     borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.15)",
-    background: "rgba(245,165,36,0.95)",
+    border: "none",
+    background: "#f5a524",
+    color: "#111",
     fontWeight: 950,
     cursor: "pointer",
+    boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
   },
 
   /* Panel */
   panel: {
     marginTop: 18,
-    background: "rgba(243,239,231,1)",
-    border: "1px solid rgba(0,0,0,0.08)",
+    background: "#EEE8E0",
+    border: "1px solid rgba(0,0,0,0.10)",
     borderRadius: 14,
-    padding: 16,
+    padding: 0,
+    overflow: "hidden",
   },
   panelTop: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
+    padding: "12px 16px",
+    borderBottom: "1px solid rgba(0,0,0,0.08)",
   },
-  tabRow: { display: "flex", gap: 10, alignItems: "center" },
+
+  tabRow: { display: "flex", gap: 18, alignItems: "center" },
   tab: {
     border: "none",
     background: "transparent",
     cursor: "pointer",
     fontWeight: 900,
     fontSize: 12,
-    opacity: 0.6,
-    padding: "8px 6px",
+    color: "#6B7280",
+    padding: "10px 2px",
     borderBottom: "2px solid transparent",
   },
-  tabActive: {
-    opacity: 1,
-    borderBottom: "2px solid #f5a524",
-  },
+  tabActive: { color: "#f5a524", borderBottom: "2px solid #f5a524" },
   tabDisabled: { opacity: 0.35, cursor: "not-allowed" },
+
   refreshBtn: {
     border: "none",
     background: "transparent",
     cursor: "pointer",
     fontWeight: 900,
     fontSize: 12,
-    opacity: 0.75,
-    padding: "8px 10px",
+    color: "#f5a524",
+    padding: "10px 8px",
   },
+
+  panelBody: { padding: 22 },
 
   emptyWrap: {
     height: 260,
@@ -929,6 +1005,8 @@ const sx = {
     placeItems: "center",
     textAlign: "center",
     padding: 18,
+    background: "rgba(255,255,255,0.20)",
+    borderRadius: 12,
   },
   emptyIcon: {
     width: 44,
@@ -943,7 +1021,12 @@ const sx = {
   emptyTitle: { fontWeight: 950, fontSize: 13 },
   emptySub: { marginTop: 6, fontSize: 11, opacity: 0.65, fontWeight: 800 },
 
-  groupsWrap: { marginTop: 14, display: "flex", flexDirection: "column", gap: 18 },
+  groupsWrap: {
+    marginTop: 14,
+    display: "flex",
+    flexDirection: "column",
+    gap: 18,
+  },
   group: {},
   groupHeader: {
     display: "flex",
