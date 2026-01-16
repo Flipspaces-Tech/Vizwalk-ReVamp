@@ -229,7 +229,7 @@ export default function Experience() {
   const connectingRef = useRef(false);
   const mountedRef = useRef(false);
 
-  const [hoverEnabled, setHoverEnabled] = useState(true);
+  const [setHoverEnabled] = useState(true);
 
   const [firstUploadDone, setFirstUploadDone] = useState(false);
 
@@ -286,15 +286,16 @@ export default function Experience() {
   // --- Robust downloader with HTTP→HTTPS proxy support
   const isHttpInsecure = (url) => /^http:\/\//i.test(String(url || "").trim());
 
-  const proxyHttpsDownload = (insecureUrl) => {
-    const u = new URL(GDRIVE_API_URL);
-    u.searchParams.set("action", "proxyget");
-    u.searchParams.set("url", insecureUrl);
-    u.searchParams.set("mode", "redirect"); // fast redirect mode
-    const finalUrl = u.toString();
-    console.log("Opening proxy:", finalUrl);
-    window.open(finalUrl, "_blank", "noopener,noreferrer");
-  };
+  const proxyHttpsDownload = useCallback((insecureUrl) => {
+  const u = new URL(GDRIVE_API_URL);
+  u.searchParams.set("action", "proxyget");
+  u.searchParams.set("url", insecureUrl);
+  u.searchParams.set("mode", "redirect"); // fast redirect mode
+  const finalUrl = u.toString();
+  console.log("Opening proxy:", finalUrl);
+  window.open(finalUrl, "_blank", "noopener,noreferrer");
+}, []);
+
 
   const downloadUrlSmart = useCallback(
   async (url, filenameHint) => {
@@ -648,11 +649,11 @@ export default function Experience() {
         console.error("handleResponseApp error:", e, response);
       }
     },
-    [
+   [
   downloadDataUrl,
   downloadUrlSmart,
   buildName,
-  buildVersion,
+  buildVersion,   // ✅ add this
   buildKey,
   sessionId,
   firstUploadDone,
