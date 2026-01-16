@@ -320,7 +320,7 @@ html, body {
 }
 
 body{
-  background: #f7f4ef; /* light warm like Image2 */
+  background: #ffffff; /* light warm like Image2 */
   font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   overflow-y: auto;
 }

@@ -1,16 +1,11 @@
 // src/pages/ScreenshotGallery.jsx
-import React, { useEffect, useState, useRef } from "react";
-import vizIcon from "../assets/vizdom.png"; // same icon as Landing
-// at the top with other imports
+import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import vizIcon from "../assets/vizdom.png";
 import placeholderImg from "../assets/Flipspace - Logo - Black.png";
 
 const GDRIVE_API_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
 
-/** 🔔 REFRESH JSON FILE (vizwalk_refresh_signal.json) */
-// const REFRESH_FILE_ID = "1OO9uURamV5Syr29aeZ0u_FopPs-QduqN";
-
-/** ====== CONFIG: SAME SHEET AS LANDING ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const GID = "0";
 
@@ -19,13 +14,15 @@ function getQuery(key, def = "") {
   return u.searchParams.get(key) || def;
 }
 
-/** ====== CSV PARSER (same robust version as Landing) ====== */
+/** ===== CSV PARSER (robust) ===== */
 function parseCSV(text) {
+  if (!text) return [];
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
   const rows = [];
   let row = [],
     field = "",
     inQuotes = false;
+
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
     if (inQuotes) {
@@ -34,9 +31,7 @@ function parseCSV(text) {
         if (next === '"') {
           field += '"';
           i++;
-        } else {
-          inQuotes = false;
-        }
+        } else inQuotes = false;
       } else field += c;
     } else {
       if (c === '"') inQuotes = true;
@@ -51,6 +46,7 @@ function parseCSV(text) {
       } else if (c !== "\r") field += c;
     }
   }
+
   if (field.length > 0 || inQuotes || row.length) {
     row.push(field.trim());
     rows.push(row);
@@ -58,13 +54,17 @@ function parseCSV(text) {
   return rows;
 }
 
-/** ====== UTILS (same as Landing) ====== */
+/** ===== UTILS ===== */
 const norm = (s = "") =>
-  s.toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
+  String(s || "")
+    .toLowerCase()
+    .replace(/_/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 const headerMap = (headers) => {
   const m = {};
-  headers.forEach((h, i) => (m[norm(h)] = i));
+  (headers || []).forEach((h, i) => (m[norm(h)] = i));
   return m;
 };
 
@@ -73,21 +73,19 @@ const safeGet = (row, idx, fallback = "") =>
     ? String(row[idx]).trim()
     : fallback;
 
-/** FLEXIBLE HEADER ALIASES (copied from Landing) */
 const COLS = {
   status: ["status"],
+  server: ["server"], // optional if you later add this in sheet
   buildName: ["build name"],
   buildVersion: ["build version"],
-  uploadId: ["upload id"],
   projectName: ["project slot name"],
   projectSlot: ["project slot name", "project slot"],
-  projectSlotId: ["project slot id"],
   sbu: ["sbu"],
   areaSqft: ["area(sqft)", "area sqft", "area"],
   industry: ["industry"],
   designStyle: ["design style", "style"],
   vizdomId: ["vizdom project id", "vizdom id"],
-  image: ["Thumbnail_URL", "image_url", "image url", "thumbnail", "image", "thumb"],
+  image: ["thumbnail_url", "Thumbnail_URL", "image_url", "image url", "thumbnail", "image", "thumb"],
   youtube: ["walkthrough link", "youtube link", "youtube"],
 };
 
@@ -100,7 +98,33 @@ const idxOf = (headers, keys) => {
   return null;
 };
 
-/** IMAGE (Google Drive fallback) – same behaviour as Landing */
+function normalizeServer(v = "") {
+  const s = String(v || "").trim().toLowerCase();
+  if (s.startsWith("us") || s.includes("united")) return "us";
+  if (s.startsWith("in") || s.includes("india")) return "india";
+  return "india";
+}
+
+function formatSqft(n = "") {
+  const s = String(n).replace(/,/g, "").trim();
+  const val = Number(s);
+  if (Number.isFinite(val) && val > 0) return `${val.toLocaleString()} sqft`;
+  return n || "";
+}
+
+/** ===== PRETTY DATE ===== */
+function prettyDate(ts) {
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return "Date";
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mn = String(d.getMinutes()).padStart(2, "0");
+  const wk = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
+  return `Date: ${dd}/${mm} ${wk} ${hh}:${mn}`;
+}
+
+/** ===== IMAGE (Drive fallback) ===== */
 function ImageWithFallback({ src, alt, style }) {
   const isDrive = /drive\.google\.com/i.test(src || "");
   const extractDriveId = (url = "") => {
@@ -114,56 +138,31 @@ function ImageWithFallback({ src, alt, style }) {
   const candidates =
     isDrive && id
       ? [
-          `https://lh3.googleusercontent.com/d/${id}=w1200-h800-no`,
+          `https://lh3.googleusercontent.com/d/${id}=w1600-h1000-no`,
           `https://drive.google.com/uc?export=view&id=${id}`,
-          `https://drive.google.com/uc?export=download&id=${id}`,
-          `https://drive.googleusercontent.com/uc?export=download&id=${id}`,
-          `https://drive.google.com/thumbnail?id=${id}&sz=w1200-h800`,
+          `https://drive.google.com/thumbnail?id=${id}&sz=w1600-h1000`,
           src,
         ]
       : [src || ""];
 
-  const [idx, setIdx] = React.useState(0);
+  const [idx, setIdx] = useState(0);
   const onError = () =>
     setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
 
-  // 👉 FINAL FALLBACK: no external URL, no CORS, no errors
   if (!src || idx === -1) {
-    // If you imported a local PNG, use that:
-    if (typeof placeholderImg !== "undefined") {
-      return (
-        <img
-          src={placeholderImg}
-          alt={alt || "preview"}
-          style={style}
-          loading="lazy"
-        />
-      );
-    }
-
-    // Or just a neutral grey box:
     return (
-      <div
-        style={{
-          ...style,
-          background: "#e5e7eb",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 12,
-          color: "#6b7280",
-        }}
-      >
-        No preview
-      </div>
+      <img
+        src={placeholderImg}
+        alt={alt || "preview"}
+        style={style}
+        loading="lazy"
+      />
     );
   }
 
   const bust = Date.now();
   const current = candidates[idx]
-    ? `${candidates[idx]}${
-        candidates[idx].includes("?") ? "&" : "?"
-      }cb=${bust}`
+    ? `${candidates[idx]}${candidates[idx].includes("?") ? "&" : "?"}cb=${bust}`
     : "";
 
   return (
@@ -179,64 +178,40 @@ function ImageWithFallback({ src, alt, style }) {
   );
 }
 
-
-/** SAME sqft formatter as Landing (Area - 8,000 sqft) */
-function formatSqft(n = "") {
-  const s = String(n).replace(/,/g, "").trim();
-  const val = Number(s);
-  if (Number.isFinite(val) && val > 0) return `${val.toLocaleString()} sqft`;
-  return n || "";
-}
-
-/** ===== PRETTY DATE FOR GROUP LABELS ===== */
-function prettyDate(ts) {
-  const d = new Date(ts);
-  if (isNaN(d)) return "Date";
-
-  const dd = String(d.getDate()).padStart(2, "0");
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mn = String(d.getMinutes()).padStart(2, "0");
-  const wk = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
-
-  return `Date: ${dd}/${mm} ${wk} ${hh}:${mn}`;
-}
-
 const TABS = [
-  { key: "screenshots", label: "Screenshots" },
-  { key: "saves", label: "Saves" },
-  { key: "recordings", label: "Recordings" },
+  { key: "walkthroughs", label: "Walkthroughs", disabled: true },
+  { key: "screenshots", label: "Screenshots", disabled: false },
 ];
 
 export default function ScreenshotGallery() {
   const [activeTab, setActiveTab] = useState("screenshots");
+
   const [loadingHeader, setLoadingHeader] = useState(true);
   const [headerItem, setHeaderItem] = useState(null);
-  const [ytHover, setYtHover] = useState(false);
-  const [vizHover, setVizHover] = useState(false);
-  const [heroHover, setHeroHover] = useState(false);
-  const rowRefs = useRef({});
+
   const [screenshotsGroups, setScreenshotsGroups] = useState([]);
   const [loadingShots, setLoadingShots] = useState(false);
+
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const rowRefs = useRef({});
+
   const buildQuery = getQuery("build", "Build");
-  const thumbQuery = getQuery("thumb", "");   // <--- NEW
-  const verQuery = getQuery("ver", "");   // 👈 new
+  const verQuery = getQuery("ver", "");
+  const thumbQuery = getQuery("thumb", "");
+  const serverQuery = normalizeServer(getQuery("server", "india")); // optional param
+  const catQuery = getQuery("cat", "Corporate Design");
+  const areaQuery = getQuery("area", "");
 
-
-
-
-
-    // 👉 ADD THIS BLOCK HERE 👇
+  // Derived header values
   const buildName = headerItem?.buildName || buildQuery;
-  const version   = headerItem?.buildVersion || verQuery || "";
+  const version = headerItem?.buildVersion || verQuery || "";
 
-  // Build key used for screenshots + Drive folder name
+  // IMPORTANT: Build key used for screenshots
   const buildBase = (buildName || "").trim();
-  const buildKey  = version ? `${buildBase} ${version}` : buildBase;
+  const buildKey = version ? `${buildBase} ${version}` : buildBase;
 
-  /** ====== LOAD HEADER DATA EXACTLY LIKE LANDING ====== */
+  /** ====== LOAD HEADER DATA (like Landing) ====== */
   useEffect(() => {
     (async () => {
       setLoadingHeader(true);
@@ -244,14 +219,16 @@ export default function ScreenshotGallery() {
         const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&id=${SHEET_ID}&gid=${GID}`;
         const res = await fetch(url, { cache: "no-store" });
         const csv = await res.text();
-
         const rows = parseCSV(csv);
+        if (!rows.length) throw new Error("Empty CSV");
+
         const headers = rows[0];
         const body = rows
           .slice(1)
           .filter((r) => r.some((c) => String(c || "").trim() !== ""));
 
         const iStatus = idxOf(headers, COLS.status);
+        const iServer = idxOf(headers, COLS.server);
         const iSBU = idxOf(headers, COLS.sbu);
         const iProjectName = idxOf(headers, COLS.projectName);
         const iBuildName = idxOf(headers, COLS.buildName);
@@ -268,6 +245,7 @@ export default function ScreenshotGallery() {
             const status = norm(safeGet(r, iStatus, "Active"));
             if (status !== "active") return null;
             return {
+              server: normalizeServer(safeGet(r, iServer, "")),
               sbu: safeGet(r, iSBU),
               projectName: safeGet(r, iProjectName),
               buildName: safeGet(r, iBuildName),
@@ -283,32 +261,28 @@ export default function ScreenshotGallery() {
           .filter(Boolean);
 
         const qBuild = norm(buildQuery);
-const qVer   = norm(verQuery);
+        const qVer = norm(verQuery);
 
-let match;
+        let match = null;
 
-if (qVer) {
-  // Prefer exact Build + Version match
-  match =
-    items.find(
-      (x) =>
-        (norm(x.buildName) === qBuild || norm(x.projectName) === qBuild) &&
-        norm(x.buildVersion || "") === qVer
-    ) ||
-    // Fallbacks if version not found
-    items.find((x) => norm(x.buildName) === qBuild) ||
-    items.find((x) => norm(x.projectName) === qBuild) ||
-    items[0];
-} else {
-  // Old behaviour when no ?ver= in URL
-  match =
-    items.find((x) => norm(x.buildName) === qBuild) ||
-    items.find((x) => norm(x.projectName) === qBuild) ||
-    items[0];
-}
+        if (qVer) {
+          match =
+            items.find(
+              (x) =>
+                (norm(x.buildName) === qBuild || norm(x.projectName) === qBuild) &&
+                norm(x.buildVersion || "") === qVer
+            ) ||
+            items.find((x) => norm(x.buildName) === qBuild) ||
+            items.find((x) => norm(x.projectName) === qBuild) ||
+            items[0];
+        } else {
+          match =
+            items.find((x) => norm(x.buildName) === qBuild) ||
+            items.find((x) => norm(x.projectName) === qBuild) ||
+            items[0];
+        }
 
-setHeaderItem(match || null);
-
+        setHeaderItem(match || null);
       } catch (err) {
         console.error(err);
         setHeaderItem(null);
@@ -318,26 +292,19 @@ setHeaderItem(match || null);
     })();
   }, [buildQuery, verQuery]);
 
-
-  // const effectiveBuild = (headerItem?.buildName || buildQuery || "").trim();
-  // const buildKey = effectiveBuild
-  //   ? effectiveBuild.replace(/[^\w\-]+/g, "_").trim()
-  //   : "";
-
-  /** ====== LOAD SCREENSHOTS FOR THIS BUILD FROM APPS SCRIPT ====== */
-useEffect(() => {
-  if (!buildKey) return;
-  (async () => {
+  /** ====== LOAD SCREENSHOTS (Apps Script) ====== */
+  const fetchScreenshots = useCallback(async () => {
+    if (!buildKey) return;
     try {
       setLoadingShots(true);
       const url = new URL(GDRIVE_API_URL);
       url.searchParams.set("action", "listscreenshots");
-      url.searchParams.set("build", buildKey);   // 👈 use buildKey
+      url.searchParams.set("build", buildKey);
+
       const res = await fetch(url.toString(), { cache: "no-store" });
       const json = await res.json();
-      if (json?.ok) {
-        setScreenshotsGroups(json.groups || []);
-      } else {
+      if (json?.ok) setScreenshotsGroups(json.groups || []);
+      else {
         console.warn("listscreenshots error", json);
         setScreenshotsGroups([]);
       }
@@ -347,151 +314,60 @@ useEffect(() => {
     } finally {
       setLoadingShots(false);
     }
-  })();
-}, [buildKey, refreshKey]);
+  }, [buildKey]);
 
+  useEffect(() => {
+    fetchScreenshots();
+  }, [fetchScreenshots, refreshKey]);
 
+  // Auto-refresh screenshots every 20s
+  useEffect(() => {
+    const interval = setInterval(() => setRefreshKey((k) => k + 1), 20000);
+    return () => clearInterval(interval);
+  }, []);
 
-
-
-
-// Auto-refresh screenshots every 10 seconds
-useEffect(() => {
-  const interval = setInterval(() => {
-    setRefreshKey((k) => k + 1);  // triggers listscreenshots again
-  }, 20000); // 10,000 ms = 10 seconds
-
-  return () => clearInterval(interval); // cleanup on unmount
-}, []);
-
-
-  /** 🔁 AUTO-REFRESH POLL */
-  // useEffect(() => {
-  //   if (!REFRESH_FILE_ID || !buildKey) return;
-
-  //   const refreshUrl = `https://drive.google.com/uc?export=download&id=${REFRESH_FILE_ID}`;
-  //   let lastTs = 0;
-
-  //   const timer = setInterval(async () => {
-  //     try {
-  //       const res = await fetch(refreshUrl + "&cb=" + Date.now());
-  //       const text = await res.text();
-  //       if (!text) return;
-
-  //       let json;
-  //       try {
-  //         json = JSON.parse(text);
-  //       } catch {
-  //         return;
-  //       }
-
-  //       console.log("refresh JSON:", json, "buildKey:", buildKey);
-
-  //       if (json.build !== buildKey) return;
-
-  //       const tsNum = Number(json.ts || 0);
-  //       if (!Number.isFinite(tsNum)) return;
-
-  //       if (tsNum > lastTs) {
-  //         console.log("🔁 New screenshot detected for", buildKey, "ts:", tsNum);
-  //         lastTs = tsNum;
-  //         setRefreshKey((k) => k + 1);
-  //       }
-  //     } catch (e) {
-  //       console.warn("refresh poll error", e);
-  //     }
-  //   }, 3000);
-
-  //   return () => clearInterval(timer);
-  // }, [buildKey]);
-
-  /** ====== TAB DATA ====== */
-  const dataForTab = activeTab === "screenshots" ? screenshotsGroups : [];
-
-  /** ====== CLICK HANDLERS ====== */
-
-  // Open image in new tab (view)
+  /** ===== actions ===== */
   const openImage = (url) => {
     if (!url) return;
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  // Download: use Drive "export=download" link so browser opens Save dialog
-  // Download: trigger Drive "export=download" in a hidden iframe
-const dl = (url) => {
-  if (!url) return;
-
-  // If it's a Drive "export=view" URL, switch to "export=download"
-  let downloadUrl = url.replace("export=view", "export=download");
-
-  // Create a hidden iframe that points to the download URL
-  const iframe = document.createElement("iframe");
-  iframe.style.display = "none";
-  iframe.src = downloadUrl;
-
-  document.body.appendChild(iframe);
-
-  // Clean up after some time
-  setTimeout(() => {
-    document.body.removeChild(iframe);
-  }, 60000);
-};
-
+  const dl = (url) => {
+    if (!url) return;
+    const downloadUrl = url.replace("export=view", "export=download");
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = downloadUrl;
+    document.body.appendChild(iframe);
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 60000);
+  };
 
   const openVizwalk = () => {
     if (!headerItem) return;
 
     const bust = Date.now();
-    const projectLabel =
-      headerItem.projectName || headerItem.buildName || "project";
-
+    const projectLabel = headerItem.projectName || headerItem.buildName || "project";
     const sessionId = `${projectLabel
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")}-${new Date()
-      .toISOString()
-      .replace(/[:.]/g, "-")}`;
+      .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
 
-    let href;
+    const id = projectLabel
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
 
-    if (headerItem.url && /^https?:\/\//i.test(headerItem.url)) {
-      const u = new URL(headerItem.url);
-      u.searchParams.set("session", sessionId);
-      u.searchParams.set(
-        "build",
-        headerItem.buildName || headerItem.projectName || "Build"
-      );
-      href = u.toString();
-    } else {
-      const id = projectLabel
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+    const params = new URLSearchParams({
+      project: id,
+      s: bust,
+      session: sessionId,
+      build: headerItem.buildName || headerItem.projectName || "Build",
+      ver: headerItem.buildVersion || "",
+    });
 
-      const params = new URLSearchParams({
-        project: id,
-        s: bust,
-        session: sessionId,
-        build: headerItem.buildName || headerItem.projectName || "Build",
-        ver: headerItem.buildVersion || "",        // 👈 add version here too
-      });
-
-      href = `/experience?${params.toString()}`;
-    }
-
-    window.open(href, "_blank", "noopener,noreferrer");
+    window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
   };
-
-
-  const projectSlot =
-    headerItem?.projectName || headerItem?.projectSlot || "Project Slot Name";
-
-  const areaDisplay = headerItem?.areaSqft
-    ? formatSqft(headerItem.areaSqft)
-    : "";
-  const constructionType = headerItem?.industry || "";
-
-  const heroImg = thumbQuery || headerItem?.thumb || "";
-
 
   const vizdomHref = headerItem?.vizdomId
     ? `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(
@@ -499,493 +375,622 @@ const dl = (url) => {
       )}#Project#Summary`
     : null;
 
-  /** ====== RENDER ====== */
+  const category = headerItem?.designStyle || headerItem?.industry || catQuery;
+  const server = headerItem?.server || serverQuery;
+  const serverLabel = server === "us" ? "US Server" : "India Server";
+
+  const areaDisplay = headerItem?.areaSqft
+    ? formatSqft(headerItem.areaSqft)
+    : areaQuery
+    ? formatSqft(areaQuery)
+    : "";
+
+  const heroImg = thumbQuery || headerItem?.thumb || "";
+
+  const hasAnyScreenshots = useMemo(() => {
+    return (screenshotsGroups || []).some((g) => (g?.items || []).length > 0);
+  }, [screenshotsGroups]);
+
   return (
-    <div style={styles.page}>
-      {/* HEADER CARD */}
-      <div style={styles.headerCard}>
-        <div style={styles.headerInner}>
-          {/* TEXT COLUMN */}
-          <div style={styles.headerTextCol}>
-            {loadingHeader ? (
-              <div>Loading…</div>
-            ) : (
-              <>
-                <div style={styles.buildName}>
-                  {buildName}
-                  <span style={styles.version}>{version}</span>
-                </div>
-
-                <div style={styles.projectSlot}>{projectSlot}</div>
-
-                <div style={styles.headerMeta}>
-                  {areaDisplay && (
-                    <div>
-                      <strong>Area</strong> - {areaDisplay}
-                    </div>
-                  )}
-                  {constructionType && (
-                    <div>
-                      <strong>Construction Type</strong> - {constructionType}
-                    </div>
-                  )}
-                </div>
-
-                <div style={styles.headerIconsRow}>
-                  {/* YT */}
-                  {headerItem?.youtube && (
-                    <button
-                      style={styles.headerIconBtnClear}
-                      onMouseEnter={() => setYtHover(true)}
-                      onMouseLeave={() => setYtHover(false)}
-                      title="Watch walkthrough"
-                      onClick={() =>
-                        window.open(
-                          headerItem.youtube,
-                          "_blank",
-                          "noopener,noreferrer"
-                        )
-                      }
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        style={{
-                          ...styles.headerYtSvg,
-                          ...(ytHover ? styles.headerYtSvgHover : {}),
-                          ...(ytHover ? styles.headerYtGlowHover : {}),
-                        }}
-                      >
-                        <rect
-                          x="2.8"
-                          y="6.2"
-                          width="18.4"
-                          height="11.6"
-                          rx="3.2"
-                          fill={ytHover ? "#FF0000" : "#0D0D0D"}
-                        />
-                        <path d="M10 9v6l5-3-5-3z" fill="#FFF" />
-                      </svg>
-                    </button>
-                  )}
-
-                  {/* VIZDOM BADGE */}
-                  {vizdomHref && (
-                    <button
-                      style={styles.vizdomCircle}
-                      onMouseEnter={() => setVizHover(true)}
-                      onMouseLeave={() => setVizHover(false)}
-                      title="Open in Vizdom"
-                      onClick={() =>
-                        window.open(
-                          vizdomHref,
-                          "_blank",
-                          "noopener,noreferrer"
-                        )
-                      }
-                    >
-                      <span
-                        style={{
-                          ...styles.vizGlow,
-                          ...(vizHover ? styles.vizGlowOn : {}),
-                        }}
-                      />
-                      <span
-                        style={{
-                          ...styles.vizMask,
-                          ...(vizHover ? styles.vizMaskHover : {}),
-                        }}
-                      />
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* HERO IMAGE */}
-          <div style={styles.headerHeroWrap}>
+    <div style={sx.page}>
+      {/* ===== Navbar (Figma-like) ===== */}
+      <div style={sx.navWrap}>
+        <div style={sx.container}>
+          <div style={sx.nav}>
             <div
-              style={styles.headerHeroImgWrap}
-              onMouseEnter={() => setHeroHover(true)}
-              onMouseLeave={() => setHeroHover(false)}
+              style={sx.brand}
+              role="button"
+              tabIndex={0}
+              onClick={() => (window.location.href = "/")}
             >
-              <div
-                style={{
-                  ...styles.heroWrap,
-                  ...(heroHover ? styles.heroWrapBlur : {}),
-                }}
-              >
-                <ImageWithFallback src={heroImg} style={styles.headerHeroImg} />
+              <div style={sx.brandMark}>V</div>
+              <div>
+                <div style={sx.brandName}>Vizwalk</div>
+                <div style={sx.brandSub}>Powered by Flipspaces</div>
               </div>
+            </div>
 
+            <div style={sx.navLinks}>
+              <a style={sx.navLink} href="/#featured-projects">
+                Features
+              </a>
+              <a style={sx.navLink} href="/#featured-projects">
+                Demo Videos
+              </a>
+              <a style={sx.navLink} href="/#featured-projects">
+                Project
+              </a>
+              <a style={sx.navLink} href="/#clients">
+                Testimonials
+              </a>
+            </div>
+
+            <div style={sx.navRight}>
+              <button type="button" style={sx.iconCircle} title="Settings">
+                ⚙
+              </button>
               <button
-                style={{
-                  ...styles.openVizwalkBtn,
-                  ...(heroHover ? styles.openVizwalkBtnVisible : {}),
-                }}
-                onClick={openVizwalk}
+                type="button"
+                style={sx.logoutMini}
+                onClick={() =>
+                  window.open("https://vizwalk.com", "_blank", "noopener,noreferrer")
+                }
+                title="Logout"
               >
-                Open Vizwalk
+                Logout
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* TABS + REFRESH */}
-      <div style={styles.tabsRow}>
-        <div style={styles.tabsLeft}>
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              style={{
-                ...styles.tabBtn,
-                ...(activeTab === t.key ? styles.tabBtnActive : {}),
-              }}
-              onClick={() => setActiveTab(t.key)}
-            >
-              {t.label}
-            </button>
-          ))}
+      <div style={sx.container}>
+        {/* Back */}
+        <div style={sx.backRow}>
+          <button
+            type="button"
+            style={sx.backBtn}
+            onClick={() =>
+              window.history.length > 1 ? window.history.back() : (window.location.href = "/")
+            }
+          >
+            ← <span style={{ marginLeft: 8 }}>Back to Projects</span>
+          </button>
         </div>
 
-        {activeTab === "screenshots" && (
-          <button
-            style={{
-              marginLeft: "auto",
-              border: "none",
-              background: "transparent",
-              color: "#2563eb",
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: "pointer",
-            }}
-            onClick={() => setRefreshKey((k) => k + 1)}
-            disabled={loadingShots}
-          >
-            {loadingShots ? "Refreshing…" : "Refresh"}
-          </button>
-        )}
-      </div>
-      <div style={styles.tabsUnderline} />
-
-      {/* GALLERY GRID */}
-      <div style={{ marginTop: 24 }}>
-        {activeTab === "screenshots" && loadingShots && (
-          <div style={{ marginTop: 16, fontSize: 14, color: "#6b7280" }}>
-            Loading screenshots…
-          </div>
-        )}
-
-        {dataForTab.map((group, idx) => {
-          const key = group.group || idx;
-          return (
-            <div key={key} style={styles.groupBlock}>
-              <div style={styles.groupHeaderRow}>
-                <div style={styles.dateLabel}>
-                  {prettyDate(group.ts || group.group)}
+        {/* ===== Top Detail (Figma-like) ===== */}
+        <div style={sx.topGrid}>
+          <div style={sx.leftMeta}>
+            {loadingHeader ? (
+              <div style={{ paddingTop: 10, opacity: 0.7, fontWeight: 700 }}>
+                Loading…
+              </div>
+            ) : (
+              <>
+                <div style={sx.bigTitle}>
+                  {buildName || "Project"}
                 </div>
 
-                <button
-                  style={styles.groupDownloadAll}
-                  onClick={() => group.items.forEach((img) => dl(img.url))}
-                >
-                  Download All
-                </button>
-              </div>
+                <div style={sx.metaRow}>
+                  <div style={sx.catPill}>{category}</div>
+                  <div style={sx.dot}>•</div>
+                  <div style={sx.metaText}>
+                    Area – {areaDisplay || "—"}
+                  </div>
+                  <div style={sx.dot}>•</div>
+                  <div style={sx.metaText}>🇮🇳 {serverLabel}</div>
+                  {version ? (
+                    <>
+                      <div style={sx.dot}>•</div>
+                      <div style={sx.metaText}>v{version}</div>
+                    </>
+                  ) : null}
+                </div>
 
-              <div style={styles.rowWrap}>
-                <div
-                  ref={(el) => (rowRefs.current[key] = el)}
-                  style={styles.rowScroller}
-                >
-                  {group.items.map((img, i) => (
-                    <div
-                      key={img.url + i}
-                      style={styles.shotCard}
-                      onClick={() => openImage(img.url)}
+                <div style={sx.btnStack}>
+                  {/* Demo video */}
+                  <button
+                    type="button"
+                    style={{
+                      ...sx.demoBtn,
+                      ...(headerItem?.youtube ? null : sx.demoBtnDisabled),
+                    }}
+                    disabled={!headerItem?.youtube}
+                    onClick={() => {
+                      if (!headerItem?.youtube) return;
+                      window.open(headerItem.youtube, "_blank", "noopener,noreferrer");
+                    }}
+                  >
+                    <span style={sx.demoIcon}>▶</span>
+                    <div style={{ textAlign: "left" }}>
+                      <div style={sx.demoTitle}>Vizwalk Demo Video</div>
+                      <div style={sx.demoSub}>See the interactive finish video</div>
+                    </div>
+                  </button>
+
+                  {/* Open vizwalk */}
+                  <button type="button" style={sx.openBtn} onClick={openVizwalk}>
+                    ⤴&nbsp;&nbsp;Open Vizwalk
+                  </button>
+
+                  {/* Vizdom */}
+                  {vizdomHref ? (
+                    <button
+                      type="button"
+                      style={sx.vizdomBtn}
+                      onClick={() => window.open(vizdomHref, "_blank", "noopener,noreferrer")}
+                      title="Open in Vizdom"
                     >
-                      <ImageWithFallback src={img.url} style={styles.shotImg} />
+                      <span style={sx.vizdomIconWrap}>
+                        <span style={sx.vizMask} />
+                      </span>
+                      Open in Vizdom
+                    </button>
+                  ) : null}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Hero */}
+          <div style={sx.heroCard}>
+            <div style={sx.heroImgWrap} role="button" tabIndex={0} onClick={openVizwalk}>
+              <ImageWithFallback src={heroImg} alt={buildName} style={sx.heroImg} />
+              <button
+                type="button"
+                style={sx.heroCta}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openVizwalk();
+                }}
+              >
+                ⤴&nbsp;&nbsp;Open Vizwalk
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ===== Beige Panel (Tabs + Content) ===== */}
+        <div style={sx.panel}>
+          <div style={sx.panelTop}>
+            <div style={sx.tabRow}>
+              {TABS.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  disabled={t.disabled}
+                  title={t.disabled ? "Coming soon" : ""}
+                  onClick={() => !t.disabled && setActiveTab(t.key)}
+                  style={{
+                    ...sx.tab,
+                    ...(activeTab === t.key ? sx.tabActive : null),
+                    ...(t.disabled ? sx.tabDisabled : null),
+                  }}
+                >
+                  {t.key === "walkthroughs" ? "▷" : "⧉"}&nbsp;&nbsp;{t.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              style={sx.refreshBtn}
+              onClick={() => setRefreshKey((k) => k + 1)}
+              disabled={loadingShots}
+              title="Refresh"
+            >
+              ⟳&nbsp;&nbsp;{loadingShots ? "Refreshing" : "Refresh"}
+            </button>
+          </div>
+
+          {/* CONTENT */}
+          {activeTab !== "screenshots" ? (
+            <div style={sx.emptyWrap}>
+              <div style={sx.emptyIcon}>▷</div>
+              <div style={sx.emptyTitle}>Walkthroughs coming soon</div>
+              <div style={sx.emptySub}>This section will appear here when available</div>
+            </div>
+          ) : loadingShots ? (
+            <div style={sx.emptyWrap}>
+              <div style={sx.emptyIcon}>⧉</div>
+              <div style={sx.emptyTitle}>Loading screenshots…</div>
+              <div style={sx.emptySub}>Content will appear here when available</div>
+            </div>
+          ) : !hasAnyScreenshots ? (
+            <div style={sx.emptyWrap}>
+              <div style={sx.emptyIcon}>🖼</div>
+              <div style={sx.emptyTitle}>No screenshots available yet</div>
+              <div style={sx.emptySub}>Content will appear here when available</div>
+            </div>
+          ) : (
+            <div style={sx.groupsWrap}>
+              {screenshotsGroups.map((group, idx) => {
+                const key = group.group || idx;
+                const items = group.items || [];
+                if (!items.length) return null;
+
+                return (
+                  <div key={key} style={sx.group}>
+                    <div style={sx.groupHeader}>
+                      <div style={sx.groupTitle}>{prettyDate(group.ts || group.group)}</div>
 
                       <button
-                        style={styles.downloadIcon}
-                        onClick={(e) => {
-                          e.stopPropagation(); // don't trigger openImage
-                          dl(img.url);
-                        }}
-                        title="Download"
+                        type="button"
+                        style={sx.groupBtn}
+                        onClick={() => items.forEach((img) => dl(img.url))}
                       >
-                        ⤓
+                        Download All
                       </button>
                     </div>
-                  ))}
-                </div>
 
-                {group.items.length > 3 && (
-                  <button
-                    style={styles.rowArrow}
-                    onClick={() =>
-                      rowRefs.current[key]?.scrollBy({
-                        left: 300,
-                        behavior: "smooth",
-                      })
-                    }
-                  >
-                    ❯
-                  </button>
-                )}
-              </div>
+                    {/* grid like Figma (cleaner than horizontal scroller) */}
+                    <div style={sx.grid}>
+                      {items.map((img, i) => (
+                        <div
+                          key={(img.url || "") + i}
+                          style={sx.card}
+                          onClick={() => openImage(img.url)}
+                          role="button"
+                          tabIndex={0}
+                        >
+                          <ImageWithFallback src={img.url} alt="Screenshot" style={sx.cardImg} />
+
+                          <button
+                            type="button"
+                            style={sx.dlPill}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              dl(img.url);
+                            }}
+                            title="Download"
+                          >
+                            ⬇
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          )}
+        </div>
+
+        <div style={{ height: 40 }} />
       </div>
     </div>
   );
 }
 
-/** ============================================================
- * STYLES
- * ========================================================== */
-const styles = {
+/** ====== STYLES (Figma-like) ====== */
+const sx = {
   page: {
     minHeight: "100vh",
-    maxHeight: "100vh",
-    overflowY: "auto",
-    background: "#e9eefc",
-    padding: 24,
-    fontFamily:
-      '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
+    background: "#ffffff",
+    color: "#141414",
+    fontFamily: 'Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif',
+  },
+  container: {
+    width: "min(1180px, 92vw)",
+    margin: "0 auto",
   },
 
-  headerCard: {
-    width: "100%",
-    display: "flex",
-    justifyContent: "flex-start",
-    marginBottom: 20,
+  /* Navbar */
+  navWrap: {
+    position: "sticky",
+    top: 0,
+    zIndex: 50,
+    background: "rgba(247,244,239,0.92)",
+    backdropFilter: "blur(10px)",
+    borderBottom: "1px solid rgba(0,0,0,0.06)",
   },
-  headerInner: {
-    width: "min(900px, 100%)",
+  nav: {
+    height: 64,
     display: "flex",
-    gap: 20,
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 16,
+  },
+  brand: { display: "flex", alignItems: "center", gap: 10, cursor: "pointer" },
+  brandMark: {
+    width: 28,
+    height: 28,
+    borderRadius: 10,
+    background: "#f5a524",
+    display: "grid",
+    placeItems: "center",
+    fontWeight: 950,
+  },
+  brandName: { fontWeight: 950, letterSpacing: 0.2, lineHeight: 1.1 },
+  brandSub: { fontSize: 11, opacity: 0.65, marginTop: 2 },
+  navLinks: {
+    display: "flex",
+    gap: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  navLink: {
+    textDecoration: "none",
+    color: "#141414",
+    fontWeight: 800,
+    fontSize: 13,
+    opacity: 0.8,
+  },
+  navRight: { display: "flex", alignItems: "center", gap: 10 },
+  iconCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 999,
+    border: "1px solid rgba(0,0,0,0.10)",
     background: "#fff",
-    padding: 14,
-    borderRadius: 18,
-    boxShadow: "0 10px 30px rgba(110,129,255,0.18)",
+    display: "grid",
+    placeItems: "center",
+    cursor: "pointer",
+    fontWeight: 900,
   },
-  headerTextCol: { flex: 1, display: "flex", flexDirection: "column" },
+  logoutMini: {
+    padding: "10px 14px",
+    borderRadius: 999,
+    border: "1px solid rgba(0,0,0,0.10)",
+    background: "#fff",
+    fontWeight: 950,
+    cursor: "pointer",
+  },
 
-  buildName: { fontSize: 24, fontWeight: 800 },
-  version: { marginLeft: 6, fontSize: 18, color: "#9aa4b2", fontWeight: 700 },
-  projectSlot: { marginTop: 4, fontSize: 15, color: "#3b82f6", fontWeight: 700 },
-  headerMeta: { marginTop: 8, fontSize: 14, color: "#444" },
-
-  headerIconsRow: {
-    marginTop: 10,
-    display: "flex",
-    gap: 10,
+  /* Back row */
+  backRow: { padding: "22px 0 6px" },
+  backBtn: {
+    border: "none",
+    background: "transparent",
+    cursor: "pointer",
+    fontWeight: 900,
+    opacity: 0.8,
+    fontSize: 13,
+    display: "inline-flex",
     alignItems: "center",
   },
 
-  headerIconBtnClear: {
-    width: 40,
-    height: 40,
-    border: "none",
-    background: "transparent",
-    position: "relative",
-    cursor: "pointer",
+  /* Top grid */
+  topGrid: {
+    padding: "6px 0 10px",
+    display: "grid",
+    gridTemplateColumns: "1.05fr 0.95fr",
+    gap: 28,
+    alignItems: "start",
   },
-  headerYtSvg: {
-    width: 38,
-    height: 26,
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, -50%) scale(1.25)",
-    transition: "140ms",
+  leftMeta: { paddingTop: 8 },
+  bigTitle: {
+    fontSize: 42,
+    fontWeight: 950,
+    letterSpacing: -0.7,
+    lineHeight: 1.05,
   },
-  headerYtSvgHover: {
-    transform: "translate(-50%, -50%) scale(1.25)",
+  metaRow: {
+    marginTop: 12,
+    display: "flex",
+    flexWrap: "wrap",
+    gap: 10,
+    alignItems: "center",
+    opacity: 0.92,
   },
-  
+  catPill: {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "5px 10px",
+    borderRadius: 999,
+    background: "rgba(245,165,36,0.16)",
+    color: "#7a4a00",
+    fontWeight: 950,
+    fontSize: 12,
+  },
+  dot: { opacity: 0.35, fontWeight: 900 },
+  metaText: { fontSize: 12, fontWeight: 850, opacity: 0.75 },
 
-  vizdomCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 16,
-    border: "none",
-    background: "transparent",
-    position: "relative",
+  btnStack: { marginTop: 18, display: "flex", flexDirection: "column", gap: 12, maxWidth: 420 },
+
+  demoBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    width: "100%",
+    padding: "14px 14px",
+    borderRadius: 14,
+    border: "1px solid rgba(0,0,0,0.10)",
+    background: "#fff",
+    boxShadow: "0 10px 26px rgba(0,0,0,0.06)",
     cursor: "pointer",
+  },
+  demoBtnDisabled: { opacity: 0.55, cursor: "not-allowed" },
+  demoIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 999,
+    background: "#E53935",
+    color: "#fff",
+    display: "grid",
+    placeItems: "center",
+    fontWeight: 950,
+  },
+  demoTitle: { fontWeight: 950, fontSize: 13 },
+  demoSub: { marginTop: 2, fontSize: 11, opacity: 0.65, fontWeight: 800 },
+
+  openBtn: {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: 12,
+    border: "1px solid rgba(0,0,0,0.10)",
+    background: "#f5a524",
+    fontWeight: 950,
+    cursor: "pointer",
+    boxShadow: "0 12px 28px rgba(0,0,0,0.10)",
+  },
+
+  vizdomBtn: {
+    width: "100%",
+    padding: "12px 14px",
+    borderRadius: 12,
+    border: "1px solid rgba(0,0,0,0.14)",
+    background: "#fff",
+    fontWeight: 950,
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+  vizdomIconWrap: {
+    width: 26,
+    height: 26,
+    borderRadius: 10,
+    background: "rgba(0,0,0,0.06)",
+    display: "grid",
+    placeItems: "center",
   },
   vizMask: {
-    width: 34,
-    height: 34,
+    width: 18,
+    height: 18,
     backgroundColor: "#0D0D0D",
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, -50%) scale(.9)",
     WebkitMaskImage: `url(${vizIcon})`,
     maskImage: `url(${vizIcon})`,
     WebkitMaskSize: "contain",
     maskSize: "contain",
-    transition: "140ms",
-  },
-  vizMaskHover: {
-    backgroundColor: "#06B6D4",
-  },
-  vizGlow: {
-    width: 56,
-    height: 56,
-    borderRadius: 20,
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, -50%)",
-    opacity: 0,
-    filter:
-      "blur(6px) drop-shadow(0 6px 16px rgba(6,182,212,0.25)) drop-shadow(0 0 14px rgba(6,182,212,0.25))",
-    transition: "200ms",
-  },
-  vizGlowOn: { opacity: 1 },
-
-  headerHeroWrap: {
-    width: 320,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  headerHeroImgWrap: {
-    position: "relative",
-    borderRadius: 16,
-    overflow: "hidden",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.18)",
-  },
-  headerHeroImg: {
-    width: 320,
-    height: 170,
-    objectFit: "cover",
-  },
-  heroWrap: { transition: "200ms" },
-  heroWrapBlur: {
-    filter: "blur(4px) brightness(.9)",
-    transform: "scale(1.02)",
-  },
-  openVizwalkBtn: {
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, -50%)",
-    padding: "8px 18px",
-    borderRadius: 999,
-    border: "1px solid rgba(255,255,255,0.8)",
-    background: "rgba(255,255,255,0.9)",
-    fontWeight: 700,
-    fontSize: 15,
-    opacity: 0,
-    pointerEvents: "none",
-    transition: "200ms",
-  },
-  openVizwalkBtnVisible: {
-    opacity: 1,
-    pointerEvents: "auto",
+    WebkitMaskRepeat: "no-repeat",
+    maskRepeat: "no-repeat",
+    WebkitMaskPosition: "center",
+    maskPosition: "center",
   },
 
-  tabsRow: {
-    display: "flex",
-    alignItems: "center",
-  },
-  tabsLeft: { display: "flex", gap: 4 },
-  tabBtn: {
-    background: "transparent",
-    border: "none",
-    padding: "10px 18px",
-    fontSize: 15,
-    cursor: "pointer",
-    borderRadius: "12px 12px 0 0",
-    color: "#555",
-  },
-  tabBtnActive: {
-    background: "#fff",
-    boxShadow: "0 -1px 0 #fff, 0 0 0 1px #d4d9ff",
-    color: "#111",
-  },
-  tabsUnderline: {
-    borderBottom: "2px solid #d4d9ff",
-    marginTop: -1,
-  },
-
-  groupBlock: { marginBottom: 32 },
-  groupHeaderRow: {
-    display: "flex",
-    alignItems: "center",
-    paddingInline: 4,
-    marginBottom: 10,
-  },
-  dateLabel: {
-    fontSize: 15,
-    fontWeight: 700,
-    color: "#374151",
-  },
-  groupDownloadAll: {
-    marginLeft: "auto",
-    border: "none",
-    background: "transparent",
-    color: "#16a34a",
-    fontWeight: 700,
-    fontSize: 15,
-    cursor: "pointer",
-  },
-
-  rowWrap: { position: "relative" },
-  rowScroller: {
-    display: "flex",
-    gap: 16,
-    overflowX: "auto",
-    paddingBottom: 6,
-    paddingRight: 40,
-  },
-  rowArrow: {
-    position: "absolute",
-    top: "50%",
-    right: 4,
-    transform: "translateY(-50%)",
-    width: 34,
-    height: 34,
-    borderRadius: "50%",
-    border: "none",
-    background: "#fff",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.25)",
-    fontSize: 20,
-    cursor: "pointer",
-  },
-
-  shotCard: {
-    minWidth: 260,
-    maxWidth: 260,
-    position: "relative",
+  /* Hero */
+  heroCard: {
     borderRadius: 18,
     overflow: "hidden",
-    boxShadow: "0 8px 22px rgba(0,0,0,0.18)",
-    cursor: "pointer",
-    transition: "200ms",
+    border: "1px solid rgba(0,0,0,0.07)",
+    background: "#fff",
+    boxShadow: "0 26px 70px rgba(0,0,0,0.14)",
   },
-  shotImg: {
-    width: "100%",
-    height: 170,
-    objectFit: "cover",
-  },
-  downloadIcon: {
+  heroImgWrap: { position: "relative", cursor: "pointer" },
+  heroImg: { width: "100%", height: 280, objectFit: "cover", display: "block" },
+  heroCta: {
     position: "absolute",
-    top: 10,
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%,-50%)",
+    padding: "10px 14px",
+    borderRadius: 999,
+    border: "1px solid rgba(0,0,0,0.15)",
+    background: "rgba(245,165,36,0.95)",
+    fontWeight: 950,
+    cursor: "pointer",
+  },
+
+  /* Panel */
+  panel: {
+    marginTop: 18,
+    background: "rgba(243,239,231,1)",
+    border: "1px solid rgba(0,0,0,0.08)",
+    borderRadius: 14,
+    padding: 16,
+  },
+  panelTop: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  tabRow: { display: "flex", gap: 10, alignItems: "center" },
+  tab: {
+    border: "none",
+    background: "transparent",
+    cursor: "pointer",
+    fontWeight: 900,
+    fontSize: 12,
+    opacity: 0.6,
+    padding: "8px 6px",
+    borderBottom: "2px solid transparent",
+  },
+  tabActive: {
+    opacity: 1,
+    borderBottom: "2px solid #f5a524",
+  },
+  tabDisabled: { opacity: 0.35, cursor: "not-allowed" },
+  refreshBtn: {
+    border: "none",
+    background: "transparent",
+    cursor: "pointer",
+    fontWeight: 900,
+    fontSize: 12,
+    opacity: 0.75,
+    padding: "8px 10px",
+  },
+
+  emptyWrap: {
+    height: 260,
+    display: "grid",
+    placeItems: "center",
+    textAlign: "center",
+    padding: 18,
+  },
+  emptyIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    background: "rgba(0,0,0,0.08)",
+    display: "grid",
+    placeItems: "center",
+    margin: "0 auto 12px",
+    fontSize: 18,
+  },
+  emptyTitle: { fontWeight: 950, fontSize: 13 },
+  emptySub: { marginTop: 6, fontSize: 11, opacity: 0.65, fontWeight: 800 },
+
+  groupsWrap: { marginTop: 14, display: "flex", flexDirection: "column", gap: 18 },
+  group: {},
+  groupHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 10,
+  },
+  groupTitle: { fontWeight: 950, fontSize: 12, opacity: 0.85 },
+  groupBtn: {
+    border: "none",
+    background: "transparent",
+    color: "#2e7d32",
+    fontWeight: 950,
+    cursor: "pointer",
+    fontSize: 12,
+  },
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+    gap: 16,
+  },
+  card: {
+    position: "relative",
+    background: "#fff",
+    border: "1px solid rgba(0,0,0,0.10)",
+    borderRadius: 14,
+    overflow: "hidden",
+    boxShadow: "0 12px 26px rgba(0,0,0,0.08)",
+    cursor: "pointer",
+  },
+  cardImg: { width: "100%", height: 190, objectFit: "cover", display: "block" },
+  dlPill: {
+    position: "absolute",
     right: 10,
+    top: 10,
     width: 30,
     height: 30,
-    borderRadius: "50%",
-    background: "rgba(255,255,255,0.96)",
-    border: "none",
-    fontSize: 18,
-    boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+    borderRadius: 999,
+    background: "rgba(255,255,255,0.95)",
+    border: "1px solid rgba(0,0,0,0.10)",
+    display: "grid",
+    placeItems: "center",
+    color: "#111",
+    fontWeight: 950,
     cursor: "pointer",
+    boxShadow: "0 8px 18px rgba(0,0,0,0.10)",
   },
 };
