@@ -780,10 +780,19 @@ export default function Experience() {
 
     connectingRef.current = false;
   }, [
+    downloadDataUrl,
+  downloadUrlSmart,
+  buildName,
+  buildVersion,
+  buildKey,
+  sessionId,
+  firstUploadDone,
+  runIKeyClickSequence,
+  setHoverEnabled,
     attachVideoAutoplaySafe,
     handleResponseApp,
     hardDisconnect,
-    buildName,
+
   ]);
 
   const toggleMouseHover = useCallback(() => {
@@ -865,11 +874,13 @@ export default function Experience() {
       hardDisconnect();
     };
   }, [
-    startPlay,
-    toggleMouseHover,
-    hardDisconnect,
-    runIKeyClickSequence,
-  ]);
+  startPlay,
+  toggleMouseHover,
+  hardDisconnect,
+  runIKeyClickSequence,
+  setHoverEnabled,
+]
+);
 
   return (
     <div className="experience-page">
