@@ -8,7 +8,7 @@ const GDRIVE_API_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
 
 /** 🔔 REFRESH JSON FILE (vizwalk_refresh_signal.json) */
-const REFRESH_FILE_ID = "1OO9uURamV5Syr29aeZ0u_FopPs-QduqN";
+// const REFRESH_FILE_ID = "1OO9uURamV5Syr29aeZ0u_FopPs-QduqN";
 
 /** ====== CONFIG: SAME SHEET AS LANDING ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
@@ -319,7 +319,7 @@ setHeaderItem(match || null);
   }, [buildQuery, verQuery]);
 
 
-  const effectiveBuild = (headerItem?.buildName || buildQuery || "").trim();
+  // const effectiveBuild = (headerItem?.buildName || buildQuery || "").trim();
   // const buildKey = effectiveBuild
   //   ? effectiveBuild.replace(/[^\w\-]+/g, "_").trim()
   //   : "";

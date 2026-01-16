@@ -4,7 +4,7 @@ const GID = process.env.REACT_APP_ALLOWLIST_GID;
 let _cache = { at: 0, allowed: new Set() }; // 5 min cache
 
 
-const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}&cb=${Date.now()}`;
+// const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}&cb=${Date.now()}`;
 
 
 function parseCSV(text) {

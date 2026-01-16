@@ -99,7 +99,7 @@ function LoaderOverlay({ phase }) {
   // call hooks unconditionally
   const imgRef = React.useRef(null);
   const [scaleX, setScaleX] = React.useState(1);
-  const [scaleY, setScaleY] = React.useState(1);
+  const [scaleY] = React.useState(1);
 
   const recalc = React.useCallback(() => {
     const img = imgRef.current;
@@ -229,7 +229,7 @@ export default function Experience() {
   const connectingRef = useRef(false);
   const mountedRef = useRef(false);
 
-  const [hoverEnabled, setHoverEnabled] = useState(true);
+  const [setHoverEnabled] = useState(true);
   const [firstUploadDone, setFirstUploadDone] = useState(false);
 
   // Track real user interaction + queued sequence
