@@ -99,7 +99,7 @@ function LoaderOverlay({ phase }) {
   // call hooks unconditionally
   const imgRef = React.useRef(null);
   const [scaleX, setScaleX] = React.useState(1);
-  const [scaleY] = React.useState(1);
+  const [scaleY, setScaleY] = React.useState(1);
 
   const recalc = React.useCallback(() => {
     const img = imgRef.current;
@@ -229,8 +229,7 @@ export default function Experience() {
   const connectingRef = useRef(false);
   const mountedRef = useRef(false);
 
-  const [setHoverEnabled] = useState(true);
-
+  const [hoverEnabled, setHoverEnabled] = useState(true);
   const [firstUploadDone, setFirstUploadDone] = useState(false);
 
   // Track real user interaction + queued sequence
@@ -286,48 +285,46 @@ export default function Experience() {
   // --- Robust downloader with HTTP→HTTPS proxy support
   const isHttpInsecure = (url) => /^http:\/\//i.test(String(url || "").trim());
 
-  const proxyHttpsDownload = useCallback((insecureUrl) => {
-  const u = new URL(GDRIVE_API_URL);
-  u.searchParams.set("action", "proxyget");
-  u.searchParams.set("url", insecureUrl);
-  u.searchParams.set("mode", "redirect"); // fast redirect mode
-  const finalUrl = u.toString();
-  console.log("Opening proxy:", finalUrl);
-  window.open(finalUrl, "_blank", "noopener,noreferrer");
-}, []);
-
+  const proxyHttpsDownload = (insecureUrl) => {
+    const u = new URL(GDRIVE_API_URL);
+    u.searchParams.set("action", "proxyget");
+    u.searchParams.set("url", insecureUrl);
+    u.searchParams.set("mode", "redirect"); // fast redirect mode
+    const finalUrl = u.toString();
+    console.log("Opening proxy:", finalUrl);
+    window.open(finalUrl, "_blank", "noopener,noreferrer");
+  };
 
   const downloadUrlSmart = useCallback(
-  async (url, filenameHint) => {
-    const name = filenameHint || filenameFromUrl(url);
+    async (url, filenameHint) => {
+      const name = filenameHint || filenameFromUrl(url);
 
-    if (isHttpInsecure(url)) {
-      proxyHttpsDownload(url);
-      return true;
-    }
+      if (isHttpInsecure(url)) {
+        proxyHttpsDownload(url);
+        return true;
+      }
 
-    try {
-      const res = await fetch(url, { mode: "cors" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const blob = await res.blob();
+      try {
+        const res = await fetch(url, { mode: "cors" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
 
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = name;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(a.href);
-      return true;
-    } catch (e) {
-      console.warn("CORS/Fetch failed, opening URL directly:", e);
-      window.open(url, "_blank", "noopener,noreferrer");
-      return false;
-    }
-  },
-  [proxyHttpsDownload] // ✅ add this
-);
-
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(a.href);
+        return true;
+      } catch (e) {
+        console.warn("CORS/Fetch failed, opening URL directly:", e);
+        window.open(url, "_blank", "noopener,noreferrer");
+        return false;
+      }
+    },
+    [] // no deps
+  );
 
   const downloadDataUrl = useCallback(async (dataUrl, filename) => {
     try {
@@ -649,18 +646,14 @@ export default function Experience() {
         console.error("handleResponseApp error:", e, response);
       }
     },
-   [
-  downloadDataUrl,
-  downloadUrlSmart,
-  buildName,
-  buildVersion,   // ✅ add this
-  buildKey,
-  sessionId,
-  firstUploadDone,
-  runIKeyClickSequence,
-  setHoverEnabled
-]
-
+    [
+      downloadDataUrl,
+      downloadUrlSmart,
+      buildName,
+      sessionId,
+      firstUploadDone,
+      runIKeyClickSequence,
+    ]
   );
 
   const hardDisconnect = useCallback(() => {
@@ -780,26 +773,19 @@ export default function Experience() {
 
     connectingRef.current = false;
   }, [
-  
-  buildName,
-  buildVersion,
-
-
-  setHoverEnabled,
     attachVideoAutoplaySafe,
     handleResponseApp,
     hardDisconnect,
-
+    buildName,
   ]);
 
   const toggleMouseHover = useCallback(() => {
-  setHoverEnabled((prev) => {
-    const next = !prev;
-    UIControlApp?.toggleHoveringMouse?.(next);
-    return next;
-  });
-}, [setHoverEnabled]);
-
+    setHoverEnabled((prev) => {
+      const next = !prev;
+      UIControlApp?.toggleHoveringMouse?.(next);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -871,13 +857,11 @@ export default function Experience() {
       hardDisconnect();
     };
   }, [
-  startPlay,
-  toggleMouseHover,
-  hardDisconnect,
-  runIKeyClickSequence,
-  setHoverEnabled,
-]
-);
+    startPlay,
+    toggleMouseHover,
+    hardDisconnect,
+    runIKeyClickSequence,
+  ]);
 
   return (
     <div className="experience-page">
