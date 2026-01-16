@@ -1,138 +1,130 @@
-/* Testimonials marquee (no tailwind needed) */
+/* =========================
+   Testimonials Marquee
+   ========================= */
 
-.lv-testimonials {
+.lv-testimonials{
+  background: #EAEAE8;          /* ✅ match Image2 */
   padding: 72px 0;
-  background: #ffffff;
   overflow: hidden;
 }
 
-.lv-testimonialsHead {
+.lv-testimonialsHead{
   text-align: center;
   margin-bottom: 28px;
 }
 
-.lv-testimonialsTitle {
-  font-family: var(--font-heading, "Maven Pro", system-ui, sans-serif);
-  font-size: 40px;
-  line-height: 1.1;
+.lv-testimonialsTitle{
+  font-size: 44px;
   font-weight: 800;
   color: #141414;
   margin: 0;
 }
 
-.lv-testimonialsDesc {
+.lv-testimonialsDesc{
   margin-top: 10px;
-  font-family: var(--font-sans, "Poppins", system-ui, sans-serif);
   font-size: 14px;
-  opacity: 0.75;
+  color: rgba(20,20,20,0.70);
 }
 
-.lv-marquee {
+/* marquee wrapper */
+.lv-marquee{
   position: relative;
   overflow: hidden;
-  padding: 10px 0;
 }
 
-.lv-marqueeTrack {
+/* ✅ add side padding so left/right cards are more visible */
+.lv-marqueeTrack{
   display: flex;
-  width: max-content;
   gap: var(--gap, 18px);
+  padding: 0 110px;             /* ✅ makes edges visible */
+  width: max-content;
   animation: lvMarquee var(--duration, 40s) linear infinite;
   will-change: transform;
 }
 
-.lv-marquee:hover .lv-marqueeTrack {
-  animation-play-state: paused;
-}
-
-/* IMPORTANT:
-   We move by 50% because we render the list twice.
-*/
-@keyframes lvMarquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(calc(-50% - (var(--gap, 18px) / 2))); }
-}
-
-.lv-marqueeFadeLeft,
-.lv-marqueeFadeRight {
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 120px;
-  z-index: 5;
-}
-
-.lv-marqueeFadeLeft {
-  left: 0;
-  background: linear-gradient(to right, #ffffff 0%, rgba(255,255,255,0) 100%);
-}
-
-.lv-marqueeFadeRight {
-  right: 0;
-  background: linear-gradient(to left, #ffffff 0%, rgba(255,255,255,0) 100%);
-}
-
-/* Card */
-.lv-tCard {
+/* card */
+.lv-tCard{
   width: 350px;
   min-height: 180px;
   flex: 0 0 auto;
-  background: #ffffff;
+  background: rgba(255,255,255,0.78);
   border: 1px solid rgba(0,0,0,0.08);
   border-radius: 14px;
   padding: 18px;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.06);
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
 }
 
-.lv-tCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 18px 40px rgba(0,0,0,0.10);
-}
-
-.lv-tTop {
+.lv-tTop{
   display: flex;
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
 }
 
-.lv-tAvatar {
-  width: 38px;
-  height: 38px;
+.lv-tAvatar{
+  width: 34px;
+  height: 34px;
   border-radius: 999px;
+  background: #FEBC2F;
   display: grid;
   place-items: center;
-  background: #f5a524;
-  color: #111;
   font-weight: 800;
-  font-family: var(--font-heading, "Maven Pro", system-ui, sans-serif);
   font-size: 12px;
-  flex: 0 0 auto;
+  color: #111;
 }
 
-.lv-tName {
+.lv-tName{
   font-weight: 800;
   font-size: 13px;
   color: #141414;
-  font-family: var(--font-heading, "Maven Pro", system-ui, sans-serif);
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
-.lv-tRole {
+.lv-tRole{
   margin-top: 2px;
   font-size: 12px;
-  opacity: 0.70;
-  font-family: var(--font-sans, "Poppins", system-ui, sans-serif);
+  color: rgba(20,20,20,0.60);
 }
 
-.lv-tQuote {
-  font-size: 12.5px;
-  line-height: 1.65;
-  opacity: 0.82;
+.lv-tQuote{
+  font-size: 13px;
+  color: rgba(20,20,20,0.72);
+  line-height: 1.6;
   font-style: italic;
-  font-family: var(--font-sans, "Poppins", system-ui, sans-serif);
 }
 
+/* ✅ fades must match bg color (#EAEAE8) */
+.lv-marqueeFadeLeft,
+.lv-marqueeFadeRight{
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 170px;                 /* stronger fade area */
+  z-index: 10;
+}
 
+.lv-marqueeFadeLeft{
+  left: 0;
+  background: linear-gradient(to right, #EAEAE8 25%, rgba(234,234,232,0) 100%);
+}
+
+.lv-marqueeFadeRight{
+  right: 0;
+  background: linear-gradient(to left, #EAEAE8 25%, rgba(234,234,232,0) 100%);
+}
+
+@keyframes lvMarquee{
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); } /* you’re duplicating items in JS, so -50% works */
+}
+
+/* responsive */
+@media (max-width: 900px){
+  .lv-testimonials{ padding: 56px 0; }
+  .lv-testimonialsTitle{ font-size: 34px; }
+  .lv-marqueeTrack{ padding: 0 40px; }
+  .lv-marqueeFadeLeft,
+  .lv-marqueeFadeRight{ width: 90px; }
+  .lv-tCard{ width: 300px; }
+}

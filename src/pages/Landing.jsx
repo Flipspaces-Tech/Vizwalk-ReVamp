@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import vizIcon from "../assets/vizdom.png";
+import vizIcon from "../assets/L1.png";
 import { useAuth } from "../auth/AuthProvider";
 import "../styles/lovable-navbar.css";
 import "../styles/testimonials-marquee.css";
 
-
+const HERO_YOUTUBE_URL = "https://www.youtube.com/watch?v=dumslTDJfQk&feature=youtu.be";
 
 const categories2 = [
   "All",
@@ -16,11 +16,6 @@ const categories2 = [
   "Hospitality",
   "Residential",
 ];
-
-
-
-
-
 
 /** ====== CONFIG ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
@@ -91,52 +86,92 @@ function LandingNavbar({ user, signOut }) {
         <nav className="lv-nav">
           {/* Logo */}
           <a href="/" className="lv-logo" onClick={(e) => e.preventDefault()}>
-            <div className="lv-mark"><span>V</span></div>
-            <div className="lv-brandText">
-              <div className="lv-brandName">Vizwalk</div>
-              <div className="lv-brandSub">Powered by Flipspaces</div>
-            </div>
+            <img className="lv-logoImg" src={vizIcon} alt="Vizwalk — Powered by Flipspaces" />
           </a>
 
           {/* Desktop links */}
           <div className="lv-links">
-            <a className="lv-link" href="#featured-projects" onClick={(e) => { e.preventDefault(); scrollTo("featured-projects"); }}>
+            <a
+              className="lv-link"
+              href="#featured-projects"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollTo("featured-projects");
+              }}
+            >
               Features
             </a>
-            <a className="lv-link" href="#featured-projects" onClick={(e) => { e.preventDefault(); scrollTo("featured-projects"); }}>
+
+            <a
+              className="lv-link"
+              href="#featured-projects"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollTo("featured-projects");
+              }}
+            >
               Demo Videos
             </a>
 
             {/* Projects dropdown */}
             <div className="lv-dd" ref={ddRef}>
-              <button
-                type="button"
-                className="lv-link lv-ddBtn"
-                onClick={() => setDd((v) => !v)}
-              >
-                Projects <span style={{ marginLeft: 6, display: "inline-block", transform: dd ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
+              <button type="button" className="lv-link lv-ddBtn" onClick={() => setDd((v) => !v)}>
+                Projects{" "}
+                <span
+                  style={{
+                    marginLeft: 6,
+                    display: "inline-block",
+                    transform: dd ? "rotate(180deg)" : "none",
+                    transition: "transform 0.2s",
+                  }}
+                >
+                  ▾
+                </span>
               </button>
 
               {dd && (
                 <div className="lv-ddMenu">
-                  <button type="button" className="lv-ddItem" onClick={() => { setDd(false); scrollTo("featured-projects"); }}>
+                  <button
+                    type="button"
+                    className="lv-ddItem"
+                    onClick={() => {
+                      setDd(false);
+                      scrollTo("featured-projects");
+                    }}
+                  >
                     Showcase Projects
                   </button>
-                  <a className="lv-ddItem" href="/live-projects" onClick={(e) => { e.preventDefault(); setDd(false); }}>
+                  <a
+                    className="lv-ddItem"
+                    href="/live-projects"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setDd(false);
+                    }}
+                  >
                     Live Projects
                   </a>
                 </div>
               )}
             </div>
 
-            <a className="lv-link" href="#clients" onClick={(e) => { e.preventDefault(); scrollTo("clients"); }}>
+            <a
+              className="lv-link"
+              href="#clients"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollTo("clients");
+              }}
+            >
               Testimonials
             </a>
           </div>
 
           {/* Right actions */}
           <div className="lv-actions">
-            <button type="button" className="lv-iconBtn" title="Settings">⚙</button>
+            <button type="button" className="lv-iconBtn" title="Settings">
+              ⚙
+            </button>
             <div className="lv-userPill" title={user?.email || ""}>
               {user?.email || "user"}
             </div>
@@ -154,14 +189,65 @@ function LandingNavbar({ user, signOut }) {
         {/* Mobile menu */}
         {open && (
           <div className="lv-mobileMenu">
-            <a href="#featured-projects" onClick={(e) => { e.preventDefault(); setOpen(false); scrollTo("featured-projects"); }}>Features</a>
-            <a href="#featured-projects" onClick={(e) => { e.preventDefault(); setOpen(false); scrollTo("featured-projects"); }}>Demo Videos</a>
-            <button type="button" onClick={() => { setOpen(false); scrollTo("featured-projects"); }}>Showcase Projects</button>
-            <a href="/live-projects" onClick={(e) => { e.preventDefault(); setOpen(false); }}>Live Projects</a>
-            <a href="#clients" onClick={(e) => { e.preventDefault(); setOpen(false); scrollTo("clients"); }}>Testimonials</a>
+            <a
+              href="#featured-projects"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen(false);
+                scrollTo("featured-projects");
+              }}
+            >
+              Features
+            </a>
+            <a
+              href="#featured-projects"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen(false);
+                scrollTo("featured-projects");
+              }}
+            >
+              Demo Videos
+            </a>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                scrollTo("featured-projects");
+              }}
+            >
+              Showcase Projects
+            </button>
+            <a
+              href="/live-projects"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen(false);
+              }}
+            >
+              Live Projects
+            </a>
+            <a
+              href="#clients"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen(false);
+                scrollTo("clients");
+              }}
+            >
+              Testimonials
+            </a>
 
             <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-              <button type="button" onClick={() => { setOpen(false); signOut(); }}>Logout</button>
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  signOut();
+                }}
+              >
+                Logout
+              </button>
             </div>
           </div>
         )}
@@ -170,15 +256,8 @@ function LandingNavbar({ user, signOut }) {
   );
 }
 
-
-
-
-
-
-
 /** ====== UTILS ====== */
-const norm = (s = "") =>
-  String(s).toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
+const norm = (s = "") => String(s).toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
 
 const headerMap = (headers) => {
   const m = {};
@@ -187,15 +266,12 @@ const headerMap = (headers) => {
 };
 
 const safeGet = (row, idx, fallback = "") =>
-  idx != null && idx < row.length && row[idx] != null
-    ? String(row[idx]).trim()
-    : fallback;
+  idx != null && idx < row.length && row[idx] != null ? String(row[idx]).trim() : fallback;
 
 /** ====== FLEXIBLE HEADER ALIASES ====== */
 const COLS = {
   status: ["status"],
   server: ["server", "region", "country"],
-
   buildName: ["build name"],
   buildVersion: ["build version"],
   uploadId: ["upload id"],
@@ -287,10 +363,10 @@ function normalizeServer(v = "") {
   const s = norm(v);
   if (s.includes("us")) return "us";
   if (s.includes("india") || s.includes("in")) return "india";
-  return ""; // unknown
+  return "";
 }
 
-/** ====== Featured Card (Part 2) ====== */
+/** ====== Featured Card ====== */
 function FeaturedCard({ item, onOpenVizwalk, onOpenGallery }) {
   const category = item.designStyle || item.industry || "Modern Office";
 
@@ -298,23 +374,35 @@ function FeaturedCard({ item, onOpenVizwalk, onOpenGallery }) {
     <div style={sx.fpCard}>
       <div style={sx.fpMedia} onClick={onOpenGallery} role="button" tabIndex={0}>
         <ImageWithFallback src={item.thumb} alt={item.buildName} style={sx.fpImg} />
-        {item.server ? <div style={sx.fpServerPill}>{item.server === "india" ? "India Server" : "US Server"}</div> : null}
       </div>
 
       <div style={sx.fpBody}>
-        <div style={sx.fpCatPill}>{category}</div>
         <div style={sx.fpName}>{item.buildName || "Project"}</div>
+
+        <div style={sx.fpCatRow}>
+          <span style={sx.fpCatPill}>{category}</span>
+        </div>
+
         <div style={sx.fpArea}>Area – {formatSqft(item.areaSqft || "")}</div>
 
-        <div style={sx.fpRow}>
-          {item.youtube ? (
-            <a href={item.youtube} target="_blank" rel="noreferrer" style={sx.fpYt} title="Watch walkthrough">
-              ▶
-            </a>
-          ) : (
-            <span style={{ ...sx.fpYt, opacity: 0.25 }}>▶</span>
-          )}
+        <div style={sx.fpDivider} />
 
+        <div style={sx.fpRow}>
+          {/* left icons */}
+          <div style={sx.fpLeftIcons}>
+            {item.youtube ? (
+              <a href={item.youtube} target="_blank" rel="noreferrer" style={sx.fpIconBtn} title="Watch on YouTube">
+                ▶
+              </a>
+            ) : (
+              <span style={{ ...sx.fpIconBtn, opacity: 0.25, pointerEvents: "none" }}>▶</span>
+            )}
+
+            {/* second small icon (matches Image1 visual rhythm) */}
+            <span style={sx.fpIconDot} title={item.server === "india" ? "India Server" : "US Server"} />
+          </div>
+
+          {/* right CTA */}
           <button type="button" style={sx.fpDetail} onClick={onOpenVizwalk}>
             View Detail <span style={{ marginLeft: 6 }}>→</span>
           </button>
@@ -323,6 +411,8 @@ function FeaturedCard({ item, onOpenVizwalk, onOpenGallery }) {
     </div>
   );
 }
+
+
 
 function getInitials(name = "") {
   return name
@@ -367,11 +457,17 @@ function TestimonialsOnly() {
     },
   ];
 
-  // Render twice for seamless loop
   const loop = [...testimonials, ...testimonials];
 
   return (
-    <section id="clients" className="lv-testimonials">
+    <section
+      id="clients"
+      className="lv-testimonials"
+      style={{
+        background: "#EAEAE8", // ✅ match your Image2 bg
+        padding: "54px 0 44px",
+      }}
+    >
       <div className="lv-container">
         <div className="lv-testimonialsHead">
           <h2 className="lv-testimonialsTitle">What Our Clients Say</h2>
@@ -381,10 +477,7 @@ function TestimonialsOnly() {
         </div>
 
         <div className="lv-marquee">
-          <div
-            className="lv-marqueeTrack"
-            style={{ ["--duration"]: "40s", ["--gap"]: "18px" }}
-          >
+          <div className="lv-marqueeTrack" style={{ ["--duration"]: "40s", ["--gap"]: "18px" }}>
             {loop.map((t, idx) => (
               <div className="lv-tCard" key={idx}>
                 <div className="lv-tTop">
@@ -407,56 +500,57 @@ function TestimonialsOnly() {
   );
 }
 
-
-/** ====== FOOTER (Full-bleed like Figma) ====== */
+/** ✅ FOOTER updated to match Image1 */
 function FooterFullBleed() {
   return (
     <footer style={sx.footerBleed}>
       <div style={sx.container}>
         <div style={sx.footerGrid}>
+          {/* Left brand */}
           <div style={sx.footerBrand}>
-            <div style={sx.footerBrandRow}>
-              <div style={sx.footerBrandMark}>V</div>
-              <div>
-                <div style={sx.footerBrandName}>Vizwalk</div>
-                <div style={sx.footerBrandSub}>
-                  Next-generation architectural visualization platform. Bring your designs to life with stunning realism.
-                </div>
-              </div>
-            </div>
-          </div>
+  <img src={vizIcon} alt="Vizwalk" style={sx.footerLogoImg} />
+  <div style={sx.footerDesc}>
+    Next-generation architectural visualization platform. Bring your designs to life with stunning realism.
+  </div>
+</div>
 
+
+          {/* Product */}
           <div style={sx.footerCol}>
             <div style={sx.footerColTitle}>PRODUCT</div>
             <a href="#featured-projects" style={sx.footerLink}>
               Features
             </a>
-            <a href="#featured-projects" style={sx.footerLink}>
+            <a href="#featured-projects" style={{ ...sx.footerLink, opacity: 0.55, pointerEvents: "none" }}>
               Gallery
             </a>
-            <a href="#featured-projects" style={sx.footerLink}>
+            <a href="#featured-projects" style={{ ...sx.footerLink, opacity: 0.55, pointerEvents: "none" }}>
               Updates
             </a>
           </div>
 
+          {/* Resources */}
           <div style={sx.footerCol}>
             <div style={sx.footerColTitle}>RESOURCES</div>
-            <a href="#" style={sx.footerLink}>
+            <a href="/docs" style={sx.footerLink}>
               Documentation
             </a>
-            <a href="#" style={sx.footerLink}>
+            <a href="/shortcuts" style={sx.footerLink}>
               Shortcut Guide
             </a>
           </div>
         </div>
 
         <div style={sx.footerBottom}>
-          <div>© 2026 Vizwalk.com All rights reserved.</div>
+          <div style={sx.footerCopy}>© 2026 Vizwalk.com All rights reserved.</div>
           <div style={sx.footerSocial}>
-            <a href="#" style={sx.footerSocialLink}>
+            <a href="https://youtube.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>
+              YouTube
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>
               LinkedIn
             </a>
-            <a href="#" style={sx.footerSocialLink}>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>
               Instagram
             </a>
           </div>
@@ -464,6 +558,27 @@ function FooterFullBleed() {
       </div>
     </footer>
   );
+}
+
+function getYouTubeEmbedUrl(url = "") {
+  if (!url) return "";
+  try {
+    const short = url.match(/youtu\.be\/([^?&/]+)/i);
+    if (short?.[1]) {
+      return `https://www.youtube.com/embed/${short[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
+    }
+    const watch = url.match(/[?&]v=([^?&]+)/i);
+    if (watch?.[1]) {
+      return `https://www.youtube.com/embed/${watch[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
+    }
+    const embed = url.match(/youtube\.com\/embed\/([^?&/]+)/i);
+    if (embed?.[1]) {
+      return `https://www.youtube.com/embed/${embed[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
+    }
+    return "";
+  } catch {
+    return "";
+  }
 }
 
 /** ====== PAGE ====== */
@@ -476,35 +591,20 @@ export default function Landing() {
   // Server toggle (India / US)
   const [selectedServer, setSelectedServer] = useState("india");
 
-    // ✅ Part 2 state (MUST be inside component)
+  // Featured projects controls
   const [activeCategory2, setActiveCategory2] = useState("All");
   const [searchQuery2, setSearchQuery2] = useState("");
   const [showAll2, setShowAll2] = useState(false);
 
-  // top of Landing()
-const [showLocbar, setShowLocbar] = useState(true);
-
-const handleContinue = () => {
-  setShowLocbar(false);
-};
-
-
-// const handleContinue = () => {
-//   localStorage.setItem("vw_locbar_hidden", "1");
-//   setShowLocbar(false);
-// };
-
+  // Locbar
+  const [showLocbar, setShowLocbar] = useState(true);
+  const handleContinue = () => setShowLocbar(false);
 
   useEffect(() => {
     setActiveCategory2("All");
     setSearchQuery2("");
     setShowAll2(false);
   }, [selectedServer]);
-
-
-  // Part 2: filter/search
-  const [query, setQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("all");
 
   useEffect(() => {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&id=${SHEET_ID}&gid=${GID}`;
@@ -520,7 +620,6 @@ const handleContinue = () => {
 
         const iStatus = idxOf(headers, COLS.status);
         const iServer = idxOf(headers, COLS.server);
-
         const iSBU = idxOf(headers, COLS.sbu);
         const iProjectName = idxOf(headers, COLS.projectName);
         const iBuildName = idxOf(headers, COLS.buildName);
@@ -544,7 +643,7 @@ const handleContinue = () => {
             const server = normalizeServer(serverRaw);
 
             return {
-              server, // "india" | "us"
+              server,
               sbu: safeGet(r, iSBU),
               projectName: safeGet(r, iProjectName),
               buildName: safeGet(r, iBuildName),
@@ -572,29 +671,23 @@ const handleContinue = () => {
     })();
   }, []);
 
-    const filtered = useMemo(() => {
+  const filtered = useMemo(() => {
     const q = norm(searchQuery2);
 
     return items.filter((it) => {
-      // ✅ server filter (IMPORTANT)
       if (selectedServer && it.server && it.server !== selectedServer) return false;
       if (selectedServer && !it.server) return false;
 
-      // ✅ category filter
       if (activeCategory2 !== "All") {
         const cat = norm(`${it.designStyle || ""} ${it.industry || ""}`);
         if (!cat.includes(norm(activeCategory2))) return false;
       }
 
-      // ✅ search filter
       if (!q) return true;
       const hay = `${it.projectName} ${it.buildName} ${it.buildVersion} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
       return norm(hay).includes(q);
     });
   }, [items, selectedServer, activeCategory2, searchQuery2]);
-
-
-  const heroItem = filtered[0] || items.find((x) => x.server === selectedServer) || items[0] || null;
 
   const handleOpenVizwalk = (item) => {
     const bust = Date.now();
@@ -633,115 +726,129 @@ const handleContinue = () => {
     <div style={sx.page}>
       {/* Top announcement bar */}
       {showLocbar && (
-  <div className="lv-locbar">
-    <div className="lv-container">
-      <div className="lv-locbarInner">
-        <div className="lv-locbarText">
-          Choose another country or region to see content specific to your location
+        <div className="lv-locbar">
+          <div className="lv-container">
+            <div className="lv-locbarInner">
+              <div className="lv-locbarText">
+                Choose another country or region to see content specific to your location
+              </div>
+
+              <div className="lv-locbarRight">
+                <div className="lv-togglePills">
+                  <button
+                    type="button"
+                    className={`lv-pill ${selectedServer === "india" ? "lv-pillActive" : ""}`}
+                    onClick={() => setSelectedServer("india")}
+                  >
+                    🇮🇳 <span>India</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`lv-pill ${selectedServer === "us" ? "lv-pillActive" : ""}`}
+                    onClick={() => setSelectedServer("us")}
+                  >
+                    🇺🇸 <span>US</span>
+                  </button>
+                </div>
+
+                <button type="button" className="lv-continue" onClick={handleContinue}>
+                  Continue
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div className="lv-locbarRight">
-  <div className="lv-togglePills">
-    <button
-      type="button"
-      className={`lv-pill ${selectedServer === "india" ? "lv-pillActive" : ""}`}
-      onClick={() => setSelectedServer("india")}
-    >
-      🇮🇳 <span>India</span>
-    </button>
-
-    <button
-      type="button"
-      className={`lv-pill ${selectedServer === "us" ? "lv-pillActive" : ""}`}
-      onClick={() => setSelectedServer("us")}
-    >
-      🇺🇸 <span>US</span>
-    </button>
-  </div>
-
-  <button type="button" className="lv-continue" onClick={handleContinue}>
-    Continue
-  </button>
-</div>
-
-      </div>
-    </div>
-  </div>
-)}
-
-
-
-      
+      )}
 
       {/* Navbar */}
       <LandingNavbar user={user} signOut={signOut} />
 
-      
-
       {/* Hero */}
       <div className="lv-container">
-  <section className="lv-hero">
-    <div className="lv-heroLeft">
-      <div className="lv-heroTitle">
-        Bring Spaces <br />
-        <span className="lv-heroAccent">To Life</span>
+        <section className="lv-hero">
+          <div className="lv-heroLeft">
+            <div className="lv-heroTitle">
+              Bring Spaces <br />
+              <span className="lv-heroAccent">To Life</span>
+            </div>
+
+            <div className="lv-heroDesc">
+              Interactive virtual walkthrough offering clients an immersive experience with real-time design
+              modifications using Flipspaces&apos; integrated product library
+            </div>
+
+            <div className="lv-heroBtns">
+              <button
+                type="button"
+                className="lv-btnPrimary"
+                onClick={() => document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })}
+              >
+                ▶ Watch Demo
+              </button>
+
+              <button
+                type="button"
+                className="lv-btnSecondary"
+                onClick={() => document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })}
+              >
+                Explore Platform
+              </button>
+            </div>
+          </div>
+
+          <div className="lv-heroRight">
+            <div className="lv-heroCard" style={{ overflow: "hidden" }}>
+              <div
+                style={{
+                  position: "relative",
+                  width: "100%",
+                  height: 320,
+                  overflow: "hidden",
+                  borderRadius: 18,
+                }}
+              >
+                <iframe
+                  src={getYouTubeEmbedUrl(HERO_YOUTUBE_URL)}
+                  title="Vizwalk demo"
+                  style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    width: "110%",
+                    height: "100%",
+                    border: 0,
+                  }}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
-      <div className="lv-heroDesc">
-        Interactive virtual walkthrough offering clients an immersive experience with real-time design modifications using
-        Flipspaces&apos; integrated product library
-      </div>
-
-      <div className="lv-heroBtns">
-        <button
-          type="button"
-          className="lv-btnPrimary"
-          onClick={() => document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })}
-        >
-          ▶ Watch Demo
-        </button>
-
-        <button
-          type="button"
-          className="lv-btnSecondary"
-          onClick={() => document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })}
-        >
-          Explore Platform
-        </button>
-      </div>
-    </div>
-
-    <div className="lv-heroRight">
-      <div className="lv-heroCard">
-        <ImageWithFallback
-          src={heroItem?.thumb}
-          alt="Hero preview"
-          style={{ width: "100%", height: "320px", objectFit: "cover", display: "block" }}
-        />
-      </div>
-    </div>
-  </section>
-</div>
-
-
-{/* ===== PART 2: Featured Projects ===== */}
-<section id="featured-projects" style={{ padding: "32px 0 18px" }}>
+      {/* ===== PART 2: Featured Projects ===== */}
+<section
+  id="featured-projects"
+  style={{
+    background: "#FFFFFF",
+    padding: "56px 0 24px", // ✅ more like Image1
+  }}
+>
   <div style={sx.container}>
     <div style={sx.fpHeader}>
       <div>
         <div style={sx.fpTitle}>Featured Projects</div>
-        <div style={sx.fpSub}>Explore our premium architectural visualizations and immersive 3D walkthroughs</div>
+        <div style={sx.fpSub}>
+          Explore our projects showcasing tech-enabled interior design expertise
+        </div>
       </div>
-
-      {filtered.length > 6 && (
-        <button type="button" style={sx.fpViewAllTop} onClick={() => setShowAll2((v) => !v)}>
-          {showAll2 ? "Show Less" : "View All Projects"} →
-        </button>
-      )}
     </div>
 
     <div style={sx.fpControls}>
-      {/* categories */}
+      {/* chips (left) */}
       <div style={sx.fpChips}>
         {categories2.map((c) => (
           <button
@@ -758,13 +865,13 @@ const handleContinue = () => {
         ))}
       </div>
 
-      {/* search */}
+      {/* search (right) */}
       <div style={sx.fpSearchWrap}>
-        <span style={sx.fpSearchIcon}>🔎</span>
+        <span style={sx.fpSearchIcon}>🔍</span>
         <input
           value={searchQuery2}
           onChange={(e) => setSearchQuery2(e.target.value)}
-          placeholder="Search projects..."
+          placeholder="Search Projects.."
           style={sx.fpSearchInput}
         />
       </div>
@@ -798,13 +905,11 @@ const handleContinue = () => {
 </section>
 
 
+      {/* Testimonials */}
+      <TestimonialsOnly />
 
-      {/* ===== PART 3: Testimonials ===== */}
-<TestimonialsOnly />
-
-{/* ===== FOOTER (full width) ===== */}
-<FooterFullBleed />
-
+      {/* Footer */}
+      <FooterFullBleed />
     </div>
   );
 }
@@ -823,217 +928,14 @@ const sx = {
     margin: "0 auto",
   },
 
-  /* Top bar */
-  topBar: {
-    background: "#ffffff",
-    borderBottom: "1px solid rgba(0,0,0,0.06)",
-    fontSize: 12,
-    fontFamily: "var(--font-sans)",
-  },
-  topBarInner: {
-    height: 38,
-    display: "grid",
-    gridTemplateColumns: "1fr auto 1fr",
-    alignItems: "center",
-    gap: 12,
-  },
-  topBarText: {
-    gridColumn: "2 / 3",
-    textAlign: "center",
-    opacity: 0.75,
-    fontWeight: 600,
-    fontSize: 12,
-  },
-  topBarRight: {
-    gridColumn: "3 / 4",
-    justifySelf: "end",
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-  },
-  pillBtn: {
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "#fff",
-    height: 26,
-    padding: "0 10px",
-    borderRadius: 999,
-    fontWeight: 800,
-    cursor: "pointer",
-    fontSize: 12,
-    fontFamily: "var(--font-sans)",
-  },
-  pillBtnActive: {
-    borderColor: "rgba(0,0,0,0.18)",
-    boxShadow: "0 6px 18px rgba(0,0,0,0.10)",
-  },
-  continueBtn: {
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "#f5a524",
-    height: 26,
-    padding: "0 12px",
-    borderRadius: 999,
-    fontWeight: 950,
-    cursor: "pointer",
-    fontSize: 12,
-    fontFamily: "var(--font-sans)",
-  },
-
-  /* Navbar */
-  navWrap: {
-    position: "sticky",
-    top: 0,
-    zIndex: 50,
-    background: "rgba(255,255,255,0.92)",
-    backdropFilter: "blur(10px)",
-    borderBottom: "1px solid rgba(0,0,0,0.06)",
-    fontFamily: "var(--font-sans)",
-  },
-  nav: {
-    height: 64,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 16,
-  },
-  brand: { display: "flex", alignItems: "center", gap: 10 },
-  brandMark: {
-    width: 28,
-    height: 28,
-    borderRadius: 10,
-    background: "#f5a524",
-    display: "grid",
-    placeItems: "center",
-    fontWeight: 950,
-    fontFamily: "var(--font-heading)",
-  },
-  brandName: {
-    fontWeight: 950,
-    letterSpacing: 0.2,
-    lineHeight: 1.1,
-    fontFamily: "var(--font-heading)",
-  },
-  brandSub: { fontSize: 11, opacity: 0.65, marginTop: 2 },
-
-  navLinks: {
-    display: "flex",
-    gap: 18,
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  navLink: {
-    textDecoration: "none",
-    color: "#141414",
-    fontWeight: 800,
-    fontSize: 13,
-    opacity: 0.8,
-    fontFamily: "var(--font-sans)",
-  },
-  navRight: { display: "flex", alignItems: "center", gap: 10 },
-
-  iconCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "#fff",
-    display: "grid",
-    placeItems: "center",
-    cursor: "pointer",
-    fontWeight: 900,
-    fontFamily: "var(--font-sans)",
-  },
-  userMini: {
-    maxWidth: 220,
-    padding: "8px 10px",
-    borderRadius: 999,
-    background: "rgba(0,0,0,0.06)",
-    fontSize: 12,
-    fontWeight: 900,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-    border: "1px solid rgba(0,0,0,0.06)",
-    fontFamily: "var(--font-sans)",
-  },
-  logoutMini: {
-    padding: "10px 14px",
-    borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "#fff",
-    fontWeight: 950,
-    cursor: "pointer",
-    fontFamily: "var(--font-sans)",
-  },
-
-  /* Hero */
-  hero: {
-    padding: "64px 0 24px",
-    display: "grid",
-    gridTemplateColumns: "1.05fr 0.95fr",
-    gap: 34,
-    alignItems: "center",
-  },
-  heroLeft: { paddingRight: 10 },
-  heroTitle: {
-    fontSize: 54,
-    fontWeight: 800,
-    lineHeight: 1.02,
-    letterSpacing: -0.8,
-    fontFamily: "var(--font-heading)",
-  },
-  heroAccent: { color: "#f5a524" },
-  heroDesc: {
-    marginTop: 18,
-    fontSize: 14,
-    opacity: 0.75,
-    maxWidth: 480,
-    lineHeight: 1.7,
-    fontFamily: "var(--font-sans)",
-  },
-  heroButtons: { marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" },
-  heroPrimary: {
-    background: "#f5a524",
-    border: "1px solid rgba(0,0,0,0.10)",
-    padding: "12px 16px",
-    borderRadius: 12,
-    fontWeight: 800,
-    cursor: "pointer",
-    fontFamily: "var(--font-sans)",
-    boxShadow: "var(--shadow-yellow)",
-  },
-  heroSecondary: {
-    background: "#fff",
-    border: "1px solid rgba(0,0,0,0.18)",
-    padding: "12px 16px",
-    borderRadius: 12,
-    fontWeight: 800,
-    cursor: "pointer",
-    fontFamily: "var(--font-sans)",
-  },
-  heroRight: { display: "flex", justifyContent: "flex-end" },
-  heroImageCard: {
-    width: "min(620px, 100%)",
-    borderRadius: 18,
-    overflow: "hidden",
-    border: "1px solid rgba(0,0,0,0.07)",
-    background: "#fff",
-    boxShadow: "var(--shadow-yellow)",
-  },
-  heroImg: {
-    width: "100%",
-    height: 320,
-    objectFit: "cover",
-    display: "block",
-  },
-
   /* Featured Projects */
   fpHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 14,
-  },
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 14,
+  marginBottom: 10,            // ✅ adds the same header spacing
+},
   fpTitle: { fontSize: 26, fontWeight: 800, fontFamily: "var(--font-heading)" },
   fpSub: { marginTop: 6, fontSize: 13, opacity: 0.72, fontFamily: "var(--font-sans)" },
 
@@ -1047,13 +949,20 @@ const sx = {
   },
 
   fpControls: {
-    marginTop: 14,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 12,
-    flexWrap: "wrap",
-  },
+  marginTop: 16,               // ✅ a bit more like image1
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 14,
+  flexWrap: "wrap",
+},
+
+fpGrid: {
+  marginTop: 18,
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 18,                     // ✅ slightly airier like image1
+},
   fpChips: {
     display: "flex",
     gap: 8,
@@ -1096,23 +1005,8 @@ const sx = {
     fontFamily: "var(--font-sans)",
   },
 
-  fpGrid: {
-    marginTop: 16,
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 16,
-  },
-  fpCard: {
-    background: "rgba(255,255,255,0.92)",
-    border: "1px solid rgba(0,0,0,0.08)",
-    borderRadius: 12,
-    overflow: "hidden",
-    boxShadow: "var(--shadow-card)",
-    fontFamily: "var(--font-sans)",
-  },
-  fpMedia: { position: "relative", cursor: "pointer" },
-  fpImg: { width: "100%", height: 170, objectFit: "cover", display: "block" },
 
+  
   fpServerPill: {
     position: "absolute",
     right: 10,
@@ -1126,19 +1020,6 @@ const sx = {
     fontFamily: "var(--font-sans)",
   },
 
-  fpBody: { padding: 12 },
-  fpCatPill: {
-    display: "inline-block",
-    padding: "3px 8px",
-    borderRadius: 6,
-    background: "rgba(245,165,36,0.18)",
-    color: "#a56100",
-    fontSize: 11,
-    fontWeight: 800,
-    fontFamily: "var(--font-sans)",
-  },
-  fpName: { marginTop: 8, fontSize: 14, fontWeight: 800, fontFamily: "var(--font-heading)" },
-  fpArea: { marginTop: 6, fontSize: 12, opacity: 0.75, fontFamily: "var(--font-sans)" },
 
   fpRow: {
     marginTop: 10,
@@ -1171,11 +1052,7 @@ const sx = {
     fontFamily: "var(--font-sans)",
   },
 
-  fpBottom: {
-    display: "flex",
-    justifyContent: "center",
-    marginTop: 18,
-  },
+
   fpViewAllBottom: {
     border: "1px solid rgba(0,0,0,0.14)",
     background: "rgba(255,255,255,0.9)",
@@ -1186,117 +1063,382 @@ const sx = {
     fontFamily: "var(--font-sans)",
   },
 
-  /* Part 3 */
-  part3Wrap: { padding: "38px 0 16px", fontFamily: "var(--font-sans)" },
-  part3Title: { textAlign: "center", fontSize: 28, fontWeight: 800, fontFamily: "var(--font-heading)" },
-  part3Sub: { textAlign: "center", marginTop: 8, fontSize: 13, opacity: 0.72, fontWeight: 600 },
-
-  part3CardsRow: {
-    marginTop: 18,
-    display: "grid",
-    gridTemplateColumns: "repeat(5, 1fr)",
-    gap: 14,
-  },
-  part3Card: {
-    background: "rgba(0,0,0,0.03)",
-    border: "1px solid rgba(0,0,0,0.06)",
-    borderRadius: 12,
-    padding: 14,
-    minHeight: 132,
-  },
-  part3CardTop: { display: "flex", alignItems: "center", gap: 10 },
-  part3Avatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 999,
-    background: "#f5a524",
-    display: "grid",
-    placeItems: "center",
-    fontWeight: 800,
-    fontSize: 12,
-    fontFamily: "var(--font-heading)",
-  },
-  part3Name: { fontWeight: 800, fontSize: 12, fontFamily: "var(--font-heading)" },
-  part3Role: { marginTop: 2, fontSize: 11, opacity: 0.7, fontWeight: 600 },
-  part3Quote: { marginTop: 10, fontSize: 11.5, opacity: 0.82, lineHeight: 1.55, fontStyle: "italic" },
-
-  /* Footer */
+  /* ✅ Footer (Image1) */
   footerBleed: {
     width: "100%",
-    background: "rgba(0,0,0,0.14)",
-    borderTop: "1px solid rgba(0,0,0,0.10)",
-    marginTop: 10,
-    padding: "22px 0 14px",
-    fontFamily: "var(--font-sans)",
+    background: "#d0d0cc", // Image1 feel
+    padding: "42px 0 22px",
   },
   footerGrid: {
     display: "grid",
-    gridTemplateColumns: "1.6fr 0.9fr 0.9fr",
-    gap: 28,
+    gridTemplateColumns: "1.6fr 0.7fr 0.7fr",
+    gap: 80,
     alignItems: "start",
-    paddingBottom: 16,
   },
-  footerBrandRow: { display: "flex", alignItems: "flex-start", gap: 12 },
-  footerBrandMark: {
-    width: 28,
-    height: 28,
-    borderRadius: 10,
-    background: "#f5a524",
-    display: "grid",
-    placeItems: "center",
-    fontWeight: 800,
-    flex: "0 0 auto",
-    fontFamily: "var(--font-heading)",
-  },
-  footerBrandName: { fontWeight: 800, fontSize: 14, lineHeight: 1.1, fontFamily: "var(--font-heading)" },
-  footerBrandSub: {
-    marginTop: 6,
-    maxWidth: 420,
-    opacity: 0.78,
-    fontSize: 12,
+  footerBrand: {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  justifyContent: "flex-start",
+  gap: 10,
+  paddingLeft: 0,
+  marginLeft: 0,
+},
+
+  footerLogoImg: {
+  display: "block",
+  height: 44,        // adjust if needed
+  width: "auto",
+  margin: 0,
+  padding: 0,
+  objectFit: "contain",
+},
+
+  footerDesc: {
+    maxWidth: 360,
+    fontSize: 13,
     lineHeight: 1.55,
+    color: "rgba(0,0,0,0.72)",
     fontWeight: 600,
   },
-  footerCol: { paddingTop: 4 },
+  footerCol: { paddingTop: 6 },
   footerColTitle: {
-    fontWeight: 800,
-    fontSize: 11,
-    opacity: 0.75,
-    marginBottom: 10,
-    letterSpacing: 0.3,
-    fontFamily: "var(--font-sans)",
+    fontWeight: 900,
+    fontSize: 12,
+    letterSpacing: "0.08em",
+    color: "rgba(0,0,0,0.60)",
+    marginBottom: 14,
   },
   footerLink: {
     display: "block",
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 700,
-    opacity: 0.82,
+    color: "rgba(0,0,0,0.70)",
     marginBottom: 10,
     textDecoration: "none",
-    color: "#141414",
-    fontFamily: "var(--font-sans)",
   },
   footerBottom: {
+    marginTop: 28,
+    paddingTop: 16,
     borderTop: "1px solid rgba(0,0,0,0.12)",
-    paddingTop: 12,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 12,
-    fontSize: 11,
-    opacity: 0.82,
-    fontWeight: 700,
+    gap: 16,
   },
-  footerSocial: { display: "flex", gap: 18, alignItems: "center" },
+  footerCopy: {
+    fontSize: 12,
+    color: "rgba(0,0,0,0.65)",
+    fontWeight: 600,
+  },
+  footerSocial: { display: "flex", gap: 22, alignItems: "center" },
   footerSocialLink: {
+    fontSize: 12,
+    fontWeight: 800,
+    color: "rgba(0,0,0,0.60)",
     textDecoration: "none",
-    color: "#141414",
-    fontWeight: 700,
-    opacity: 0.85,
-    fontFamily: "var(--font-sans)",
   },
+  fpCard: {
+  background: "#fff",
+  border: "1px solid rgba(0,0,0,0.08)",
+  borderRadius: 16,
+  overflow: "hidden",
+  boxShadow: "0 10px 26px rgba(0,0,0,0.06)",
+  fontFamily: "var(--font-sans)",
+},
 
-  /* Unchanged */
-  fpServerPill: undefined,
+fpMedia: { position: "relative", cursor: "pointer" },
+
+fpImg: {
+  width: "100%",
+  height: 210,              // ✅ closer to your reference
+  objectFit: "cover",
+  display: "block",
+},
+
+fpBody: {
+  padding: "14px 16px 12px",
+  background: "#EFEDE8",     // ✅ grey panel like reference
+},
+
+fpName: {
+  fontSize: 22,
+  fontWeight: 900,
+  fontFamily: "var(--font-heading)",
+  lineHeight: 1.1,
+},
+
+fpCatPill: {
+  display: "inline-block",
+  padding: "3px 10px",
+  borderRadius: 6,
+  background: "rgba(245,165,36,0.22)",
+  color: "#a56100",
+  fontSize: 11,
+  fontWeight: 900,
+},
+
+fpArea: {
+  marginTop: 8,
+  fontSize: 12,
+  opacity: 0.75,
+  fontWeight: 700,
+},
+
+fpDivider: {
+  height: 1,
+  background: "rgba(0,0,0,0.10)",
+  marginTop: 12,
+  marginBottom: 10,
+},
+
+fpBottomRow: {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 12,
+},
+
+fpIconRow: {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+},
+
+fpIconBtn: {
+  width: 22,
+  height: 18,
+  borderRadius: 4,
+  display: "grid",
+  placeItems: "center",
+  border: "none",
+  cursor: "pointer",
+  fontSize: 11,
+  fontWeight: 900,
+  lineHeight: 1,
+},
+
+fpIconBtnYT: {
+  background: "#FF0000",
+  color: "#fff",
+  textDecoration: "none",
+},
+
+fpIconBtnAlt: {
+  background: "#FFC702",
+  color: "#111",
+},
+
+fpDetail: {
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  fontSize: 12,
+  fontWeight: 800,
+  opacity: 0.8,
+  fontFamily: "var(--font-sans)",
+},
+
+fpHeader: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+},
+
+fpTitle: {
+  fontSize: 44,              // ✅ Image1 big title
+  fontWeight: 900,
+  letterSpacing: -0.6,
+  fontFamily: "var(--font-heading)",
+},
+
+fpSub: {
+  marginTop: 10,
+  fontSize: 16,              // ✅ Image1 subtitle size
+  lineHeight: 1.6,
+  opacity: 0.72,
+  fontWeight: 500,
+  fontFamily: "var(--font-sans)",
+},
+
+fpControls: {
+  marginTop: 22,             // ✅ more breathing space like Image1
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 16,
+  flexWrap: "wrap",
+},
+
+fpChips: {
+  display: "flex",
+  gap: 10,
+  flexWrap: "wrap",
+  alignItems: "center",
+},
+
+chip: {
+  padding: "10px 14px",
+  borderRadius: 999,
+  border: "1px solid rgba(0,0,0,0.14)",
+  background: "#fff",
+  cursor: "pointer",
+  fontWeight: 650,           // ✅ less bold like Image1
+  fontSize: 13,
+  fontFamily: "var(--font-sans)",
+},
+
+chipActive: {
+  background: "#FFC702",     // ✅ Image1 yellow
+  borderColor: "rgba(0,0,0,0.10)",
+  color: "#111",
+  boxShadow: "0 10px 24px rgba(255, 199, 2, 0.25)",
+},
+
+fpSearchWrap: {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  background: "#fff",
+  border: "1px solid rgba(0,0,0,0.14)",
+  borderRadius: 999,
+  padding: "10px 14px",
+  minWidth: 280,             // ✅ Image1 wide search pill
+  height: 40,
+},
+
+fpSearchIcon: {
+  opacity: 0.7,
+  fontSize: 14,
+},
+
+fpSearchInput: {
+  border: "none",
+  outline: "none",
+  background: "transparent",
+  fontSize: 13,
+  flex: 1,
+  fontFamily: "var(--font-sans)",
+},
+
+fpGrid: {
+  marginTop: 18,
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 18,
+},
+
+fpCard: {
+  background: "#F1F0EA",     // ✅ card base like your Emirates sample
+  border: "1px solid rgba(0,0,0,0.10)",
+  borderRadius: 18,
+  overflow: "hidden",
+  boxShadow: "0 14px 40px rgba(0,0,0,0.08)",
+},
+
+fpMedia: { position: "relative", cursor: "pointer" },
+
+fpImg: {
+  width: "100%",
+  height: 220,               // ✅ taller image like sample
+  objectFit: "cover",
+  display: "block",
+},
+
+fpBody: {
+  padding: 14,
+},
+
+fpName: {
+  fontSize: 20,
+  fontWeight: 900,
+  fontFamily: "var(--font-heading)",
+},
+
+fpCatRow: {
+  marginTop: 8,
+},
+
+fpCatPill: {
+  display: "inline-block",
+  padding: "4px 10px",
+  borderRadius: 6,
+  background: "rgba(255,199,2,0.25)",
+  color: "#a56100",
+  fontSize: 12,
+  fontWeight: 800,
+  fontFamily: "var(--font-sans)",
+},
+
+fpArea: {
+  marginTop: 8,
+  fontSize: 13,
+  opacity: 0.75,
+  fontFamily: "var(--font-sans)",
+},
+
+fpDivider: {
+  marginTop: 12,
+  height: 1,
+  background: "rgba(0,0,0,0.08)",
+},
+
+fpRow: {
+  marginTop: 12,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 10,
+},
+
+fpLeftIcons: {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+},
+
+fpIconBtn: {
+  width: 30,
+  height: 22,
+  borderRadius: 6,
+  background: "#fff",
+  border: "1px solid rgba(0,0,0,0.12)",
+  display: "grid",
+  placeItems: "center",
+  textDecoration: "none",
+  color: "#111",
+  fontWeight: 900,
+  fontSize: 12,
+},
+
+fpIconDot: {
+  width: 18,
+  height: 18,
+  borderRadius: 999,
+  background: "#00B894",     // small accent dot (just visual balance)
+  display: "inline-block",
+  opacity: 0.9,
+},
+
+fpDetail: {
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  fontSize: 13,
+  fontWeight: 750,
+  opacity: 0.8,
+  fontFamily: "var(--font-sans)",
+},
+
+
+
+
+
+
+
+
+
+
+
+
 };
-
