@@ -1,0 +1,21 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+/* e.g., src/pages/Experience.css or a global css you already import */
+.sp-loader {
+  position: fixed;
+  inset: 0;
+  background: #000;            /* or brand color */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.sp-loader img {
+  max-width: 520px;            /* adjust as needed */
+  width: 60vw;
+  height: auto;
+}
