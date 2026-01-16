@@ -194,6 +194,39 @@ const TABS = [
   { key: "screenshots", label: "Screenshots", disabled: false },
 ];
 
+/** ====== MERGE (keep old, add new; no "unhide/blank" during refresh) ====== */
+function mergeGroups(prev = [], next = []) {
+  // group name can be session folder name. Use that + file id for dedupe.
+  const map = new Map((prev || []).map((g) => [g.group || g.ts || "", g]));
+
+  for (const ng of next || []) {
+    const key = ng.group || ng.ts || "";
+    const pg = map.get(key);
+
+    if (!pg) {
+      map.set(key, ng);
+      continue;
+    }
+
+    const seen = new Set((pg.items || []).map((it) => it.id));
+    const mergedItems = [...(pg.items || [])];
+
+    for (const it of ng.items || []) {
+      if (it?.id && !seen.has(it.id)) {
+        mergedItems.push(it);
+        seen.add(it.id);
+      }
+    }
+
+    mergedItems.sort((a, b) => (b.created || "").localeCompare(a.created || ""));
+    map.set(key, { ...pg, ...ng, items: mergedItems });
+  }
+
+  const merged = Array.from(map.values());
+  merged.sort((a, b) => (b.ts || "").localeCompare(a.ts || ""));
+  return merged;
+}
+
 export default function ScreenshotGallery() {
   const [activeTab, setActiveTab] = useState("screenshots");
 
@@ -201,8 +234,12 @@ export default function ScreenshotGallery() {
   const [headerItem, setHeaderItem] = useState(null);
 
   const [screenshotsGroups, setScreenshotsGroups] = useState([]);
-  const [loadingShots, setLoadingShots] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+
+  // IMPORTANT:
+  // - initialLoadingShots: only true when we have ZERO screenshots and we are fetching
+  // - isRefreshingShots: true during background refresh but we DO NOT hide old images
+  const [initialLoadingShots, setInitialLoadingShots] = useState(false);
+  const [isRefreshingShots, setIsRefreshingShots] = useState(false);
 
   const rowRefs = useRef({});
 
@@ -278,8 +315,7 @@ export default function ScreenshotGallery() {
           match =
             items.find(
               (x) =>
-                (norm(x.buildName) === qBuild ||
-                  norm(x.projectName) === qBuild) &&
+                (norm(x.buildName) === qBuild || norm(x.projectName) === qBuild) &&
                 norm(x.buildVersion || "") === qVer
             ) ||
             items.find((x) => norm(x.buildName) === qBuild) ||
@@ -302,40 +338,56 @@ export default function ScreenshotGallery() {
     })();
   }, [buildQuery, verQuery]);
 
+  const hasAnyScreenshots = useMemo(() => {
+    return (screenshotsGroups || []).some((g) => (g?.items || []).length > 0);
+  }, [screenshotsGroups]);
+
   /** ====== LOAD SCREENSHOTS (Apps Script) ====== */
-  const fetchScreenshots = useCallback(async () => {
-    if (!buildKey) return;
-    try {
-      setLoadingShots(true);
-      const url = new URL(GDRIVE_API_URL);
-      url.searchParams.set("action", "listscreenshots");
-      url.searchParams.set("build", buildKey);
+  const fetchScreenshots = useCallback(
+    async ({ background = false } = {}) => {
+      if (!buildKey) return;
 
-      const res = await fetch(url.toString(), { cache: "no-store" });
-      const json = await res.json();
+      // initial load: show empty loader ONLY when there is nothing on screen yet
+      if (!background) setInitialLoadingShots(!hasAnyScreenshots);
+      else setIsRefreshingShots(true);
 
-      if (json?.ok) setScreenshotsGroups(json.groups || []);
-      else {
-        console.warn("listscreenshots error", json);
-        setScreenshotsGroups([]);
+      try {
+        const url = new URL(GDRIVE_API_URL);
+        url.searchParams.set("action", "listscreenshots");
+        url.searchParams.set("build", buildKey);
+
+        const res = await fetch(url.toString(), { cache: "no-store" });
+        const json = await res.json();
+
+        if (json?.ok) {
+          // ✅ MERGE: keep old, only add new
+          setScreenshotsGroups((prev) => mergeGroups(prev, json.groups || []));
+        } else {
+          console.warn("listscreenshots error", json);
+          // IMPORTANT: do NOT clear UI on refresh failure
+          if (!hasAnyScreenshots) setScreenshotsGroups([]);
+        }
+      } catch (err) {
+        console.error("listscreenshots fetch error", err);
+        // do NOT clear UI on refresh failure
+        if (!hasAnyScreenshots) setScreenshotsGroups([]);
+      } finally {
+        setInitialLoadingShots(false);
+        setIsRefreshingShots(false);
       }
-    } catch (err) {
-      console.error("listscreenshots fetch error", err);
-      setScreenshotsGroups([]);
-    } finally {
-      setLoadingShots(false);
-    }
-  }, [buildKey]);
+    },
+    [buildKey, hasAnyScreenshots]
+  );
 
   useEffect(() => {
-    fetchScreenshots();
-  }, [fetchScreenshots, refreshKey]);
+    fetchScreenshots({ background: false });
+  }, [fetchScreenshots]);
 
-  // Auto-refresh every 20 seconds
+  // Auto-refresh every 20 seconds (background)
   useEffect(() => {
-    const interval = setInterval(() => setRefreshKey((k) => k + 1), 20000);
+    const interval = setInterval(() => fetchScreenshots({ background: true }), 20000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchScreenshots]);
 
   /** ====== ACTIONS ====== */
   const openImage = (url) => {
@@ -359,14 +411,11 @@ export default function ScreenshotGallery() {
     if (!headerItem) return;
 
     const bust = Date.now();
-    const projectLabel =
-      headerItem.projectName || headerItem.buildName || "project";
+    const projectLabel = headerItem.projectName || headerItem.buildName || "project";
 
     const sessionId = `${projectLabel
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")}-${new Date()
-      .toISOString()
-      .replace(/[:.]/g, "-")}`;
+      .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
 
     const id = projectLabel
       .toLowerCase()
@@ -381,20 +430,9 @@ export default function ScreenshotGallery() {
       ver: headerItem.buildVersion || "",
     });
 
-    window.open(
-      `/experience?${params.toString()}`,
-      "_blank",
-      "noopener,noreferrer"
-    );
+    window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
   };
 
-  const vizdomHref = headerItem?.vizdomId
-    ? `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(
-        headerItem.vizdomId
-      )}#Project#Summary`
-    : null;
-
-  /** ====== DISPLAY VALUES ====== */
   const category = headerItem?.designStyle || headerItem?.industry || catQuery;
   const server = headerItem?.server || serverQuery;
   const serverLabel = server === "us" ? "US Server" : "India Server";
@@ -407,13 +445,9 @@ export default function ScreenshotGallery() {
 
   const heroImg = thumbQuery || headerItem?.thumb || "";
 
-  const hasAnyScreenshots = useMemo(() => {
-    return (screenshotsGroups || []).some((g) => (g?.items || []).length > 0);
-  }, [screenshotsGroups]);
-
   return (
     <div style={sx.page}>
-      {/* ===== Navbar (Figma-like) ===== */}
+      {/* ===== Navbar ===== */}
       <div style={sx.navWrap}>
         <div style={sx.container}>
           <div style={sx.nav}>
@@ -453,11 +487,7 @@ export default function ScreenshotGallery() {
                 type="button"
                 style={sx.logoutMini}
                 onClick={() =>
-                  window.open(
-                    "https://vizwalk.com",
-                    "_blank",
-                    "noopener,noreferrer"
-                  )
+                  window.open("https://vizwalk.com", "_blank", "noopener,noreferrer")
                 }
                 title="Logout"
               >
@@ -484,7 +514,7 @@ export default function ScreenshotGallery() {
           </button>
         </div>
 
-        {/* ===== Top Detail (Figma-like) ===== */}
+        {/* ===== Top Detail ===== */}
         <div style={sx.topGrid}>
           <div style={sx.leftMeta}>
             {loadingHeader ? (
@@ -520,19 +550,13 @@ export default function ScreenshotGallery() {
                     disabled={!headerItem?.youtube}
                     onClick={() => {
                       if (!headerItem?.youtube) return;
-                      window.open(
-                        headerItem.youtube,
-                        "_blank",
-                        "noopener,noreferrer"
-                      );
+                      window.open(headerItem.youtube, "_blank", "noopener,noreferrer");
                     }}
                   >
                     <span style={sx.demoIcon}>▶</span>
                     <div style={{ textAlign: "left" }}>
                       <div style={sx.demoTitle}>Vizwalk Demo Video</div>
-                      <div style={sx.demoSub}>
-                        See the interactive finish video
-                      </div>
+                      <div style={sx.demoSub}>See the interactive finish video</div>
                     </div>
                   </button>
 
@@ -540,23 +564,6 @@ export default function ScreenshotGallery() {
                   <button type="button" style={sx.openBtn} onClick={openVizwalk}>
                     ⤴&nbsp;&nbsp;Open Vizwalk
                   </button>
-
-                  {/* Vizdom */}
-                  {/* {vizdomHref ? (
-                    <button
-                      type="button"
-                      style={sx.vizdomBtn}
-                      onClick={() =>
-                        window.open(vizdomHref, "_blank", "noopener,noreferrer")
-                      }
-                      title="Open in Vizdom"
-                    >
-                      <span style={sx.vizdomIconWrap}>
-                        <span style={sx.vizMask} />
-                      </span>
-                      Open in Vizdom
-                    </button>
-                  ) : null} */}
                 </div>
               </>
             )}
@@ -564,17 +571,8 @@ export default function ScreenshotGallery() {
 
           {/* Hero */}
           <div style={sx.heroCard}>
-            <div
-              style={sx.heroImgWrap}
-              role="button"
-              tabIndex={0}
-              onClick={openVizwalk}
-            >
-              <ImageWithFallback
-                src={heroImg}
-                alt={buildName}
-                style={sx.heroImg}
-              />
+            <div style={sx.heroImgWrap} role="button" tabIndex={0} onClick={openVizwalk}>
+              <ImageWithFallback src={heroImg} alt={buildName} style={sx.heroImg} />
               <button
                 type="button"
                 style={sx.heroCta}
@@ -589,7 +587,7 @@ export default function ScreenshotGallery() {
           </div>
         </div>
 
-        {/* ===== Beige Panel (Tabs + Content) ===== */}
+        {/* ===== Panel ===== */}
         <div style={sx.panel}>
           <div style={sx.panelTop}>
             <div style={sx.tabRow}>
@@ -611,15 +609,22 @@ export default function ScreenshotGallery() {
               ))}
             </div>
 
-            <button
-              type="button"
-              style={sx.refreshBtn}
-              onClick={() => setRefreshKey((k) => k + 1)}
-              disabled={loadingShots}
-              title="Refresh"
-            >
-              ⟳&nbsp;&nbsp;{loadingShots ? "Refreshing" : "Refresh"}
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              {/* ✅ tiny background refresh indicator (does NOT hide grid) */}
+              {isRefreshingShots && hasAnyScreenshots ? (
+                <div style={sx.refreshHint}>Refreshing…</div>
+              ) : null}
+
+              <button
+                type="button"
+                style={sx.refreshBtn}
+                onClick={() => fetchScreenshots({ background: true })}
+                disabled={isRefreshingShots}
+                title="Refresh"
+              >
+                ⟳&nbsp;&nbsp;{isRefreshingShots ? "Refreshing" : "Refresh"}
+              </button>
+            </div>
           </div>
 
           <div style={sx.panelBody}>
@@ -627,25 +632,20 @@ export default function ScreenshotGallery() {
               <div style={sx.emptyWrap}>
                 <div style={sx.emptyIcon}>▷</div>
                 <div style={sx.emptyTitle}>Walkthroughs coming soon</div>
-                <div style={sx.emptySub}>
-                  This section will appear here when available
-                </div>
+                <div style={sx.emptySub}>This section will appear here when available</div>
               </div>
-            ) : loadingShots ? (
+            ) : !hasAnyScreenshots && initialLoadingShots ? (
+              // ✅ only show this big empty state on first load with zero images
               <div style={sx.emptyWrap}>
                 <div style={sx.emptyIcon}>⧉</div>
                 <div style={sx.emptyTitle}>Loading screenshots…</div>
-                <div style={sx.emptySub}>
-                  Content will appear here when available
-                </div>
+                <div style={sx.emptySub}>Content will appear here when available</div>
               </div>
             ) : !hasAnyScreenshots ? (
               <div style={sx.emptyWrap}>
                 <div style={sx.emptyIcon}>🖼</div>
                 <div style={sx.emptyTitle}>No screenshots available yet</div>
-                <div style={sx.emptySub}>
-                  Content will appear here when available
-                </div>
+                <div style={sx.emptySub}>Content will appear here when available</div>
               </div>
             ) : (
               <div style={sx.groupsWrap}>
@@ -673,7 +673,7 @@ export default function ScreenshotGallery() {
                       <div style={sx.grid}>
                         {items.map((img, i) => (
                           <div
-                            key={(img.url || "") + i}
+                            key={(img.id || img.url || "") + i}
                             style={sx.card}
                             onClick={() => openImage(img.url)}
                             role="button"
@@ -713,18 +713,23 @@ export default function ScreenshotGallery() {
   );
 }
 
-/** ====== STYLES (tuned to match your Figma) ====== */
+/** ====== STYLES ======
+ * ✅ Green annotated space fix:
+ * Your figma has smaller left/right gutter.
+ * So increase max width + slightly increase vw usage.
+ */
 const sx = {
   page: {
     minHeight: "100vh",
-    background: "#F6F2EC",
+    background: "#ffffff",
     color: "#141414",
-    // ✅ Use your global fonts (Poppins body). DO NOT hardcode Inter.
     fontFamily:
       'Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
   },
+
+  // ✅ Reduce big left gap by increasing container max width + using more viewport width
   container: {
-    width: "min(1180px, 92vw)",
+    width: "min(1320px, 96vw)", // was min(1180px, 92vw)
     margin: "0 auto",
     paddingBottom: 60,
   },
@@ -896,40 +901,6 @@ const sx = {
     boxShadow: "0 12px 28px rgba(0,0,0,0.10)",
   },
 
-  vizdomBtn: {
-    width: "100%",
-    padding: "12px 14px",
-    borderRadius: 12,
-    border: "1px solid rgba(0,0,0,0.14)",
-    background: "#fff",
-    fontWeight: 950,
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-  },
-  vizdomIconWrap: {
-    width: 26,
-    height: 26,
-    borderRadius: 10,
-    background: "rgba(0,0,0,0.06)",
-    display: "grid",
-    placeItems: "center",
-  },
-  vizMask: {
-    width: 18,
-    height: 18,
-    backgroundColor: "#0D0D0D",
-    WebkitMaskImage: `url(${vizIcon})`,
-    maskImage: `url(${vizIcon})`,
-    WebkitMaskSize: "contain",
-    maskSize: "contain",
-    WebkitMaskRepeat: "no-repeat",
-    maskRepeat: "no-repeat",
-    WebkitMaskPosition: "center",
-    maskPosition: "center",
-  },
-
   /* Hero */
   heroCard: {
     borderRadius: 18,
@@ -995,6 +966,11 @@ const sx = {
     fontSize: 12,
     color: "#f5a524",
     padding: "10px 8px",
+  },
+  refreshHint: {
+    fontSize: 12,
+    fontWeight: 900,
+    opacity: 0.65,
   },
 
   panelBody: { padding: 22 },
