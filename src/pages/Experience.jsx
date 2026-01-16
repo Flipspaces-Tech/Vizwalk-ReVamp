@@ -783,7 +783,7 @@ export default function Experience() {
   
   buildName,
   buildVersion,
-    sessionId,
+
 
   setHoverEnabled,
     attachVideoAutoplaySafe,
