@@ -61,6 +61,7 @@ const safeGet = (row, idx, fallback = "") =>
     ? String(row[idx]).trim()
     : fallback;
 
+/** ====== FLEXIBLE HEADER ALIASES ====== */
 const COLS = {
   status: ["status"],
   buildName: ["build name"],
@@ -94,13 +95,6 @@ const idxOf = (headers, keys) => {
   return null;
 };
 
-function formatSqft(n = "") {
-  const s = String(n).replace(/,/g, "").trim();
-  const val = Number(s);
-  if (Number.isFinite(val) && val > 0) return `${val.toLocaleString()} sqft`;
-  return n || "";
-}
-
 /** ====== IMAGE (Drive fallback) ====== */
 function ImageWithFallback({ src, alt, style }) {
   const isDrive = /drive\.google\.com/i.test(src || "");
@@ -123,6 +117,7 @@ function ImageWithFallback({ src, alt, style }) {
       : [src || ""];
 
   const [idx, setIdx] = useState(0);
+
   const onError = () =>
     setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
 
@@ -157,23 +152,15 @@ function ImageWithFallback({ src, alt, style }) {
   );
 }
 
-/** ====== UI: Small chip ====== */
-function Chip({ active, children, onClick }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        ...sx.chip,
-        ...(active ? sx.chipActive : null),
-      }}
-    >
-      {children}
-    </button>
-  );
+/** ====== HELPERS ====== */
+function formatSqft(n = "") {
+  const s = String(n).replace(/,/g, "").trim();
+  const val = Number(s);
+  if (Number.isFinite(val) && val > 0) return `${val.toLocaleString()} sqft`;
+  return n || "";
 }
 
-/** ====== CARD (Image2 vibe) ====== */
+/** ====== CARD (keep for Part 2 tuning later) ====== */
 function ProjectCard({ item, onOpenVizwalk, onOpenGallery }) {
   const vizdomHref = item.vizdomId
     ? `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(
@@ -270,6 +257,57 @@ function ProjectCard({ item, onOpenVizwalk, onOpenGallery }) {
   );
 }
 
+function FeaturedCard({ item, onOpenVizwalk, onOpenGallery }) {
+  const category =
+    item.designStyle || item.industry || "Modern Office"; // best available
+
+  return (
+    <div style={sx.fpCard}>
+      <div style={sx.fpMedia} onClick={onOpenGallery} role="button" tabIndex={0}>
+        <ImageWithFallback src={item.thumb} alt={item.buildName} style={sx.fpImg} />
+
+        {/* right badge (server / sbu) */}
+        {item.sbu ? <div style={sx.fpServerPill}>{item.sbu}</div> : null}
+      </div>
+
+      <div style={sx.fpBody}>
+        <div style={sx.fpCatPill}>{category}</div>
+
+        <div style={sx.fpName}>{item.buildName || "Project"}</div>
+
+        <div style={sx.fpArea}>
+          Area – {formatSqft(item.areaSqft || "")}
+        </div>
+
+        <div style={sx.fpRow}>
+          {/* youtube icon */}
+          {item.youtube ? (
+            <a
+              href={item.youtube}
+              target="_blank"
+              rel="noreferrer"
+              style={sx.fpYt}
+              title="Watch walkthrough"
+            >
+              ▶
+            </a>
+          ) : (
+            <span style={{ ...sx.fpYt, opacity: 0.25 }}>▶</span>
+          )}
+
+          <button type="button" style={sx.fpDetail} onClick={onOpenVizwalk}>
+            View Detail <span style={{ marginLeft: 6 }}>→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+
 /** ====== PAGE ====== */
 export default function Landing() {
   const { user, signOut } = useAuth();
@@ -277,6 +315,7 @@ export default function Landing() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Part 2 later: filter/search
   const [query, setQuery] = useState("");
   const [activeSbu, setActiveSbu] = useState("all");
 
@@ -342,21 +381,23 @@ export default function Landing() {
     })();
   }, []);
 
-  const sbus = useMemo(() => {
-    const set = new Set(items.map((x) => (x.sbu || "").trim()).filter(Boolean));
-    return ["all", ...Array.from(set)];
-  }, [items]);
-
   const filtered = useMemo(() => {
-    const q = norm(query);
-    return items.filter((it) => {
-      if (activeSbu !== "all" && norm(it.sbu) !== norm(activeSbu)) return false;
+  const q = norm(query);
 
-      if (!q) return true;
-      const hay = `${it.projectName} ${it.buildName} ${it.buildVersion} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
-      return norm(hay).includes(q);
-    });
-  }, [items, query, activeSbu]);
+  return items.filter((it) => {
+    // chip filter (All means no filter)
+    if (activeSbu !== "all") {
+      const cat = norm(it.designStyle || it.industry || "");
+      if (!cat.includes(norm(activeSbu))) return false;
+    }
+
+    // search filter
+    if (!q) return true;
+    const hay = `${it.projectName} ${it.buildName} ${it.buildVersion} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
+    return norm(hay).includes(q);
+  });
+}, [items, query, activeSbu]);
+
 
   const heroItem = filtered[0] || items[0] || null;
 
@@ -379,8 +420,7 @@ export default function Landing() {
       ver: item.buildVersion || "",
     });
 
-    const href = `/experience?${params.toString()}`;
-    window.open(href, "_blank", "noopener,noreferrer");
+    window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
   };
 
   const handleOpenGallery = (item) => {
@@ -389,50 +429,71 @@ export default function Landing() {
       ver: item.buildVersion || "",
     });
 
-    const href = `/gallery?${params.toString()}`;
-    window.open(href, "_blank", "noopener,noreferrer");
+    window.open(`/gallery?${params.toString()}`, "_blank", "noopener,noreferrer");
   };
 
-  const scrollToProjects = () => {
-    const el = document.getElementById("featured-projects");
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  if (loading) {
-    return <div style={{ ...sx.page, padding: 24 }}>Loading…</div>;
-  }
+  if (loading) return <div style={{ ...sx.page, padding: 24 }}>Loading…</div>;
 
   return (
     <div style={sx.page}>
+      {/* =========================
+          PART 1 (Image2) START
+         ========================= */}
+
+      {/* Top announcement bar */}
+      <div style={sx.topBar}>
+        <div style={sx.container}>
+          <div style={sx.topBarInner}>
+            <div style={sx.topBarText}>
+              Choose another country or region to see content specific to your location
+            </div>
+
+            <div style={sx.topBarRight}>
+              <button type="button" style={sx.pillBtn}>
+                🇮🇳 <span style={{ marginLeft: 6 }}>India</span>
+              </button>
+              <button type="button" style={sx.pillBtn}>
+                🇺🇸 <span style={{ marginLeft: 6 }}>US</span>
+              </button>
+              <button type="button" style={sx.continueBtn}>Continue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Navbar */}
       <div style={sx.navWrap}>
         <div style={sx.container}>
           <div style={sx.nav}>
             <div style={sx.brand}>
-              <div style={sx.brandDot} />
+              <div style={sx.brandMark}>V</div>
               <div>
                 <div style={sx.brandName}>Vizwalk</div>
-                <div style={sx.brandSub}>Project Showcase</div>
+                <div style={sx.brandSub}>Powered by Flipspaces</div>
               </div>
             </div>
 
             <div style={sx.navLinks}>
-              <a style={sx.navLink} href="#featured-projects" onClick={(e) => { e.preventDefault(); scrollToProjects(); }}>
-                Featured Projects
+              <a style={sx.navLink} href="#featured-projects" onClick={(e)=>{e.preventDefault(); document.getElementById("featured-projects")?.scrollIntoView({behavior:"smooth"});}}>
+                Features
               </a>
-              <a style={sx.navLink} href="#clients" onClick={(e) => e.preventDefault()}>
-                Clients
+              <a style={sx.navLink} href="#featured-projects" onClick={(e)=>{e.preventDefault(); document.getElementById("featured-projects")?.scrollIntoView({behavior:"smooth"});}}>
+                Demo Videos
               </a>
-              <a style={sx.navLink} href="#support" onClick={(e) => e.preventDefault()}>
-                Support
+              <a style={sx.navLink} href="#featured-projects" onClick={(e)=>{e.preventDefault(); document.getElementById("featured-projects")?.scrollIntoView({behavior:"smooth"});}}>
+                Projects
+              </a>
+              <a style={sx.navLink} href="#clients" onClick={(e)=>{e.preventDefault(); document.getElementById("clients")?.scrollIntoView({behavior:"smooth"});}}>
+                Testimonials
               </a>
             </div>
 
             <div style={sx.navRight}>
-              <div style={sx.userPill} title={user?.email || ""}>
-                {user?.email ? user.email : "Signed in"}
-              </div>
-              <button onClick={signOut} style={sx.logoutBtn}>
+              <button type="button" style={sx.iconCircle} title="Settings">⚙</button>
+              <button type="button" style={sx.userMini} title={user?.email || ""}>
+                {user?.email ? user.email : "user"}
+              </button>
+              <button onClick={signOut} style={sx.logoutMini} title="Logout">
                 Logout
               </button>
             </div>
@@ -443,112 +504,141 @@ export default function Landing() {
       {/* Hero */}
       <div style={sx.container}>
         <div style={sx.hero}>
-          <div>
-            <div style={sx.heroKicker}>Bring Spaces</div>
+          <div style={sx.heroLeft}>
             <div style={sx.heroTitle}>
-              To <span style={sx.heroAccent}>Life</span>
-            </div>
-            <div style={sx.heroText}>
-              Browse interactive walkthroughs from our latest builds and explore
-              design styles across industries.
+              Bring Spaces <br />
+              <span style={sx.heroAccent}>To Life</span>
             </div>
 
-            <div style={sx.heroCtas}>
-              <button style={sx.ctaPrimary} onClick={scrollToProjects}>
-                Browse Demo
-              </button>
+            <div style={sx.heroDesc}>
+              Interactive virtual walkthrough offering clients an immersive experience
+              with real-time design modifications using Flipspaces&apos; integrated product library
+            </div>
+
+            <div style={sx.heroButtons}>
               <button
-                style={sx.ctaSecondary}
-                onClick={() => setActiveSbu("all")}
+                type="button"
+                style={sx.heroPrimary}
+                onClick={() =>
+                  document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
+                }
               >
-                Explore Projects
+                ▶ Watch Demo
+              </button>
+
+              <button
+                type="button"
+                style={sx.heroSecondary}
+                onClick={() =>
+                  document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
+                }
+              >
+                Explore Platform
               </button>
             </div>
           </div>
 
-          <div style={sx.heroMedia}>
-            <div style={sx.heroMediaInner}>
+          <div style={sx.heroRight}>
+            <div style={sx.heroImageCard}>
               <ImageWithFallback
                 src={heroItem?.thumb}
-                alt="Hero"
+                alt="Hero preview"
                 style={sx.heroImg}
               />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Featured Projects */}
-        <div id="featured-projects" style={sx.section}>
-          <div style={sx.sectionHeader}>
-            <div>
-              <div style={sx.sectionTitle}>Featured Projects</div>
-              <div style={sx.sectionSub}>
-                Explore our curated projects and instantly launch a Vizwalk
-                walkthrough.
-              </div>
-            </div>
+      {/* =========================
+          PART 1 (Image2) END
+         ========================= */}
 
-            <div style={sx.searchWrap}>
-              <span style={sx.searchIcon}>🔎</span>
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search projects, builds, industries…"
-                style={sx.searchInput}
-              />
-              {query ? (
-                <button style={sx.clearBtn} onClick={() => setQuery("")} title="Clear">
-                  ×
-                </button>
-              ) : null}
-            </div>
-          </div>
-
-          <div style={sx.chipsRow}>
-            {sbus.map((s) => (
-              <Chip
-                key={s}
-                active={norm(activeSbu) === norm(s)}
-                onClick={() => setActiveSbu(s)}
-              >
-                {s === "all" ? "All" : s}
-              </Chip>
-            ))}
-          </div>
-
-          <div style={sx.grid}>
-            {filtered.map((it, i) => (
-              <ProjectCard
-                key={`${it.buildName}-${it.buildVersion}-${i}`}
-                item={it}
-                onOpenVizwalk={() => handleOpenVizwalk(it)}
-                onOpenGallery={() => handleOpenGallery(it)}
-              />
-            ))}
-          </div>
+      {/* PART 2/3 placeholder (we’ll style later) */}
+      <div style={sx.container}>
+          <div id="featured-projects" style={{ padding: "22px 0 38px" }}>
+    {/* header row */}
+    <div style={sx.fpHeader}>
+      <div>
+        <div style={sx.fpTitle}>Featured Projects</div>
+        <div style={sx.fpSub}>
+          Explore our projects showcasing tech-enabled interior design expertise
         </div>
+      </div>
 
-        {/* Testimonials */}
-        <div id="clients" style={sx.section}>
-          <div style={sx.sectionTitle}>What Our Clients Say</div>
+      <button
+        type="button"
+        style={sx.fpViewAllTop}
+        onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
+      >
+        View All Projects <span style={{ marginLeft: 6 }}>›</span>
+      </button>
+    </div>
+
+    {/* chips + search row */}
+    <div style={sx.fpControls}>
+      <div style={sx.fpChips}>
+        {["All", "Corporate Design", "Modern Office", "Executive Suite", "Meeting Spaces", "Retail", "Hospitality", "Residential"].map(
+          (c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setActiveSbu(c === "All" ? "all" : c)}
+              style={{
+                ...sx.chip,
+                ...(activeSbu === (c === "All" ? "all" : c) ? sx.chipActive : null),
+              }}
+            >
+              {c === "All" ? "All" : c}
+            </button>
+          )
+        )}
+      </div>
+
+      <div style={sx.fpSearchWrap}>
+        <span style={sx.fpSearchIcon}>🔎</span>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search Projects.."
+          style={sx.fpSearchInput}
+        />
+      </div>
+    </div>
+
+    {/* grid */}
+    <div style={sx.fpGrid}>
+      {filtered.slice(0, 6).map((it, i) => (
+        <FeaturedCard
+          key={`${it.buildName}-${it.buildVersion}-${i}`}
+          item={it}
+          onOpenVizwalk={() => handleOpenVizwalk(it)}
+          onOpenGallery={() => handleOpenGallery(it)}
+        />
+      ))}
+    </div>
+
+    {/* bottom view all */}
+    <div style={sx.fpBottom}>
+      <button
+        type="button"
+        style={sx.fpViewAllBottom}
+        onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
+      >
+        View All Projects <span style={{ marginLeft: 6 }}>›</span>
+      </button>
+    </div>
+  </div>
+
+
+        <div id="clients" style={{ padding: "18px 0 40px" }}>
+          <div style={{ fontSize: 22, fontWeight: 950 }}>What Our Clients Say</div>
           <div style={sx.testGrid}>
             {[
-              {
-                n: "Enterprise PM",
-                t: "Vizwalk made internal reviews faster — stakeholders could explore without long calls.",
-              },
-              {
-                n: "Design Manager",
-                t: "We now present iterations as interactive walkthroughs. Approvals got smoother.",
-              },
-              {
-                n: "Client Team",
-                t: "Clearer understanding of finishes and zoning before execution.",
-              },
-              {
-                n: "Ops Lead",
-                t: "Teams love the speed. Easy to open builds and view screenshots.",
-              },
+              { n: "Enterprise PM", t: "Vizwalk made internal reviews faster — stakeholders could explore without long calls." },
+              { n: "Design Manager", t: "We now present iterations as interactive walkthroughs. Approvals got smoother." },
+              { n: "Client Team", t: "Clearer understanding of finishes and zoning before execution." },
+              { n: "Ops Lead", t: "Teams love the speed. Easy to open builds and view screenshots." },
             ].map((x, idx) => (
               <div key={idx} style={sx.testCard}>
                 <div style={sx.testName}>{x.n}</div>
@@ -557,24 +647,12 @@ export default function Landing() {
             ))}
           </div>
         </div>
-
-        {/* Footer */}
-        <div id="support" style={sx.footer}>
-          <div style={{ opacity: 0.8 }}>
-            © {new Date().getFullYear()} Vizwalk • Flipspaces
-          </div>
-          <div style={{ display: "flex", gap: 14 }}>
-            <span style={{ opacity: 0.7 }}>Help</span>
-            <span style={{ opacity: 0.7 }}>Privacy</span>
-            <span style={{ opacity: 0.7 }}>Terms</span>
-          </div>
-        </div>
       </div>
     </div>
   );
 }
 
-/** ====== STYLES (Image2 tone) ====== */
+/** ====== STYLES ====== */
 const sx = {
   page: {
     minHeight: "100vh",
@@ -586,6 +664,57 @@ const sx = {
     margin: "0 auto",
   },
 
+  /* ===== Part 1 styles ===== */
+  topBar: {
+    background: "#f3efe7",
+    borderBottom: "1px solid rgba(0,0,0,0.06)",
+    fontSize: 12,
+  },
+  topBarInner: {
+  height: 38,
+  display: "grid",
+  gridTemplateColumns: "1fr auto 1fr",
+  alignItems: "center",
+  gap: 12,
+},
+
+  topBarText: {
+  gridColumn: "2 / 3",
+  textAlign: "center",
+  opacity: 0.75,
+  fontWeight: 600,
+  fontSize: 12,
+},
+
+  topBarRight: {
+  gridColumn: "3 / 4",
+  justifySelf: "end",
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+},
+
+  pillBtn: {
+    border: "1px solid rgba(0,0,0,0.10)",
+    background: "#fff",
+    height: 26,
+    padding: "0 10px",
+    borderRadius: 999,
+    fontWeight: 800,
+    cursor: "pointer",
+    fontSize: 12,
+  },
+  continueBtn: {
+    border: "1px solid rgba(0,0,0,0.10)",
+    background: "#f5a524",
+    height: 26,
+    padding: "0 12px",
+    borderRadius: 999,
+    fontWeight: 950,
+    cursor: "pointer",
+    fontSize: 12,
+  },
+
   navWrap: {
     position: "sticky",
     top: 0,
@@ -595,108 +724,139 @@ const sx = {
     borderBottom: "1px solid rgba(0,0,0,0.06)",
   },
   nav: {
-    height: 68,
+    height: 64,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 16,
   },
+
   brand: { display: "flex", alignItems: "center", gap: 10 },
-  brandDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 999,
+  brandMark: {
+    width: 28,
+    height: 28,
+    borderRadius: 10,
     background: "#f5a524",
-    boxShadow: "0 0 0 6px rgba(245,165,36,0.18)",
+    display: "grid",
+    placeItems: "center",
+    fontWeight: 950,
   },
-  brandName: { fontWeight: 900, letterSpacing: 0.2 },
-  brandSub: { fontSize: 12, opacity: 0.65, marginTop: 1 },
+  brandName: { fontWeight: 950, letterSpacing: 0.2, lineHeight: 1.1 },
+  brandSub: { fontSize: 11, opacity: 0.65, marginTop: 2 },
 
   navLinks: {
     display: "flex",
     gap: 18,
     alignItems: "center",
-    opacity: 0.85,
+    justifyContent: "center",
+    flex: 1,
   },
   navLink: {
     textDecoration: "none",
     color: "#141414",
-    fontWeight: 700,
-    fontSize: 14,
+    fontWeight: 800,
+    fontSize: 13,
+    opacity: 0.8,
+  },
+  navRight: { display: "flex", alignItems: "center", gap: 10 },
+
+  iconCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 999,
+    border: "1px solid rgba(0,0,0,0.10)",
+    background: "#fff",
+    display: "grid",
+    placeItems: "center",
+    cursor: "pointer",
+    fontWeight: 900,
   },
 
-  navRight: { display: "flex", alignItems: "center", gap: 10 },
-  userPill: {
+  userMini: {
+    maxWidth: 220,
     padding: "8px 10px",
     borderRadius: 999,
-    background: "rgba(0,0,0,0.05)",
+    background: "rgba(0,0,0,0.06)",
     fontSize: 12,
-    fontWeight: 800,
-    maxWidth: 220,
+    fontWeight: 900,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
+    border: "1px solid rgba(0,0,0,0.06)",
   },
-  logoutBtn: {
+
+  logoutMini: {
     padding: "10px 14px",
     borderRadius: 999,
     border: "1px solid rgba(0,0,0,0.10)",
     background: "#fff",
-    fontWeight: 900,
+    fontWeight: 950,
     cursor: "pointer",
   },
 
   hero: {
-    padding: "28px 0 10px",
-    display: "grid",
-    gridTemplateColumns: "1.1fr 1fr",
-    gap: 24,
-    alignItems: "center",
-  },
-  heroKicker: { fontSize: 34, fontWeight: 900, lineHeight: 1.05 },
-  heroTitle: { fontSize: 44, fontWeight: 950, lineHeight: 1.02, marginTop: 4 },
+  padding: "64px 0 24px",     // more top breathing room
+  display: "grid",
+  gridTemplateColumns: "1.05fr 0.95fr",
+  gap: 34,
+  alignItems: "center",
+},
+
+  heroLeft: { paddingRight: 10 },
+  heroTitle: {
+  fontSize: 54,
+  fontWeight: 950,
+  lineHeight: 1.02,
+  letterSpacing: -0.8,
+},
+
   heroAccent: { color: "#f5a524" },
-  heroText: { marginTop: 12, fontSize: 15, opacity: 0.8, maxWidth: 520 },
-  heroCtas: { marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" },
-  ctaPrimary: {
-    padding: "12px 16px",
-    borderRadius: 10,
-    border: "1px solid rgba(0,0,0,0.08)",
+  heroDesc: {
+  marginTop: 18,
+  fontSize: 14,
+  opacity: 0.75,
+  maxWidth: 480,
+  lineHeight: 1.7,
+},
+
+  heroButtons: { marginTop: 18, display: "flex", gap: 12, flexWrap: "wrap" },
+
+  heroPrimary: {
     background: "#f5a524",
-    color: "#141414",
-    fontWeight: 950,
-    cursor: "pointer",
-  },
-  ctaSecondary: {
-    padding: "12px 16px",
-    borderRadius: 10,
     border: "1px solid rgba(0,0,0,0.10)",
+    padding: "12px 16px",
+    borderRadius: 12,
+    fontWeight: 950,
+    cursor: "pointer",
+  },
+  heroSecondary: {
     background: "#fff",
+    border: "1px solid rgba(0,0,0,0.18)",
+    padding: "12px 16px",
+    borderRadius: 12,
     fontWeight: 950,
     cursor: "pointer",
   },
 
-  heroMedia: {
-    background: "rgba(255,255,255,0.65)",
-    border: "1px solid rgba(0,0,0,0.06)",
-    borderRadius: 18,
-    padding: 12,
-    boxShadow: "0 18px 46px rgba(0,0,0,0.08)",
-  },
-  heroMediaInner: { borderRadius: 14, overflow: "hidden" },
-  heroImg: { width: "100%", height: 280, objectFit: "cover", display: "block" },
+  heroRight: { display: "flex", justifyContent: "flex-end" },
+  heroImageCard: {
+  width: "min(620px, 100%)",
+  borderRadius: 18,
+  overflow: "hidden",
+  border: "1px solid rgba(0,0,0,0.07)",
+  background: "#fff",
+  boxShadow: "0 26px 70px rgba(0,0,0,0.14)",
+},
 
-  section: { padding: "18px 0 26px" },
-  sectionHeader: {
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    gap: 16,
-    flexWrap: "wrap",
-  },
-  sectionTitle: { fontSize: 22, fontWeight: 950 },
-  sectionSub: { marginTop: 6, fontSize: 13, opacity: 0.75 },
+  heroImg: {
+  width: "100%",
+  height: 320,
+  objectFit: "cover",
+  display: "block",
+},
 
+
+  /* ===== Part 2 placeholder styles (we’ll refine later) ===== */
   searchWrap: {
     display: "flex",
     alignItems: "center",
@@ -724,22 +884,6 @@ const sx = {
     cursor: "pointer",
     fontSize: 16,
     lineHeight: "26px",
-  },
-
-  chipsRow: { marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" },
-  chip: {
-    padding: "9px 12px",
-    borderRadius: 999,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "rgba(255,255,255,0.75)",
-    fontWeight: 900,
-    cursor: "pointer",
-    fontSize: 13,
-  },
-  chipActive: {
-    background: "#141414",
-    color: "#fff",
-    borderColor: "#141414",
   },
 
   grid: {
@@ -818,12 +962,164 @@ const sx = {
   testName: { fontWeight: 950 },
   testText: { marginTop: 8, fontSize: 13, opacity: 0.8, lineHeight: 1.55 },
 
-  footer: {
-    padding: "18px 0 34px",
-    borderTop: "1px solid rgba(0,0,0,0.08)",
-    display: "flex",
-    justifyContent: "space-between",
-    gap: 14,
-    flexWrap: "wrap",
-  },
+
+
+/* ===== Featured Projects (Part 2) ===== */
+fpHeader: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+  gap: 14,
+},
+fpTitle: { fontSize: 26, fontWeight: 950 },
+fpSub: { marginTop: 6, fontSize: 13, opacity: 0.72 },
+
+fpViewAllTop: {
+  background: "transparent",
+  border: "none",
+  cursor: "pointer",
+  fontWeight: 900,
+  opacity: 0.75,
+},
+
+fpControls: {
+  marginTop: 14,
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 12,
+  flexWrap: "wrap",
+},
+fpChips: {
+  display: "flex",
+  gap: 8,
+  flexWrap: "wrap",
+  alignItems: "center",
+},
+chip: {
+  padding: "7px 12px",
+  borderRadius: 999,
+  border: "1px solid rgba(0,0,0,0.12)",
+  background: "rgba(255,255,255,0.6)",
+  cursor: "pointer",
+  fontWeight: 850,
+  fontSize: 12,
+},
+chipActive: {
+  background: "#f5a524",
+  borderColor: "rgba(0,0,0,0.10)",
+},
+
+fpSearchWrap: {
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+  background: "rgba(255,255,255,0.85)",
+  border: "1px solid rgba(0,0,0,0.10)",
+  borderRadius: 999,
+  padding: "8px 12px",
+  minWidth: 240,
+},
+fpSearchIcon: { opacity: 0.7, fontSize: 12 },
+fpSearchInput: {
+  border: "none",
+  outline: "none",
+  background: "transparent",
+  fontSize: 12,
+  flex: 1,
+},
+
+fpGrid: {
+  marginTop: 16,
+  display: "grid",
+  gridTemplateColumns: "repeat(3, 1fr)",
+  gap: 16,
+},
+fpCard: {
+  background: "rgba(255,255,255,0.65)",
+  border: "1px solid rgba(0,0,0,0.08)",
+  borderRadius: 12,
+  overflow: "hidden",
+  boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+},
+fpMedia: { position: "relative" },
+fpImg: { width: "100%", height: 170, objectFit: "cover", display: "block" },
+
+fpServerPill: {
+  position: "absolute",
+  right: 10,
+  bottom: 10,
+  background: "rgba(0,0,0,0.55)",
+  color: "#fff",
+  padding: "6px 10px",
+  borderRadius: 999,
+  fontSize: 11,
+  fontWeight: 900,
+},
+
+fpBody: { padding: 12 },
+fpCatPill: {
+  display: "inline-block",
+  padding: "3px 8px",
+  borderRadius: 6,
+  background: "rgba(245,165,36,0.18)",
+  color: "#a56100",
+  fontSize: 11,
+  fontWeight: 950,
+},
+fpName: { marginTop: 8, fontSize: 14, fontWeight: 950 },
+fpArea: { marginTop: 6, fontSize: 12, opacity: 0.75 },
+
+fpRow: {
+  marginTop: 10,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 10,
+},
+fpYt: {
+  width: 28,
+  height: 28,
+  borderRadius: 8,
+  border: "1px solid rgba(0,0,0,0.10)",
+  background: "#fff",
+  display: "grid",
+  placeItems: "center",
+  textDecoration: "none",
+  color: "#111",
+  fontWeight: 950,
+  fontSize: 12,
+},
+fpDetail: {
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  fontSize: 12,
+  fontWeight: 900,
+  opacity: 0.75,
+},
+
+fpBottom: {
+  display: "flex",
+  justifyContent: "center",
+  marginTop: 18,
+},
+fpViewAllBottom: {
+  border: "1px solid rgba(0,0,0,0.14)",
+  background: "rgba(255,255,255,0.7)",
+  borderRadius: 999,
+  padding: "10px 16px",
+  fontWeight: 950,
+  cursor: "pointer",
+},
+fpGridMobile: {
+  gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+},
+
+
+
 };
+
+
+
+
