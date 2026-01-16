@@ -2,6 +2,10 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import vizIcon from "../assets/vizdom.png";
 import placeholderImg from "../assets/Flipspace - Logo - Black.png";
+import LandingNavbar from "../components/LandingNavbar.jsx";
+import { useAuth } from "../auth/AuthProvider";
+
+
 
 /** ====== CONFIG ====== */
 const GDRIVE_API_URL =
@@ -56,6 +60,10 @@ function parseCSV(text) {
   }
   return rows;
 }
+
+
+
+
 
 /** ====== UTILS ====== */
 const norm = (s = "") =>
@@ -229,6 +237,8 @@ function mergeGroups(prev = [], next = []) {
 
 export default function ScreenshotGallery() {
   const [activeTab, setActiveTab] = useState("screenshots");
+
+  const { user, signOut } = useAuth();
 
   const [loadingHeader, setLoadingHeader] = useState(true);
   const [headerItem, setHeaderItem] = useState(null);
@@ -447,56 +457,8 @@ export default function ScreenshotGallery() {
 
   return (
     <div style={sx.page}>
-      {/* ===== Navbar ===== */}
-      <div style={sx.navWrap}>
-        <div style={sx.container}>
-          <div style={sx.nav}>
-            <div
-              style={sx.brand}
-              role="button"
-              tabIndex={0}
-              onClick={() => (window.location.href = "/")}
-            >
-              <div style={sx.brandMark}>V</div>
-              <div>
-                <div style={sx.brandName}>Vizwalk</div>
-                <div style={sx.brandSub}>Powered by Flipspaces</div>
-              </div>
-            </div>
+      <LandingNavbar user={user} signOut={signOut} />
 
-            <div style={sx.navLinks}>
-              <a style={sx.navLink} href="/#featured-projects">
-                Features
-              </a>
-              <a style={sx.navLink} href="/#featured-projects">
-                Demo Videos
-              </a>
-              <a style={sx.navLink} href="/#featured-projects">
-                Project
-              </a>
-              <a style={sx.navLink} href="/#clients">
-                Testimonials
-              </a>
-            </div>
-
-            <div style={sx.navRight}>
-              <button type="button" style={sx.iconCircle} title="Settings">
-                ⚙
-              </button>
-              <button
-                type="button"
-                style={sx.logoutMini}
-                onClick={() =>
-                  window.open("https://vizwalk.com", "_blank", "noopener,noreferrer")
-                }
-                title="Logout"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div style={sx.container}>
         {/* Back */}
@@ -734,22 +696,7 @@ const sx = {
     paddingBottom: 60,
   },
 
-  /* Navbar */
-  navWrap: {
-    position: "sticky",
-    top: 0,
-    zIndex: 50,
-    background: "rgba(247,244,239,0.92)",
-    backdropFilter: "blur(10px)",
-    borderBottom: "1px solid rgba(0,0,0,0.06)",
-  },
-  nav: {
-    height: 64,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 16,
-  },
+
   brand: { display: "flex", alignItems: "center", gap: 10, cursor: "pointer" },
   brandMark: {
     width: 28,

@@ -1,0 +1,138 @@
+/* Testimonials marquee (no tailwind needed) */
+
+.lv-testimonials {
+  padding: 72px 0;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.lv-testimonialsHead {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.lv-testimonialsTitle {
+  font-family: var(--font-heading, "Maven Pro", system-ui, sans-serif);
+  font-size: 40px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #141414;
+  margin: 0;
+}
+
+.lv-testimonialsDesc {
+  margin-top: 10px;
+  font-family: var(--font-sans, "Poppins", system-ui, sans-serif);
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+.lv-marquee {
+  position: relative;
+  overflow: hidden;
+  padding: 10px 0;
+}
+
+.lv-marqueeTrack {
+  display: flex;
+  width: max-content;
+  gap: var(--gap, 18px);
+  animation: lvMarquee var(--duration, 40s) linear infinite;
+  will-change: transform;
+}
+
+.lv-marquee:hover .lv-marqueeTrack {
+  animation-play-state: paused;
+}
+
+/* IMPORTANT:
+   We move by 50% because we render the list twice.
+*/
+@keyframes lvMarquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - (var(--gap, 18px) / 2))); }
+}
+
+.lv-marqueeFadeLeft,
+.lv-marqueeFadeRight {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 120px;
+  z-index: 5;
+}
+
+.lv-marqueeFadeLeft {
+  left: 0;
+  background: linear-gradient(to right, #ffffff 0%, rgba(255,255,255,0) 100%);
+}
+
+.lv-marqueeFadeRight {
+  right: 0;
+  background: linear-gradient(to left, #ffffff 0%, rgba(255,255,255,0) 100%);
+}
+
+/* Card */
+.lv-tCard {
+  width: 350px;
+  min-height: 180px;
+  flex: 0 0 auto;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.06);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.lv-tCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.10);
+}
+
+.lv-tTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.lv-tAvatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #f5a524;
+  color: #111;
+  font-weight: 800;
+  font-family: var(--font-heading, "Maven Pro", system-ui, sans-serif);
+  font-size: 12px;
+  flex: 0 0 auto;
+}
+
+.lv-tName {
+  font-weight: 800;
+  font-size: 13px;
+  color: #141414;
+  font-family: var(--font-heading, "Maven Pro", system-ui, sans-serif);
+  line-height: 1.2;
+}
+
+.lv-tRole {
+  margin-top: 2px;
+  font-size: 12px;
+  opacity: 0.70;
+  font-family: var(--font-sans, "Poppins", system-ui, sans-serif);
+}
+
+.lv-tQuote {
+  font-size: 12.5px;
+  line-height: 1.65;
+  opacity: 0.82;
+  font-style: italic;
+  font-family: var(--font-sans, "Poppins", system-ui, sans-serif);
+}
+
+

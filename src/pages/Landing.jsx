@@ -1,6 +1,26 @@
 import React, { useEffect, useMemo, useState } from "react";
 import vizIcon from "../assets/vizdom.png";
 import { useAuth } from "../auth/AuthProvider";
+import "../styles/lovable-navbar.css";
+import "../styles/testimonials-marquee.css";
+
+
+
+const categories2 = [
+  "All",
+  "Corporate Design",
+  "Modern Office",
+  "Executive Suite",
+  "Meeting Spaces",
+  "Retail",
+  "Hospitality",
+  "Residential",
+];
+
+
+
+
+
 
 /** ====== CONFIG ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
@@ -46,6 +66,115 @@ function parseCSV(text) {
   }
   return rows;
 }
+
+function LandingNavbar({ user, signOut }) {
+  const [open, setOpen] = useState(false);
+  const [dd, setDd] = useState(false);
+  const ddRef = React.useRef(null);
+
+  useEffect(() => {
+    const onDown = (e) => {
+      if (ddRef.current && !ddRef.current.contains(e.target)) setDd(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, []);
+
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
+
+  return (
+    <header className="lv-header">
+      <div className="lv-container">
+        <nav className="lv-nav">
+          {/* Logo */}
+          <a href="/" className="lv-logo" onClick={(e) => e.preventDefault()}>
+            <div className="lv-mark"><span>V</span></div>
+            <div className="lv-brandText">
+              <div className="lv-brandName">Vizwalk</div>
+              <div className="lv-brandSub">Powered by Flipspaces</div>
+            </div>
+          </a>
+
+          {/* Desktop links */}
+          <div className="lv-links">
+            <a className="lv-link" href="#featured-projects" onClick={(e) => { e.preventDefault(); scrollTo("featured-projects"); }}>
+              Features
+            </a>
+            <a className="lv-link" href="#featured-projects" onClick={(e) => { e.preventDefault(); scrollTo("featured-projects"); }}>
+              Demo Videos
+            </a>
+
+            {/* Projects dropdown */}
+            <div className="lv-dd" ref={ddRef}>
+              <button
+                type="button"
+                className="lv-link lv-ddBtn"
+                onClick={() => setDd((v) => !v)}
+              >
+                Projects <span style={{ marginLeft: 6, display: "inline-block", transform: dd ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
+              </button>
+
+              {dd && (
+                <div className="lv-ddMenu">
+                  <button type="button" className="lv-ddItem" onClick={() => { setDd(false); scrollTo("featured-projects"); }}>
+                    Showcase Projects
+                  </button>
+                  <a className="lv-ddItem" href="/live-projects" onClick={(e) => { e.preventDefault(); setDd(false); }}>
+                    Live Projects
+                  </a>
+                </div>
+              )}
+            </div>
+
+            <a className="lv-link" href="#clients" onClick={(e) => { e.preventDefault(); scrollTo("clients"); }}>
+              Testimonials
+            </a>
+          </div>
+
+          {/* Right actions */}
+          <div className="lv-actions">
+            <button type="button" className="lv-iconBtn" title="Settings">⚙</button>
+            <div className="lv-userPill" title={user?.email || ""}>
+              {user?.email || "user"}
+            </div>
+            <button type="button" className="lv-logout" onClick={signOut}>
+              Logout
+            </button>
+          </div>
+
+          {/* Mobile */}
+          <button className="lv-mobileBtn" type="button" onClick={() => setOpen((v) => !v)}>
+            {open ? "✕" : "☰"}
+          </button>
+        </nav>
+
+        {/* Mobile menu */}
+        {open && (
+          <div className="lv-mobileMenu">
+            <a href="#featured-projects" onClick={(e) => { e.preventDefault(); setOpen(false); scrollTo("featured-projects"); }}>Features</a>
+            <a href="#featured-projects" onClick={(e) => { e.preventDefault(); setOpen(false); scrollTo("featured-projects"); }}>Demo Videos</a>
+            <button type="button" onClick={() => { setOpen(false); scrollTo("featured-projects"); }}>Showcase Projects</button>
+            <a href="/live-projects" onClick={(e) => { e.preventDefault(); setOpen(false); }}>Live Projects</a>
+            <a href="#clients" onClick={(e) => { e.preventDefault(); setOpen(false); scrollTo("clients"); }}>Testimonials</a>
+
+            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+              <button type="button" onClick={() => { setOpen(false); signOut(); }}>Logout</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+  );
+}
+
+
+
+
+
+
 
 /** ====== UTILS ====== */
 const norm = (s = "") =>
@@ -195,39 +324,42 @@ function FeaturedCard({ item, onOpenVizwalk, onOpenGallery }) {
   );
 }
 
-/** ====== PART 3 (Testimonials like Figma) ====== */
+function getInitials(name = "") {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join("");
+}
+
 function TestimonialsOnly() {
   const testimonials = [
     {
-      initials: "SU",
       name: "Santosh Upadhyay",
       role: "BHIL (Bharat financial bank)",
       quote:
         "Our new workspace embodies innovation, creativity, and forward-thinking. Huge thanks to Flipspaces for their expertise, dedication, and swift transformation!",
     },
     {
-      initials: "VK",
       name: "Vivek Khemani",
       role: "Quantiphi",
       quote:
         "Flipspaces was a one-stop solution for our office expansion, using VR technology to perfectly visualize and execute our vision.",
     },
     {
-      initials: "PT",
       name: "Pankaj Tripathi",
       role: "B/S/H",
       quote:
         "Flipspaces designed our Mumbai, Hyderabad, Chennai, and Bangalore offices with open spaces, natural light, and a vibrant, modern work environment.",
     },
     {
-      initials: "KS",
       name: "Kunal Shah",
       role: "Honest",
       quote:
         "Flipspaces transformed my restaurant with creativity, precision, and exceptional craftsmanship. Special thanks to Richard for seamless communication and prompt support!",
     },
     {
-      initials: "VS",
       name: "Vishal Soni",
       role: "Tacza",
       quote:
@@ -235,31 +367,46 @@ function TestimonialsOnly() {
     },
   ];
 
+  // Render twice for seamless loop
+  const loop = [...testimonials, ...testimonials];
+
   return (
-    <section id="clients" style={sx.part3Wrap}>
-      <div style={sx.part3Title}>What Our Clients Say</div>
-      <div style={sx.part3Sub}>
-        Trusted by leading businesses across industries for exceptional workspace transformations
-      </div>
-
-      <div style={sx.part3CardsRow}>
-        {testimonials.map((t, idx) => (
-          <div key={idx} style={sx.part3Card}>
-            <div style={sx.part3CardTop}>
-              <div style={sx.part3Avatar}>{t.initials}</div>
-              <div>
-                <div style={sx.part3Name}>{t.name}</div>
-                <div style={sx.part3Role}>{t.role}</div>
-              </div>
-            </div>
-
-            <div style={sx.part3Quote}>&ldquo;{t.quote}&rdquo;</div>
+    <section id="clients" className="lv-testimonials">
+      <div className="lv-container">
+        <div className="lv-testimonialsHead">
+          <h2 className="lv-testimonialsTitle">What Our Clients Say</h2>
+          <div className="lv-testimonialsDesc">
+            Trusted by leading businesses across industries for exceptional workspace transformations
           </div>
-        ))}
+        </div>
+
+        <div className="lv-marquee">
+          <div
+            className="lv-marqueeTrack"
+            style={{ ["--duration"]: "40s", ["--gap"]: "18px" }}
+          >
+            {loop.map((t, idx) => (
+              <div className="lv-tCard" key={idx}>
+                <div className="lv-tTop">
+                  <div className="lv-tAvatar">{getInitials(t.name)}</div>
+                  <div>
+                    <div className="lv-tName">{t.name}</div>
+                    <div className="lv-tRole">{t.role}</div>
+                  </div>
+                </div>
+                <div className="lv-tQuote">“{t.quote}”</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="lv-marqueeFadeLeft" />
+          <div className="lv-marqueeFadeRight" />
+        </div>
       </div>
     </section>
   );
 }
+
 
 /** ====== FOOTER (Full-bleed like Figma) ====== */
 function FooterFullBleed() {
@@ -328,6 +475,32 @@ export default function Landing() {
 
   // Server toggle (India / US)
   const [selectedServer, setSelectedServer] = useState("india");
+
+    // ✅ Part 2 state (MUST be inside component)
+  const [activeCategory2, setActiveCategory2] = useState("All");
+  const [searchQuery2, setSearchQuery2] = useState("");
+  const [showAll2, setShowAll2] = useState(false);
+
+  // top of Landing()
+const [showLocbar, setShowLocbar] = useState(true);
+
+const handleContinue = () => {
+  setShowLocbar(false);
+};
+
+
+// const handleContinue = () => {
+//   localStorage.setItem("vw_locbar_hidden", "1");
+//   setShowLocbar(false);
+// };
+
+
+  useEffect(() => {
+    setActiveCategory2("All");
+    setSearchQuery2("");
+    setShowAll2(false);
+  }, [selectedServer]);
+
 
   // Part 2: filter/search
   const [query, setQuery] = useState("");
@@ -399,26 +572,27 @@ export default function Landing() {
     })();
   }, []);
 
-  const filtered = useMemo(() => {
-    const q = norm(query);
+    const filtered = useMemo(() => {
+    const q = norm(searchQuery2);
 
     return items.filter((it) => {
       // ✅ server filter (IMPORTANT)
       if (selectedServer && it.server && it.server !== selectedServer) return false;
-      if (selectedServer && !it.server) return false; // if sheet missing server for a row, hide it
+      if (selectedServer && !it.server) return false;
 
-      // category chip filter (All means no filter)
-      if (activeCategory !== "all") {
-        const catHay = norm(`${it.designStyle || ""} ${it.industry || ""}`);
-        if (!catHay.includes(norm(activeCategory))) return false;
+      // ✅ category filter
+      if (activeCategory2 !== "All") {
+        const cat = norm(`${it.designStyle || ""} ${it.industry || ""}`);
+        if (!cat.includes(norm(activeCategory2))) return false;
       }
 
-      // search filter
+      // ✅ search filter
       if (!q) return true;
       const hay = `${it.projectName} ${it.buildName} ${it.buildVersion} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
       return norm(hay).includes(q);
     });
-  }, [items, query, activeCategory, selectedServer]);
+  }, [items, selectedServer, activeCategory2, searchQuery2]);
+
 
   const heroItem = filtered[0] || items.find((x) => x.server === selectedServer) || items[0] || null;
 
@@ -458,229 +632,179 @@ export default function Landing() {
   return (
     <div style={sx.page}>
       {/* Top announcement bar */}
-      <div style={sx.topBar}>
-        <div style={sx.container}>
-          <div style={sx.topBarInner}>
-            <div style={sx.topBarText}>
-              Choose another country or region to see content specific to your location
-            </div>
-
-            <div style={sx.topBarRight}>
-              <button
-                type="button"
-                style={{
-                  ...sx.pillBtn,
-                  ...(selectedServer === "india" ? sx.pillBtnActive : null),
-                }}
-                onClick={() => setSelectedServer("india")}
-              >
-                🇮🇳 <span style={{ marginLeft: 6 }}>India</span>
-              </button>
-
-              <button
-                type="button"
-                style={{
-                  ...sx.pillBtn,
-                  ...(selectedServer === "us" ? sx.pillBtnActive : null),
-                }}
-                onClick={() => setSelectedServer("us")}
-              >
-                🇺🇸 <span style={{ marginLeft: 6 }}>US</span>
-              </button>
-
-              <button type="button" style={sx.continueBtn}>
-                Continue
-              </button>
-            </div>
-          </div>
+      {showLocbar && (
+  <div className="lv-locbar">
+    <div className="lv-container">
+      <div className="lv-locbarInner">
+        <div className="lv-locbarText">
+          Choose another country or region to see content specific to your location
         </div>
+
+        <div className="lv-locbarRight">
+  <div className="lv-togglePills">
+    <button
+      type="button"
+      className={`lv-pill ${selectedServer === "india" ? "lv-pillActive" : ""}`}
+      onClick={() => setSelectedServer("india")}
+    >
+      🇮🇳 <span>India</span>
+    </button>
+
+    <button
+      type="button"
+      className={`lv-pill ${selectedServer === "us" ? "lv-pillActive" : ""}`}
+      onClick={() => setSelectedServer("us")}
+    >
+      🇺🇸 <span>US</span>
+    </button>
+  </div>
+
+  <button type="button" className="lv-continue" onClick={handleContinue}>
+    Continue
+  </button>
+</div>
+
       </div>
+    </div>
+  </div>
+)}
+
+
+
+      
 
       {/* Navbar */}
-      <div style={sx.navWrap}>
-        <div style={sx.container}>
-          <div style={sx.nav}>
-            <div style={sx.brand}>
-              <div style={sx.brandMark}>V</div>
-              <div>
-                <div style={sx.brandName}>Vizwalk</div>
-                <div style={sx.brandSub}>Powered by Flipspaces</div>
-              </div>
-            </div>
+      <LandingNavbar user={user} signOut={signOut} />
 
-            <div style={sx.navLinks}>
-              <a
-                style={sx.navLink}
-                href="#featured-projects"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Features
-              </a>
-              <a
-                style={sx.navLink}
-                href="#featured-projects"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Demo Videos
-              </a>
-              <a
-                style={sx.navLink}
-                href="#featured-projects"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Projects
-              </a>
-              <a
-                style={sx.navLink}
-                href="#clients"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.getElementById("clients")?.scrollIntoView({ behavior: "smooth" });
-                }}
-              >
-                Testimonials
-              </a>
-            </div>
-
-            <div style={sx.navRight}>
-              <button type="button" style={sx.iconCircle} title="Settings">
-                ⚙
-              </button>
-              <button type="button" style={sx.userMini} title={user?.email || ""}>
-                {user?.email ? user.email : "user"}
-              </button>
-              <button onClick={signOut} style={sx.logoutMini} title="Logout">
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
       {/* Hero */}
-      <div style={sx.container}>
-        <div style={sx.hero}>
-          <div style={sx.heroLeft}>
-            <div style={sx.heroTitle}>
-              Bring Spaces <br />
-              <span style={sx.heroAccent}>To Life</span>
-            </div>
-
-            <div style={sx.heroDesc}>
-              Interactive virtual walkthrough offering clients an immersive experience with real-time design modifications using
-              Flipspaces&apos; integrated product library
-            </div>
-
-            <div style={sx.heroButtons}>
-              <button
-                type="button"
-                style={sx.heroPrimary}
-                onClick={() => document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                ▶ Watch Demo
-              </button>
-
-              <button
-                type="button"
-                style={sx.heroSecondary}
-                onClick={() => document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                Explore Platform
-              </button>
-            </div>
-          </div>
-
-          <div style={sx.heroRight}>
-            <div style={sx.heroImageCard}>
-              <ImageWithFallback src={heroItem?.thumb} alt="Hero preview" style={sx.heroImg} />
-            </div>
-          </div>
-        </div>
-
-        {/* ===== PART 2 (Featured Projects) ===== */}
-        <div id="featured-projects" style={{ padding: "22px 0 38px" }}>
-          <div style={sx.fpHeader}>
-            <div>
-              <div style={sx.fpTitle}>Featured Projects</div>
-              <div style={sx.fpSub}>Explore our projects showcasing tech-enabled interior design expertise</div>
-            </div>
-
-            <button
-              type="button"
-              style={sx.fpViewAllTop}
-              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
-            >
-              View All Projects <span style={{ marginLeft: 6 }}>›</span>
-            </button>
-          </div>
-
-          <div style={sx.fpControls}>
-            <div style={sx.fpChips}>
-              {["All", "Corporate Design", "Modern Office", "Executive Suite", "Meeting Spaces", "Retail", "Hospitality", "Residential"].map(
-                (c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setActiveCategory(c === "All" ? "all" : c)}
-                    style={{
-                      ...sx.chip,
-                      ...(activeCategory === (c === "All" ? "all" : c) ? sx.chipActive : null),
-                    }}
-                  >
-                    {c}
-                  </button>
-                )
-              )}
-            </div>
-
-            <div style={sx.fpSearchWrap}>
-              <span style={sx.fpSearchIcon}>🔎</span>
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search projects..."
-                style={sx.fpSearchInput}
-              />
-            </div>
-          </div>
-
-          <div style={sx.fpGrid}>
-            {filtered.slice(0, 6).map((it, i) => (
-              <FeaturedCard
-                key={`${it.buildName}-${it.buildVersion}-${i}`}
-                item={it}
-                onOpenVizwalk={() => handleOpenVizwalk(it)}
-                onOpenGallery={() => handleOpenGallery(it)}
-              />
-            ))}
-          </div>
-
-          <div style={sx.fpBottom}>
-            <button
-              type="button"
-              style={sx.fpViewAllBottom}
-              onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" })}
-            >
-              View All Projects <span style={{ marginLeft: 6 }}>›</span>
-            </button>
-          </div>
-        </div>
-
-        {/* ===== PART 3 (Testimonials) ===== */}
-        <TestimonialsOnly />
+      <div className="lv-container">
+  <section className="lv-hero">
+    <div className="lv-heroLeft">
+      <div className="lv-heroTitle">
+        Bring Spaces <br />
+        <span className="lv-heroAccent">To Life</span>
       </div>
 
-      {/* ===== FOOTER (full width) ===== */}
-      <FooterFullBleed />
+      <div className="lv-heroDesc">
+        Interactive virtual walkthrough offering clients an immersive experience with real-time design modifications using
+        Flipspaces&apos; integrated product library
+      </div>
+
+      <div className="lv-heroBtns">
+        <button
+          type="button"
+          className="lv-btnPrimary"
+          onClick={() => document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })}
+        >
+          ▶ Watch Demo
+        </button>
+
+        <button
+          type="button"
+          className="lv-btnSecondary"
+          onClick={() => document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })}
+        >
+          Explore Platform
+        </button>
+      </div>
+    </div>
+
+    <div className="lv-heroRight">
+      <div className="lv-heroCard">
+        <ImageWithFallback
+          src={heroItem?.thumb}
+          alt="Hero preview"
+          style={{ width: "100%", height: "320px", objectFit: "cover", display: "block" }}
+        />
+      </div>
+    </div>
+  </section>
+</div>
+
+
+{/* ===== PART 2: Featured Projects ===== */}
+<section id="featured-projects" style={{ padding: "32px 0 18px" }}>
+  <div style={sx.container}>
+    <div style={sx.fpHeader}>
+      <div>
+        <div style={sx.fpTitle}>Featured Projects</div>
+        <div style={sx.fpSub}>Explore our premium architectural visualizations and immersive 3D walkthroughs</div>
+      </div>
+
+      {filtered.length > 6 && (
+        <button type="button" style={sx.fpViewAllTop} onClick={() => setShowAll2((v) => !v)}>
+          {showAll2 ? "Show Less" : "View All Projects"} →
+        </button>
+      )}
+    </div>
+
+    <div style={sx.fpControls}>
+      {/* categories */}
+      <div style={sx.fpChips}>
+        {categories2.map((c) => (
+          <button
+            key={c}
+            type="button"
+            style={{ ...sx.chip, ...(activeCategory2 === c ? sx.chipActive : {}) }}
+            onClick={() => {
+              setActiveCategory2(c);
+              setShowAll2(false);
+            }}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {/* search */}
+      <div style={sx.fpSearchWrap}>
+        <span style={sx.fpSearchIcon}>🔎</span>
+        <input
+          value={searchQuery2}
+          onChange={(e) => setSearchQuery2(e.target.value)}
+          placeholder="Search projects..."
+          style={sx.fpSearchInput}
+        />
+      </div>
+    </div>
+
+    <div style={sx.fpGrid}>
+      {(showAll2 ? filtered : filtered.slice(0, 6)).map((item, idx) => (
+        <FeaturedCard
+          key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
+          item={item}
+          onOpenGallery={() => handleOpenGallery(item)}
+          onOpenVizwalk={() => handleOpenVizwalk(item)}
+        />
+      ))}
+    </div>
+
+    {filtered.length === 0 && (
+      <div style={{ textAlign: "center", padding: "24px 0", opacity: 0.75, fontWeight: 700 }}>
+        No projects found matching your criteria.
+      </div>
+    )}
+
+    {!showAll2 && filtered.length > 6 && (
+      <div style={sx.fpBottom}>
+        <button type="button" style={sx.fpViewAllBottom} onClick={() => setShowAll2(true)}>
+          View All Projects →
+        </button>
+      </div>
+    )}
+  </div>
+</section>
+
+
+
+      {/* ===== PART 3: Testimonials ===== */}
+<TestimonialsOnly />
+
+{/* ===== FOOTER (full width) ===== */}
+<FooterFullBleed />
+
     </div>
   );
 }
