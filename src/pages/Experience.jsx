@@ -452,6 +452,26 @@ export default function Experience() {
   }, 200); // delay between first I and click
 }, [sendKeyI, sendLeftClick]);
 
+// Extract the best (last) valid image URL from a concatenated string.
+// Example input: "http://ec2...amazonaws.comhttps://s3.../file.png"
+const extractBestImageUrl = (raw) => {
+  if (typeof raw !== "string") return "";
+  const s = raw.trim();
+  if (!s) return "";
+
+  const parts = s.split(/(?=https?:\/\/)/g).map(x => x.trim()).filter(Boolean);
+
+  for (let i = parts.length - 1; i >= 0; i--) {
+    if (/\.(png|jpe?g|webp|gif)(\?.*)?$/i.test(parts[i])) return parts[i];
+  }
+  return parts[parts.length - 1] || s;
+};
+
+
+
+
+
+
 
 
   const handleResponseApp = useCallback(
@@ -460,18 +480,31 @@ export default function Experience() {
         console.log("Received unreal message:", response);
 
         // Helper: decide whether to send to Drive (EC2 http://) or download directly (https)
-        const forwardImageUrl = async (url) => {
-          const val = (url || "").trim();
-          if (!val) return;
-          if (isHttpInsecure(val)) {
-            // http:// EC2 → Apps Script → Drive
-            await uploadScreenshotUrlToDrive(val, buildKey, sessionId);
 
-          } else {
-            // https:// etc → normal browser download
-            await downloadUrlSmart(val, filenameFromUrl(val));
-          }
-        };
+        
+        // const forwardImageUrl = async (url) => {
+        //   const val = (url || "").trim();
+        //   if (!val) return;
+        //   if (isHttpInsecure(val)) {
+        //     // http:// EC2 → Apps Script → Drive
+        //     await uploadScreenshotUrlToDrive(val, buildKey, sessionId);
+
+        //   } else {
+        //     // https:// etc → normal browser download
+        //     await downloadUrlSmart(val, filenameFromUrl(val));
+        //   }
+        // };
+
+
+        const forwardImageUrl = async (url) => {
+  const val = extractBestImageUrl(url).trim();
+  if (!val) return;
+
+  // ALWAYS send to Drive (both http:// and https://)
+  await uploadScreenshotUrlToDrive(val, buildKey, sessionId);
+};
+
+
 
         // -------------------------------------------------
         // 0) Raw string payloads
