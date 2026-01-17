@@ -5,6 +5,9 @@ import vz1 from "../assets/vz1.png";     // ✅ your Vizdom icon
 import { useAuth } from "../auth/AuthProvider";
 import "../styles/lovable-navbar.css";
 import "../styles/testimonials-marquee.css";
+import indiaIcon from "../assets/india.png";
+import usIcon from "../assets/usa.png";
+
 
 const HERO_YOUTUBE_URL = "https://www.youtube.com/watch?v=dumslTDJfQk&feature=youtu.be";
 
@@ -480,7 +483,7 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
               onOpenScreenshotGallery();
             }}
           >
-            View Detail <span style={{ marginLeft: 6 }}>→</span>
+            View Details <span style={{ marginLeft: 6 }}>→</span>
           </button>
         </div>
       </div>
@@ -807,11 +810,12 @@ const handleOpenVizwalk = (item) => {
               <div className="lv-locbarRight">
                 <div className="lv-togglePills">
                   <button
-                    type="button"
-                    className={`lv-pill ${selectedServer === "india" ? "lv-pillActive" : ""}`}
-                    onClick={() => setSelectedServer("india")}
-                  >
-                    🇮🇳 <span>India</span>
+  type="button"
+  className={`lv-pill ${selectedServer === "india" ? "lv-pillActive" : ""}`}
+  onClick={() => setSelectedServer("india")}
+>
+  <img src={indiaIcon} alt="" className="lv-pillImg" />
+  <span>India</span>
                   </button>
 
                   <button
@@ -819,8 +823,11 @@ const handleOpenVizwalk = (item) => {
                     className={`lv-pill ${selectedServer === "us" ? "lv-pillActive" : ""}`}
                     onClick={() => setSelectedServer("us")}
                   >
-                    🇺🇸 <span>US</span>
+                    <img src={usIcon} alt="" className="lv-pillImg" />
+                    <span>US</span>
                   </button>
+
+
                 </div>
 
                 <button type="button" className="lv-continue" onClick={handleContinue}>
@@ -839,7 +846,7 @@ const handleOpenVizwalk = (item) => {
         <section className="lv-hero">
           <div className="lv-heroLeft">
             <div className="lv-heroTitle">
-              Bring Spaces <br />
+              Bring Your Spaces <br />
               <span className="lv-heroAccent">To Life</span>
             </div>
 

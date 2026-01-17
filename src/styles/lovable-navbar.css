@@ -179,7 +179,6 @@
   padding: 8px 12px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -190,7 +189,6 @@
   border-radius: 999px;
   background: #fff;
   font-size: 12px;
-  font-weight: 800;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -356,6 +354,13 @@
     justify-content: center;
     flex-wrap: wrap;
   }
+}
+.lv-pillImg{
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  display: inline-block;
+  margin-right: 6px;
 }
 
 /* ===== Hero (spacing like Image1) ===== */

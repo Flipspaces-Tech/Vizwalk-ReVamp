@@ -4,6 +4,8 @@ import vizIcon from "../assets/vizdom.png";
 import placeholderImg from "../assets/Flipspace - Logo - Black.png";
 import LandingNavbar from "../components/LandingNavbar.jsx";
 import { useAuth } from "../auth/AuthProvider";
+import openIcon from "../assets/share.png"; // <-- change filename
+
 
 
 
@@ -83,6 +85,8 @@ const safeGet = (row, idx, fallback = "") =>
   idx != null && idx < row.length && row[idx] != null
     ? String(row[idx]).trim()
     : fallback;
+
+
 
 const COLS = {
   status: ["status"],
@@ -198,7 +202,7 @@ function ImageWithFallback({ src, alt, style }) {
 }
 
 const TABS = [
-  { key: "walkthroughs", label: "Walkthroughs", disabled: true },
+  // { key: "walkthroughs", label: "Walkthroughs", disabled: true },
   { key: "screenshots", label: "Screenshots", disabled: false },
 ];
 
@@ -244,6 +248,9 @@ export default function ScreenshotGallery() {
   const [headerItem, setHeaderItem] = useState(null);
 
   const [screenshotsGroups, setScreenshotsGroups] = useState([]);
+  const [heroHover, setHeroHover] = useState(false);
+  const [demoHover, setDemoHover] = useState(false);
+
 
   // IMPORTANT:
   // - initialLoadingShots: only true when we have ZERO screenshots and we are fetching
@@ -395,7 +402,7 @@ export default function ScreenshotGallery() {
 
   // Auto-refresh every 20 seconds (background)
   useEffect(() => {
-    const interval = setInterval(() => fetchScreenshots({ background: true }), 20000);
+    const interval = setInterval(() => fetchScreenshots({ background: true }), 5000);
     return () => clearInterval(interval);
   }, [fetchScreenshots]);
 
@@ -504,28 +511,34 @@ export default function ScreenshotGallery() {
                 <div style={sx.btnStack}>
                   {/* Demo video */}
                   <button
-                    type="button"
-                    style={{
-                      ...sx.demoBtn,
-                      ...(headerItem?.youtube ? null : sx.demoBtnDisabled),
-                    }}
-                    disabled={!headerItem?.youtube}
-                    onClick={() => {
-                      if (!headerItem?.youtube) return;
-                      window.open(headerItem.youtube, "_blank", "noopener,noreferrer");
-                    }}
-                  >
+                      type="button"
+                      style={{
+                        ...sx.demoBtn,
+                        ...(demoHover ? sx.demoBtnHover : sx.demoBtnNoShadow),
+                        ...(headerItem?.youtube ? null : sx.demoBtnDisabled),
+                      }}
+                      disabled={!headerItem?.youtube}
+                      onMouseEnter={() => headerItem?.youtube && setDemoHover(true)}
+                      onMouseLeave={() => setDemoHover(false)}
+                      onClick={() => {
+                        if (!headerItem?.youtube) return;
+                        window.open(headerItem.youtube, "_blank", "noopener,noreferrer");
+                      }}
+                    >
+
                     <span style={sx.demoIcon}>▶</span>
                     <div style={{ textAlign: "left" }}>
-                      <div style={sx.demoTitle}>Vizwalk Demo Video</div>
+                      <div style={sx.demoTitle}>Vizwalk Interactive Demo</div>
                       <div style={sx.demoSub}>See the interactive finish video</div>
                     </div>
                   </button>
 
                   {/* Open vizwalk */}
                   <button type="button" style={sx.openBtn} onClick={openVizwalk}>
-                    ⤴&nbsp;&nbsp;Open Vizwalk
+                    <img src={openIcon} alt="" style={sx.openIcon} />
+                    <span>Open Vizwalk</span>
                   </button>
+
                 </div>
               </>
             )}
@@ -533,25 +546,46 @@ export default function ScreenshotGallery() {
 
           {/* Hero */}
           <div style={sx.heroCard}>
-            <div style={sx.heroImgWrap} role="button" tabIndex={0} onClick={openVizwalk}>
-              <ImageWithFallback src={heroImg} alt={buildName} style={sx.heroImg} />
-              <button
-                type="button"
-                style={sx.heroCta}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openVizwalk();
-                }}
-              >
-                ⤴&nbsp;&nbsp;Open Vizwalk
-              </button>
-            </div>
-          </div>
+  <div
+  style={sx.heroImgWrap}
+  role="button"
+  tabIndex={0}
+  onClick={openVizwalk}
+  onMouseEnter={() => setHeroHover(true)}
+  onMouseLeave={() => setHeroHover(false)}
+>
+
+    <ImageWithFallback src={heroImg} alt={buildName} style={sx.heroImg} />
+
+    {/* ✅ show only on hover */}
+    <div
+  style={{
+    ...sx.heroHoverOverlay,
+    opacity: heroHover ? 1 : 0,
+    pointerEvents: heroHover ? "auto" : "none",
+  }}
+>
+
+      <button
+        type="button"
+        style={sx.heroCta}
+        onClick={(e) => {
+          e.stopPropagation();
+          openVizwalk();
+        }}
+      >
+        <img src={openIcon} alt="" style={sx.openIcon} />
+        <span>Open Vizwalk</span>
+      </button>
+    </div>
+  </div>
+</div>
+
         </div>
 
         {/* ===== Panel ===== */}
         <div style={sx.panel}>
-          <div style={sx.panelTop}>
+         <div style={sx.panelTop}>
             <div style={sx.tabRow}>
               {TABS.map((t) => (
                 <button
@@ -587,7 +621,7 @@ export default function ScreenshotGallery() {
                 ⟳&nbsp;&nbsp;{isRefreshingShots ? "Refreshing" : "Refresh"}
               </button>
             </div>
-          </div>
+         </div>
 
           <div style={sx.panelBody}>
             {activeTab !== "screenshots" ? (
@@ -682,12 +716,12 @@ export default function ScreenshotGallery() {
  */
 const sx = {
   page: {
-    minHeight: "100vh",
-    background: "#ffffff",
-    color: "#141414",
-    fontFamily:
-      'Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif',
-  },
+  minHeight: "100vh",
+  background: "#f3f3f2",
+  color: "#141414",
+  fontFamily: "var(--font-sans)",
+},
+
 
   // ✅ Reduce big left gap by increasing container max width + using more viewport width
   container: {
@@ -812,23 +846,43 @@ const sx = {
   },
 
   demoBtn: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    width: "100%",
-    padding: "14px 14px",
-    borderRadius: 14,
-    border: "1px solid rgba(0,0,0,0.10)",
-    background: "#fff",
-    boxShadow: "0 10px 26px rgba(0,0,0,0.06)",
-    cursor: "pointer",
-  },
-  demoBtnDisabled: { opacity: 0.55, cursor: "not-allowed" },
+  display: "flex",
+  alignItems: "center",
+  gap: 12,
+  width: "100%",
+  padding: "14px 14px",
+  
+  borderRadius: 14,
+  border: "1px solid rgba(0,0,0,0.10)",
+  background: "#F3F3F2",
+  cursor: "pointer",
+  transition: "box-shadow 0.18s ease, transform 0.18s ease",
+},
+
+demoBtnNoShadow: {
+  boxShadow: "none",
+  transform: "translateY(0)",
+},
+
+demoBtnHover: {
+  background:"#FEFEFE",
+  boxShadow: "0 10px 26px rgba(0,0,0,0.06)",
+  transform: "translateY(-1px)",
+},
+
+
+  demoBtnDisabled: {
+  opacity: 0.55,
+  cursor: "not-allowed",
+  boxShadow: "none",
+  transform: "translateY(0)",
+},
+
   demoIcon: {
     width: 36,
     height: 36,
     borderRadius: 999,
-    background: "#E53935",
+    background: "#DB2424",
     color: "#fff",
     display: "grid",
     placeItems: "center",
@@ -857,26 +911,38 @@ const sx = {
     boxShadow: "0 26px 70px rgba(0,0,0,0.14)",
   },
   heroImgWrap: { position: "relative", cursor: "pointer" },
+  heroHoverOverlay: {
+  position: "absolute",
+  inset: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "rgba(0,0,0,0.18)",
+  opacity: 0,
+  pointerEvents: "none",
+  transition: "opacity 0.18s ease",
+},
+
   heroImg: { width: "100%", height: 240, objectFit: "cover", display: "block" },
   heroCta: {
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%,-50%)",
-    padding: "10px 18px",
-    borderRadius: 999,
-    border: "none",
-    background: "#f5a524",
-    color: "#111",
-    fontWeight: 950,
-    cursor: "pointer",
-    boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
-  },
+  padding: "10px 18px",
+  borderRadius: 999,
+  border: "none",
+  background: "#f5a524",
+  color: "#111",
+  fontWeight: 950,
+  cursor: "pointer",
+  boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+},
+
 
   /* Panel */
   panel: {
     marginTop: 18,
-    background: "#EEE8E0",
+    background: "#F1F0EA",
     border: "1px solid rgba(0,0,0,0.10)",
     borderRadius: 14,
     padding: 0,
@@ -999,4 +1065,45 @@ const sx = {
     cursor: "pointer",
     boxShadow: "0 8px 18px rgba(0,0,0,0.10)",
   },
+  openIcon: {
+  width: 16,
+  height: 16,
+  display: "block",
+},
+
+// update openBtn to align icon + text
+openBtn: {
+  width: "100%",
+  padding: "12px 14px",
+  borderRadius: 12,
+  border: "1px solid rgba(0,0,0,0.10)",
+  background: "#f5a524",
+  fontWeight: 950,
+  cursor: "pointer",
+  boxShadow: "0 12px 28px rgba(0,0,0,0.10)",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+},
+
+// update heroCta to align icon + text
+heroCta: {
+  position: "absolute",
+  left: "50%",
+  top: "50%",
+  transform: "translate(-50%,-50%)",
+  padding: "10px 18px",
+  borderRadius: 999,
+  border: "none",
+  background: "#f5a524",
+  color: "#111",
+  fontWeight: 950,
+  cursor: "pointer",
+  boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+},
+
 };
