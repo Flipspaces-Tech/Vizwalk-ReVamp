@@ -454,18 +454,26 @@ export default function Experience() {
 
 // Extract the best (last) valid image URL from a concatenated string.
 // Example input: "http://ec2...amazonaws.comhttps://s3.../file.png"
+// Extract the best (last) valid URL from a concatenated string.
+// Example input: "http://ec2...amazonaws.comhttps://s3.../file.png"
 const extractBestImageUrl = (raw) => {
   if (typeof raw !== "string") return "";
   const s = raw.trim();
   if (!s) return "";
 
-  const parts = s.split(/(?=https?:\/\/)/g).map(x => x.trim()).filter(Boolean);
+  // Find all http/https URLs inside the string (handles glued URLs)
+  const matches = s.match(/https?:\/\/[^\s"'<>]+/gi) || [];
+  if (!matches.length) return s;
 
-  for (let i = parts.length - 1; i >= 0; i--) {
-    if (/\.(png|jpe?g|webp|gif)(\?.*)?$/i.test(parts[i])) return parts[i];
+  // Prefer the last one that looks like an image
+  for (let i = matches.length - 1; i >= 0; i--) {
+    if (/\.(png|jpe?g|jpeg|webp|gif)(\?.*)?$/i.test(matches[i])) return matches[i];
   }
-  return parts[parts.length - 1] || s;
+
+  // Otherwise return the last URL
+  return matches[matches.length - 1];
 };
+
 
 
 
@@ -503,6 +511,7 @@ const extractBestImageUrl = (raw) => {
   // ALWAYS send to Drive (both http:// and https://)
   await uploadScreenshotUrlToDrive(val, buildKey, sessionId);
 };
+
 
 
 
