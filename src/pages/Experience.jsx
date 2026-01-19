@@ -456,23 +456,28 @@ export default function Experience() {
 // Example input: "http://ec2...amazonaws.comhttps://s3.../file.png"
 // Extract the best (last) valid URL from a concatenated string.
 // Example input: "http://ec2...amazonaws.comhttps://s3.../file.png"
+// Extract last valid URL from glued strings like:
+// "http://ec2...amazonaws.comhttps://s3.../file.png"
 const extractBestImageUrl = (raw) => {
   if (typeof raw !== "string") return "";
   const s = raw.trim();
   if (!s) return "";
 
-  // Find all http/https URLs inside the string (handles glued URLs)
-  const matches = s.match(/https?:\/\/[^\s"'<>]+/gi) || [];
-  if (!matches.length) return s;
+  // Split whenever a new http/https URL begins
+  const parts = s
+    .split(/(?=https?:\/\/)/g)
+    .map((x) => x.trim())
+    .filter(Boolean);
 
-  // Prefer the last one that looks like an image
-  for (let i = matches.length - 1; i >= 0; i--) {
-    if (/\.(png|jpe?g|jpeg|webp|gif)(\?.*)?$/i.test(matches[i])) return matches[i];
+  // Prefer the last part that looks like an image
+  for (let i = parts.length - 1; i >= 0; i--) {
+    if (/\.(png|jpe?g|jpeg|webp|gif)(\?.*)?$/i.test(parts[i])) return parts[i];
   }
 
-  // Otherwise return the last URL
-  return matches[matches.length - 1];
+  // Otherwise, return the last URL-ish part
+  return parts[parts.length - 1] || s;
 };
+
 
 
 
@@ -505,12 +510,14 @@ const extractBestImageUrl = (raw) => {
 
 
         const forwardImageUrl = async (url) => {
-  const val = extractBestImageUrl(url).trim();
-  if (!val) return;
+  const extracted = extractBestImageUrl(url).trim();
+  console.log("forwardImageUrl raw:", url);
+  console.log("forwardImageUrl extracted:", extracted);
+  if (!extracted) return;
 
-  // ALWAYS send to Drive (both http:// and https://)
-  await uploadScreenshotUrlToDrive(val, buildKey, sessionId);
+  await uploadScreenshotUrlToDrive(extracted, buildKey, sessionId);
 };
+
 
 
 
