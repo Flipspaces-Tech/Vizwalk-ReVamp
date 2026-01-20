@@ -1,10 +1,11 @@
+// src/pages/Login.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "../auth/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./login.css";
 
 import loginBg from "../assets/bg.png";
-import vizwalkLogo from "../assets/L1.png";
+import vizwalkLogo from "../assets/logo.png";
 
 function sanitizeNext(nextRaw) {
   if (!nextRaw) return "/";
@@ -20,37 +21,22 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [remember, setRemember] = useState(true);
 
-  // ✅ 4 digit OTP like Image1
+  // ✅ 6-digit OTP with paste support
   const OTP_LEN = 6;
   const [otpDigits, setOtpDigits] = useState(Array(OTP_LEN).fill(""));
   const otpRefs = useRef([]);
 
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
-  const [verifiedUI, setVerifiedUI] = useState(false); // ✅ Image3 state
+
+  // Verified UI (green card)
+  const [verifiedUI, setVerifiedUI] = useState(false);
+
+  // Hold redirect so “Verified!” is visible
+  const [holdRedirect, setHoldRedirect] = useState(false);
 
   const nav = useNavigate();
   const loc = useLocation();
-
-  const applyOtpString = (raw) => {
-  const digits = String(raw || "").replace(/\D/g, "").slice(0, OTP_LEN);
-  if (!digits) return;
-
-  const nextArr = Array(OTP_LEN).fill("");
-  for (let i = 0; i < digits.length; i++) nextArr[i] = digits[i];
-
-  setOtpDigits(nextArr);
-
-  const focusIndex = Math.min(digits.length, OTP_LEN - 1);
-  setTimeout(() => otpRefs.current?.[focusIndex]?.focus?.(), 0);
-};
-
-const handleOtpPaste = (e) => {
-  e.preventDefault();
-  const text = e.clipboardData?.getData("text") || "";
-  applyOtpString(text);
-};
-
 
   const next = useMemo(() => {
     const qpNext = new URLSearchParams(loc.search).get("next");
@@ -61,9 +47,12 @@ const handleOtpPaste = (e) => {
     return sanitizeNext(qpNext || stateNext || "/");
   }, [loc.search, loc.state]);
 
+  // ✅ Redirect only when not holding (so verified screen stays visible)
   useEffect(() => {
-    if (session) nav(next, { replace: true });
-  }, [session, nav, next]);
+    if (session && !holdRedirect) nav(next, { replace: true });
+  }, [session, holdRedirect, nav, next]);
+
+  const mode = verifiedUI ? "verified" : step; // email | otp | verified
 
   const onSend = async () => {
     const e = email.trim();
@@ -71,6 +60,8 @@ const handleOtpPaste = (e) => {
 
     setBusy(true);
     setMsg("");
+    setVerifiedUI(false);
+    setHoldRedirect(false);
 
     const res = await sendOtp(e);
 
@@ -89,30 +80,27 @@ const handleOtpPaste = (e) => {
 
   const otpValue = otpDigits.join("");
 
-  const onVerify = async () => {
-    const e = email.trim();
-    if (!e || otpValue.length !== OTP_LEN) return;
+  const applyOtpString = (raw) => {
+    const digits = String(raw || "").replace(/\D/g, "").slice(0, OTP_LEN);
+    if (!digits) return;
 
-    setBusy(true);
-    setMsg("");
+    const nextArr = Array(OTP_LEN).fill("");
+    for (let i = 0; i < digits.length; i++) nextArr[i] = digits[i];
+    setOtpDigits(nextArr);
 
-    const res = await verifyOtp(e, otpValue);
+    const focusIndex = Math.min(digits.length, OTP_LEN - 1);
+    setTimeout(() => otpRefs.current?.[focusIndex]?.focus?.(), 0);
+  };
 
-    setBusy(false);
-
-    if (!res.ok) {
-      setMsg(res.error || "Invalid OTP");
-      return;
-    }
-
-    // ✅ show Image3 “Verified!” state briefly
-    setVerifiedUI(true);
-    // session effect will redirect; this is just for UI feedback
+  const handleOtpPaste = (e) => {
+    e.preventDefault();
+    const text = e.clipboardData?.getData("text") || "";
+    applyOtpString(text);
   };
 
   const handleOtpChange = (idx, val) => {
-    // allow only digits, single char
     const digit = (val || "").replace(/\D/g, "").slice(-1);
+
     const nextArr = [...otpDigits];
     nextArr[idx] = digit;
     setOtpDigits(nextArr);
@@ -135,48 +123,66 @@ const handleOtpPaste = (e) => {
     if (e.key === "Enter") onVerify();
   };
 
+  const onVerify = async () => {
+    const e = email.trim();
+    if (!e || otpValue.length !== OTP_LEN) return;
+
+    setBusy(true);
+    setMsg("");
+
+    const res = await verifyOtp(e, otpValue);
+
+    setBusy(false);
+
+    if (!res.ok) {
+      setMsg(res.error || "Invalid OTP");
+      return;
+    }
+
+    // ✅ Show “Verified!” screen and delay redirect
+    setVerifiedUI(true);
+    setHoldRedirect(true);
+
+    setTimeout(() => {
+      nav(next, { replace: true });
+    }, 900);
+  };
+
   return (
-    <div className="vwLogin" style={{ "--vwLoginBg": `url(${loginBg})` }}>
+    <div className={`vwLogin vwLogin--${mode}`} style={{ "--vwLoginBg": `url(${loginBg})` }}>
       <div className="vwLoginOverlay" />
 
       <div className="vwLoginCenter">
-        <div className="vwLoginCard vwLoginCard--compact">
-          <div className="vwBrand">
-            <img className="vwBrandLogo vwBrandLogo--small" src={vizwalkLogo} alt="vizwalk" />
-            <div className="vwBrandSub">Powered by FLIPSPACES</div>
-          </div>
+        {/* ✅ Header image (your new L1.png) — same for Email + OTP + Verified */}
+        <div className="vwHero">
+          <img className="vwHeroLogo" src={vizwalkLogo} alt="Vizwalk" />
+        </div>
 
-          {/* ✅ VERIFIED UI (Image3) */}
+        <div className="vwLoginCard">
           {verifiedUI ? (
-  <div className="vwVerifiedCard">
-    <div className="vwVerifiedIconWrap">
-      <svg
-        className="vwVerifiedIcon"
-        viewBox="0 0 24 24"
-        fill="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0Z"
-          stroke="rgba(255,255,255,0.75)"
-          strokeWidth="2"
-        />
-        <path
-          d="m8 12.2 2.3 2.3L16.5 9"
-          stroke="rgba(255,255,255,0.9)"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
+            <div className="vwVerifiedCard">
+              <div className="vwVerifiedIconWrap">
+                <svg className="vwVerifiedIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0Z"
+                    stroke="rgba(255,255,255,0.75)"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="m8 12.2 2.3 2.3L16.5 9"
+                    stroke="rgba(255,255,255,0.9)"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
 
-    <div className="vwVerifiedText">Verified!</div>
-    <div className="vwVerifiedDesc">Redirecting you to the dashboard...</div>
-
-    <div className="vwVerifiedSpinner" aria-label="Loading" />
-  </div>
-) : step === "otp" ? (
+              <div className="vwVerifiedText">Verified!</div>
+              <div className="vwVerifiedDesc">Redirecting you to the dashboard...</div>
+              <div className="vwVerifiedSpinner" aria-label="Loading" />
+            </div>
+          ) : step === "otp" ? (
             <>
               <div className="vwCardTitle vwCardTitle--center">Enter the 6-digit code sent to</div>
               <div className="vwOtpEmail">{email}</div>
@@ -190,15 +196,18 @@ const handleOtpPaste = (e) => {
                     value={d}
                     onChange={(e) => handleOtpChange(idx, e.target.value)}
                     onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                    onPaste={handleOtpPaste}         // ✅ paste support
+                    onPaste={handleOtpPaste}
                     inputMode="numeric"
                     maxLength={1}
                   />
-
                 ))}
               </div>
 
-              <button className="vwCta vwCta--compact" disabled={busy || otpValue.length !== OTP_LEN} onClick={onVerify}>
+              <button
+                className="vwCta vwCta--compact"
+                disabled={busy || otpValue.length !== OTP_LEN}
+                onClick={onVerify}
+              >
                 {busy ? "Verifying…" : "Verify OTP"}
               </button>
 
@@ -212,7 +221,7 @@ const handleOtpPaste = (e) => {
                   disabled={busy}
                   onClick={() => {
                     setStep("email");
-                    setVerifiedUI(false);
+                    setOtpDigits(Array(OTP_LEN).fill(""));
                     setMsg("");
                   }}
                 >
@@ -221,15 +230,9 @@ const handleOtpPaste = (e) => {
               </div>
 
               {msg ? <div className="vwMsg">{msg}</div> : null}
-
-              <div className="vwTerms vwTerms--inside">
-                By continuing, you agree to our <span className="vwTermLink">Terms of Service</span> and{" "}
-                <span className="vwTermLink">Privacy Policy</span>
-              </div>
             </>
           ) : (
             <>
-              {/* keep your EMAIL UI here unchanged */}
               <div className="vwCardTitle">Sign in with your Flipspaces ID</div>
 
               <input
@@ -241,24 +244,30 @@ const handleOtpPaste = (e) => {
               />
 
               <label className="vwRemember">
-                <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+                <input
+                  type="checkbox"
+                  checked={remember}
+                  onChange={(e) => setRemember(e.target.checked)}
+                />
                 <span className="vwRememberText">Remember Me</span>
               </label>
 
-              <button className="vwCta vwCta--compact" disabled={busy || !email.trim()} onClick={onSend}>
+              <button className="vwCta" disabled={busy || !email.trim()} onClick={onSend}>
                 {busy ? "Sending…" : "Send OTP"}
               </button>
 
               <div className="vwHint">We’ll send a verification code to your email</div>
 
               {msg ? <div className="vwMsg">{msg}</div> : null}
-
-              <div className="vwTerms vwTerms--inside">
-                By continuing, you agree to our <span className="vwTermLink">Terms of Service</span> and{" "}
-                <span className="vwTermLink">Privacy Policy</span>
-              </div>
             </>
           )}
+        </div>
+
+        {/* ✅ Terms outside card (consistent across screens) */}
+        <div className="vwTerms">
+          By continuing, you agree to our{" "}
+          <span className="vwTermLink">Terms of Service</span> and{" "}
+          <span className="vwTermLink">Privacy Policy</span>
         </div>
       </div>
     </div>

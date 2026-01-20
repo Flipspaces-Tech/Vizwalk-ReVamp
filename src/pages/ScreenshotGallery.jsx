@@ -5,6 +5,8 @@ import placeholderImg from "../assets/Flipspace - Logo - Black.png";
 import LandingNavbar from "../components/LandingNavbar.jsx";
 import { useAuth } from "../auth/AuthProvider";
 import openIcon from "../assets/share.png"; // <-- change filename
+import downloadIcon from "../assets/download.png"; // <-- use your file name
+
 
 
 
@@ -690,8 +692,9 @@ export default function ScreenshotGallery() {
                               }}
                               title="Download"
                             >
-                              ⬇
+                              <img src={downloadIcon} alt="" style={sx.dlIcon} />
                             </button>
+
                           </div>
                         ))}
                       </div>
@@ -896,7 +899,7 @@ demoBtnHover: {
     padding: "12px 14px",
     borderRadius: 12,
     border: "1px solid rgba(0,0,0,0.10)",
-    background: "#f5a524",
+    background: "#FFC702",
     fontWeight: 950,
     cursor: "pointer",
     boxShadow: "0 12px 28px rgba(0,0,0,0.10)",
@@ -928,7 +931,7 @@ demoBtnHover: {
   padding: "10px 18px",
   borderRadius: 999,
   border: "none",
-  background: "#f5a524",
+  background: "#FFC702",
   color: "#111",
   fontWeight: 950,
   cursor: "pointer",
@@ -1077,7 +1080,7 @@ openBtn: {
   padding: "12px 14px",
   borderRadius: 12,
   border: "1px solid rgba(0,0,0,0.10)",
-  background: "#f5a524",
+  background: "#FFC702",
   fontWeight: 950,
   cursor: "pointer",
   boxShadow: "0 12px 28px rgba(0,0,0,0.10)",
@@ -1096,7 +1099,7 @@ heroCta: {
   padding: "10px 18px",
   borderRadius: 999,
   border: "none",
-  background: "#f5a524",
+  background: "#FFC702",
   color: "#111",
   fontWeight: 950,
   cursor: "pointer",
@@ -1104,6 +1107,12 @@ heroCta: {
   display: "inline-flex",
   alignItems: "center",
   gap: 8,
+},
+dlIcon: {
+  width: 14,
+  height: 14,
+  display: "block",
+  opacity: 0.9,
 },
 
 };
