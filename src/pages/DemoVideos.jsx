@@ -1,6 +1,7 @@
 // src/pages/DemoVideos.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import LandingNavbar from "../components/LandingNavbar.jsx";
+import { useAuth } from "../auth/AuthProvider";
 import "../styles/demo-videos.css";
 
 const WEBAPP_URL =
@@ -9,12 +10,15 @@ const WEBAPP_URL =
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const TAB_NAME = "Demo Videos Data For Website";
 
+/** ===== Drive helpers ===== */
 function extractDriveFileId(url = "") {
   const s = String(url || "");
   const m1 = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
   if (m1?.[1]) return m1[1];
   const m2 = s.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   if (m2?.[1]) return m2[1];
+  const m3 = s.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m3?.[1]) return m3[1];
   return null;
 }
 
@@ -24,15 +28,10 @@ function driveToDirectImageUrl(url = "") {
   return `https://drive.google.com/uc?export=view&id=${id}`;
 }
 
-function ImageWithFallback({ src, alt, style }) {
+/** ===== Image fallback (Drive-friendly) ===== */
+function ImageWithFallback({ src, alt, className }) {
   const isDrive = /drive\.google\.com/i.test(src || "");
-  const extractDriveId = (url = "") => {
-    if (!url) return "";
-    const m1 = url.match(/\/d\/([^/]+)\//);
-    const m2 = url.match(/[?&]id=([^&]+)/);
-    return m1?.[1] || m2?.[1] || "";
-  };
-  const id = isDrive ? extractDriveId(src) : "";
+  const id = isDrive ? extractDriveFileId(src) : "";
 
   const candidates =
     isDrive && id
@@ -44,15 +43,15 @@ function ImageWithFallback({ src, alt, style }) {
         ]
       : [src || ""];
 
-  const [idx, setIdx] = React.useState(0);
+  const [idx, setIdx] = useState(0);
   const onError = () => setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
 
   if (!src || idx === -1) {
     return (
       <img
+        className={className}
         src="https://picsum.photos/seed/vizwalk/1400/900"
         alt={alt || "preview"}
-        style={style}
         loading="lazy"
         referrerPolicy="no-referrer"
         crossOrigin="anonymous"
@@ -67,9 +66,9 @@ function ImageWithFallback({ src, alt, style }) {
 
   return (
     <img
+      className={className}
       src={current}
       alt={alt || "preview"}
-      style={style}
       loading="lazy"
       onError={onError}
       referrerPolicy="no-referrer"
@@ -78,11 +77,9 @@ function ImageWithFallback({ src, alt, style }) {
   );
 }
 
-
-
-
-
 export default function DemoVideos() {
+  const { user, signOut } = useAuth();
+
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -101,7 +98,7 @@ export default function DemoVideos() {
         u.searchParams.set("sheetId", SHEET_ID);
         u.searchParams.set("tab", TAB_NAME);
 
-        const res = await fetch(u.toString());
+        const res = await fetch(u.toString(), { cache: "no-store" });
         const data = await res.json();
 
         if (!mounted) return;
@@ -154,7 +151,7 @@ export default function DemoVideos() {
 
   return (
     <div className="dv-page">
-      <LandingNavbar />
+      <LandingNavbar user={user} signOut={signOut} />
 
       <div className="dv-wrap">
         <h1 className="dv-title">Walkthrough Videos</h1>
@@ -192,52 +189,60 @@ export default function DemoVideos() {
         ) : (
           <div className="dv-grid">
             {filtered.map((r, idx) => {
-              const img = driveToDirectImageUrl(r.thumbnailUrl);
+              // ✅ thumb
+              const thumb = driveToDirectImageUrl(r.thumbnailUrl);
+
+              // ✅ link mapping from sheet
+              const projectShowcaseUrl = r.youtubeUrl || "";      // Unlisted Youtube Video Link
+              const interactiveVideoUrl = r.vizwalkDemoUrl || ""; // Unlisted Youtube Vizwalk Demo Video Link
+
+              // ✅ area formatting
+              const areaText = r.areaSqft ? String(r.areaSqft).replace(/,/g, "").trim() : "";
+              const areaLine = areaText ? `Area – ${Number(areaText).toLocaleString()} sqft` : "";
 
               return (
-                <div className="dv-card" key={`${r.videoName}-${idx}`}>
-                  <div className="dv-thumb">
-                    <ImageWithFallback
-                        src={r.thumbnailUrl}
-                        alt={r.videoName}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    />
+                <div className="dv-cardX" key={`${r.videoName || "video"}-${idx}`}>
+                  <div className="dv-mediaX">
+                    <ImageWithFallback className="dv-imgX" src={thumb} alt={r.videoName} />
 
-                    {r.youtubeUrl ? (
-                        <button
-                        className="dv-play"
-                        title="Open video"
-                        onClick={() => window.open(r.youtubeUrl, "_blank", "noopener,noreferrer")}
-                        >
-                        <span className="dv-playIcon">▶</span>
-                        </button>
+                    {/* ✅ hover-only overlay */}
+                    {(projectShowcaseUrl || interactiveVideoUrl) && (
+                    <div className="dv-hoverOverlayX">
+                        <div className="dv-actionsX">
+                        {projectShowcaseUrl ? (
+                            <button
+                            className="dv-pillBtnX"
+                            onClick={() => window.open(projectShowcaseUrl, "_blank", "noopener,noreferrer")}
+                            >
+                            <span className="dv-pillIconX">▶</span>
+                            Project Showcase
+                            </button>
+                        ) : null}
+
+                        {interactiveVideoUrl ? (
+                            <button
+                            className="dv-pillBtnX"
+                            onClick={() => window.open(interactiveVideoUrl, "_blank", "noopener,noreferrer")}
+                            >
+                            <span className="dv-pillIconX">▶</span>
+                            Interactive Video
+                            </button>
+                        ) : null}
+                        </div>
+                    </div>
+                    )}
+
+
+                  </div>
+
+                  <div className="dv-infoX">
+                    <h3 className="dv-titleX">{r.videoName || "Untitled"}</h3>
+
+                    {r.constructionType ? (
+                      <div className="dv-tagX">{r.constructionType}</div>
                     ) : null}
-                    </div>
 
-
-                  <div className="dv-body">
-                    {r.constructionType ? <span className="dv-tag">{r.constructionType}</span> : null}
-
-                    <div className="dv-name">{r.videoName || "Untitled"}</div>
-
-                    <div className="dv-meta">
-                      {r.areaSqft ? <div>Area – {r.areaSqft} sqft</div> : null}
-                      {r.projectSlot ? <div>{r.projectSlot}</div> : null}
-                      {r.sbu ? <div>SBU – {r.sbu}</div> : null}
-                    </div>
-
-                    <div className="dv-actions">
-                      {r.youtubeUrl ? (
-                        <button
-                          className="dv-btn"
-                          onClick={() => window.open(r.youtubeUrl, "_blank", "noopener,noreferrer")}
-                        >
-                          Open Video <span>↗</span>
-                        </button>
-                      ) : (
-                        <div />
-                      )}
-                    </div>
+                    {areaLine ? <div className="dv-metaX">{areaLine}</div> : null}
                   </div>
                 </div>
               );

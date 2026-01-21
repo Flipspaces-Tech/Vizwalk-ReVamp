@@ -1,8 +1,9 @@
 /* src/styles/demo-videos.css */
 
+/* Page */
 .dv-page {
   min-height: 100vh;
-  background: #f3f3f3;
+  background: #f3f3f2;
 }
 
 .dv-wrap {
@@ -25,7 +26,7 @@
   margin: 0 0 18px;
 }
 
-/* Top Controls */
+/* Controls */
 .dv-controls {
   display: flex;
   align-items: center;
@@ -107,120 +108,178 @@
   .dv-title { font-size: 34px; }
 }
 
-/* Card */
-.dv-card {
-  background: #fff;
-  border: 1px solid #e3e3e3;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 14px 26px rgba(0,0,0,0.08);
-  transition: transform 0.14s ease, box-shadow 0.14s ease;
-}
-
-.dv-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 34px rgba(0,0,0,0.12);
-}
-
-.dv-thumb {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: linear-gradient(135deg, #efefef, #e1e1e1);
-}
-
-.dv-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Play button */
-.dv-play {
-  position: absolute;
-  right: 14px;
-  bottom: 14px;
-  width: 42px;
-  height: 42px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.7);
-  background: rgba(255,255,255,0.92);
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 12px 22px rgba(0,0,0,0.18);
-  transition: transform 0.12s ease;
-}
-
-.dv-play:hover {
-  transform: scale(1.03);
-}
-
-.dv-playIcon {
-  color: #d10000;
-  font-size: 16px;
-  transform: translateX(1px);
-}
-
-.dv-body {
-  padding: 16px 16px 14px;
-}
-
-.dv-tag {
-  display: inline-flex;
-  align-items: center;
-  font-size: 12px;
-  color: #7a4a00;
-  background: #fff2cc;
-  border: 1px solid #ffe199;
-  padding: 5px 10px;
-  border-radius: 999px;
-}
-
-.dv-name {
-  margin: 12px 0 6px;
-  font-size: 18px;
-  font-weight: 800;
-  color: #111;
-}
-
-.dv-meta {
-  font-size: 13px;
-  color: #4f4f4f;
-  line-height: 1.45;
-}
-
-.dv-actions {
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.dv-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid #dfdfdf;
-  background: #fff;
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.12s ease, transform 0.12s ease;
-}
-
-.dv-btn:hover {
-  background: #f7f7f7;
-  transform: translateY(-1px);
-}
-
-.dv-empty, .dv-loading {
+/* Empty/Loading */
+.dv-empty,
+.dv-loading {
   background: #fff;
   border: 1px solid #e3e3e3;
   border-radius: 14px;
   padding: 16px;
   color: #5d5d5d;
   font-size: 14px;
+}
+
+/* ===========================
+   Figma Card (White Version)
+   =========================== */
+
+/* Card shell */
+.dv-cardX {
+  border-radius: 18px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.10);
+  box-shadow: 0 18px 42px rgba(0,0,0,0.14);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+
+.dv-cardX:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 24px 55px rgba(0,0,0,0.18);
+}
+
+/* Image area */
+.dv-mediaX {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #d9d9d9;
+  overflow: hidden;
+}
+
+.dv-imgX {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: filter 0.18s ease, transform 0.18s ease;
+}
+
+/* Blur only on hover (like figma) */
+.dv-cardX:hover .dv-imgX {
+  filter: blur(4px);
+  transform: scale(1.02);
+}
+
+/* Hover overlay – PERFECT center */
+.dv-hoverOverlayX {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+  background: rgba(0,0,0,0.12);
+}
+
+.dv-cardX:hover .dv-hoverOverlayX {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Buttons stack */
+.dv-actionsX {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* Pill buttons */
+.dv-pillBtnX {
+  width: 270px;
+  height: 46px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,199,2,0.95);
+  background: rgba(0,0,0,0.55);
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.dv-pillBtnX:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+}
+
+.dv-pillBtnX:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Yellow play circle */
+.dv-pillIconX {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #FFC702;
+  color: #111;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+/* Bottom info panel */
+.dv-infoX {
+  padding: 16px 16px 18px;
+  background: #ffffff;
+}
+
+/* Title (fix huge font + spacing) */
+.dv-titleX {
+  margin: 0 0 4px;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #111;
+  line-height: 1.05;
+}
+
+/* Category pill (Figma-like) */
+.dv-tagX {
+  display: inline-flex;
+  align-items: center;
+
+  margin-top: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+
+  background: #F7E6BC;
+  border: 1px solid #F2D48C;
+  color: #F59A00;
+
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Area line (reduced gap) */
+.dv-metaX {
+  margin-top: 4px; /* ✅ reduced gap */
+  font-size: 14px;
+  color: rgba(0,0,0,0.75);
+}
+
+@media (max-width: 420px) {
+  .dv-pillBtnX { width: min(270px, 84vw); }
+  .dv-titleX { font-size: 24px; }
 }

@@ -33,9 +33,17 @@ export default function LandingNavbar({ user, signOut }) {
     <header className="lv-header">
       <div className="lv-container">
         <nav className="lv-nav">
-          <a href="/" className="lv-logo" onClick={(e) => e.preventDefault()}>
+          <a
+            href="/"
+            className="lv-logo"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/"); // ✅ takes user to Landing.jsx route
+            }}
+          >
             <img className="lv-logoImg" src={vizIcon} alt="Vizwalk — Powered by Flipspaces" />
           </a>
+
 
           <div className="lv-links">
             <a
@@ -54,11 +62,12 @@ export default function LandingNavbar({ user, signOut }) {
               href="/demo-videos"
               onClick={(e) => {
                 e.preventDefault();
-                navigate("/demo-videos");
+                window.open("/demo-videos", "_blank", "noopener,noreferrer");
               }}
             >
               Demo Videos
             </a>
+
 
 
             <div className="lv-dd" ref={ddRef}>

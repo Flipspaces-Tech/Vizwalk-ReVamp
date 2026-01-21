@@ -232,11 +232,12 @@ function LandingNavbar({ user, signOut }) {
               href="/demo-videos"
               onClick={(e) => {
                 e.preventDefault();
-                navigate("/demo-videos");
+                window.open("/demo-videos", "_blank", "noopener,noreferrer");
               }}
             >
               Demo Videos
             </a>
+
 
 
             <div className="lv-dd" ref={ddRef}>
