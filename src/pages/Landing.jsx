@@ -7,6 +7,7 @@ import "../styles/lovable-navbar.css";
 import "../styles/testimonials-marquee.css";
 import indiaIcon from "../assets/india.png";
 import usIcon from "../assets/usa.png";
+import { useNavigate } from "react-router-dom";
 
 
 const HERO_YOUTUBE_URL = "https://www.youtube.com/watch?v=dumslTDJfQk&feature=youtu.be";
@@ -17,6 +18,8 @@ const categories2 = ["All", "Corporate Offices", "Residential", "Multifamily Apa
 /** ====== CONFIG ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const GID = "0";
+
+
 
 /** ====== CSV PARSER (robust) ====== */
 function parseCSV(text) {
@@ -189,6 +192,7 @@ function LandingNavbar({ user, signOut }) {
   const [open, setOpen] = useState(false);
   const [dd, setDd] = useState(false);
   const ddRef = React.useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onDown = (e) => {
@@ -225,14 +229,15 @@ function LandingNavbar({ user, signOut }) {
 
             <a
               className="lv-link"
-              href="#featured-projects"
+              href="/demo-videos"
               onClick={(e) => {
                 e.preventDefault();
-                scrollTo("featured-projects");
+                navigate("/demo-videos");
               }}
             >
               Demo Videos
             </a>
+
 
             <div className="lv-dd" ref={ddRef}>
               <button type="button" className="lv-link lv-ddBtn" onClick={() => setDd((v) => !v)}>

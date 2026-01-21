@@ -7,6 +7,7 @@ import RequireAuth from "./auth/RequireAuth";
 import Landing from "./pages/Landing";
 import ScreenshotGallery from "./pages/ScreenshotGallery";
 import Login from "./pages/Login";
+import DemoVideos from "./pages/DemoVideos.jsx";
 
 const Experience = lazy(() => import("./pages/Experience"));
 
@@ -45,6 +46,8 @@ export default function App() {
               </RequireAuth>
             }
           />
+
+          <Route path="/demo-videos" element={<DemoVideos />} />
 
           {/* ✅ Important */}
           <Route path="*" element={<Navigate to="/login" replace />} />

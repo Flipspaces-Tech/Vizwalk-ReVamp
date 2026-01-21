@@ -1,11 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import vizIcon from "../assets/L1.png"; // same logo as landing
 import "../styles/lovable-navbar.css";
+import { useNavigate } from "react-router-dom";
+
 
 export default function LandingNavbar({ user, signOut }) {
   const [open, setOpen] = useState(false);
   const [dd, setDd] = useState(false);
   const ddRef = useRef(null);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const onDown = (e) => {
@@ -47,14 +51,15 @@ export default function LandingNavbar({ user, signOut }) {
 
             <a
               className="lv-link"
-              href="#featured-projects"
+              href="/demo-videos"
               onClick={(e) => {
                 e.preventDefault();
-                goOrScroll("featured-projects");
+                navigate("/demo-videos");
               }}
             >
               Demo Videos
             </a>
+
 
             <div className="lv-dd" ref={ddRef}>
               <button
