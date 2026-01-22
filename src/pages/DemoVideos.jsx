@@ -1,8 +1,10 @@
 // src/pages/DemoVideos.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import LandingNavbar from "../components/LandingNavbar.jsx";
-import { useAuth } from "../auth/AuthProvider";
 import "../styles/demo-videos.css";
+
+// use your youtube icon from assets
+import ytIcon from "../assets/yt1.png";
 
 const WEBAPP_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
@@ -10,7 +12,6 @@ const WEBAPP_URL =
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const TAB_NAME = "Demo Videos Data For Website";
 
-/** ===== Drive helpers ===== */
 function extractDriveFileId(url = "") {
   const s = String(url || "");
   const m1 = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
@@ -28,10 +29,15 @@ function driveToDirectImageUrl(url = "") {
   return `https://drive.google.com/uc?export=view&id=${id}`;
 }
 
-/** ===== Image fallback (Drive-friendly) ===== */
 function ImageWithFallback({ src, alt, className }) {
   const isDrive = /drive\.google\.com/i.test(src || "");
-  const id = isDrive ? extractDriveFileId(src) : "";
+  const extractDriveId = (url = "") => {
+    if (!url) return "";
+    const m1 = url.match(/\/d\/([^/]+)\//);
+    const m2 = url.match(/[?&]id=([^&]+)/);
+    return m1?.[1] || m2?.[1] || "";
+  };
+  const id = isDrive ? extractDriveId(src) : "";
 
   const candidates =
     isDrive && id
@@ -78,8 +84,6 @@ function ImageWithFallback({ src, alt, className }) {
 }
 
 export default function DemoVideos() {
-  const { user, signOut } = useAuth();
-
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -135,13 +139,7 @@ export default function DemoVideos() {
 
       if (!q) return true;
 
-      const hay = [
-        r.videoName,
-        r.projectSlot,
-        r.sbu,
-        r.areaSqft,
-        r.constructionType,
-      ]
+      const hay = [r.videoName, r.projectSlot, r.sbu, r.areaSqft, r.constructionType]
         .map((x) => String(x || "").toLowerCase())
         .join(" ");
 
@@ -151,7 +149,7 @@ export default function DemoVideos() {
 
   return (
     <div className="dv-page">
-      <LandingNavbar user={user} signOut={signOut} />
+      <LandingNavbar />
 
       <div className="dv-wrap">
         <h1 className="dv-title">Walkthrough Videos</h1>
@@ -189,60 +187,57 @@ export default function DemoVideos() {
         ) : (
           <div className="dv-grid">
             {filtered.map((r, idx) => {
-              // ✅ thumb
               const thumb = driveToDirectImageUrl(r.thumbnailUrl);
 
-              // ✅ link mapping from sheet
-              const projectShowcaseUrl = r.youtubeUrl || "";      // Unlisted Youtube Video Link
-              const interactiveVideoUrl = r.vizwalkDemoUrl || ""; // Unlisted Youtube Vizwalk Demo Video Link
-
-              // ✅ area formatting
-              const areaText = r.areaSqft ? String(r.areaSqft).replace(/,/g, "").trim() : "";
-              const areaLine = areaText ? `Area – ${Number(areaText).toLocaleString()} sqft` : "";
+              // ✅ THESE ARE THE REAL KEYS (from your console screenshot)
+              const projectShowcaseUrl = String(r.youtubeUrl || "").trim();
+              const interactiveVideoUrl = String(r.vizwalkDemoUrl || "").trim();
 
               return (
-                <div className="dv-cardX" key={`${r.videoName || "video"}-${idx}`}>
+                <div className="dv-cardX" key={`${r.videoName || "v"}-${idx}`}>
                   <div className="dv-mediaX">
-                    <ImageWithFallback className="dv-imgX" src={thumb} alt={r.videoName} />
+                    <ImageWithFallback src={thumb} alt={r.videoName} className="dv-imgX" />
 
-                    {/* ✅ hover-only overlay */}
-                    {(projectShowcaseUrl || interactiveVideoUrl) && (
-                    <div className="dv-hoverOverlayX">
-                        <div className="dv-actionsX">
-                        {projectShowcaseUrl ? (
-                            <button
-                            className="dv-pillBtnX"
-                            onClick={() => window.open(projectShowcaseUrl, "_blank", "noopener,noreferrer")}
-                            >
-                            <span className="dv-pillIconX">▶</span>
-                            Project Showcase
-                            </button>
-                        ) : null}
-
-                        {interactiveVideoUrl ? (
-                            <button
-                            className="dv-pillBtnX"
-                            onClick={() => window.open(interactiveVideoUrl, "_blank", "noopener,noreferrer")}
-                            >
-                            <span className="dv-pillIconX">▶</span>
-                            Interactive Video
-                            </button>
-                        ) : null}
-                        </div>
-                    </div>
-                    )}
-
-
+                    {/* ✅ Yellow play ONLY on hover + only if link exists */}
+                    {projectShowcaseUrl ? (
+                      <button
+                        type="button"
+                        className="dv-centerPlay"
+                        title="Project Showcase"
+                        onClick={() =>
+                          window.open(projectShowcaseUrl, "_blank", "noopener,noreferrer")
+                        }
+                      >
+                        <span className="dv-centerPlayTri" />
+                      </button>
+                    ) : null}
                   </div>
 
                   <div className="dv-infoX">
-                    <h3 className="dv-titleX">{r.videoName || "Untitled"}</h3>
+                    <div className="dv-titleX">{r.videoName || "Untitled"}</div>
 
-                    {r.constructionType ? (
-                      <div className="dv-tagX">{r.constructionType}</div>
+                    {r.constructionType ? <div className="dv-tagX">{r.constructionType}</div> : null}
+
+                    <div className="dv-metaX">
+                      {r.areaSqft ? `Area – ${String(r.areaSqft).replace(/,/g, "")} sqft` : ""}
+                    </div>
+
+                    {/* ✅ Red YouTube pill bottom-right + expands on hover (only if link exists) */}
+                    {interactiveVideoUrl ? (
+                      <button
+                        type="button"
+                        className="dv-ytPill"
+                        title="Vizwalk Interactive Video"
+                        onClick={() =>
+                          window.open(interactiveVideoUrl, "_blank", "noopener,noreferrer")
+                        }
+                      >
+                        <span className="dv-ytIconWrap">
+                          <img className="dv-ytIcon" src={ytIcon} alt="YouTube" />
+                        </span>
+                        <span className="dv-ytLabel">Vizwalk Interactive Video</span>
+                      </button>
                     ) : null}
-
-                    {areaLine ? <div className="dv-metaX">{areaLine}</div> : null}
                   </div>
                 </div>
               );

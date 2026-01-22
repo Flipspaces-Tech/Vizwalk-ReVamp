@@ -241,7 +241,14 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="example.abc@flipspaces.com"
                 autoComplete="email"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (!busy && email.trim()) onSend();
+                  }
+                }}
               />
+
 
               <label className="vwRemember">
                 <input
