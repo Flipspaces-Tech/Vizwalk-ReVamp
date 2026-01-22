@@ -1,16 +1,12 @@
 /* src/pages/login.css */
 
-/* ===== Background ===== */
-
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
 :root{
   --vw-font: "Poppins", Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
-
-
-
-
+/* ===== Background ===== */
 .vwLogin {
   font-family: var(--vw-font);
   -webkit-font-smoothing: antialiased;
@@ -22,10 +18,12 @@
   place-items: center;
   overflow: hidden;
 
-  background-image: var(--vwLoginBg);
+  /* ✅ Background is set INLINE in JSX now */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+
+  background-color: #111; /* fallback */
 }
 
 .vwLogin img { max-width: 100%; height: auto; }
@@ -51,7 +49,7 @@
   padding: 24px 16px 28px;
 }
 
-/* ===== Header image (L1.png) ===== */
+/* ===== Header image ===== */
 .vwHero {
   display: flex;
   flex-direction: column;
@@ -59,7 +57,6 @@
   text-align: center;
 }
 
-/* L1.png already contains "Powered by ..." so just size the image */
 .vwHeroLogo {
   width: 180px;
   max-width: 86vw;
@@ -87,11 +84,10 @@
 .vwCardTitle{
   margin: 0 0 12px;
   font-size: 16px;
-  font-weight: 500;     /* ⬅️ lighter than 700 */
+  font-weight: 500;
   letter-spacing: 0.2px;
   color: rgba(255,255,255,0.82);
 }
-
 
 .vwCardTitle--center {
   text-align: center;
@@ -127,20 +123,19 @@
   padding: 0 18px;
   outline: none;
   font-size: 14px;
-  font-weight: 400;     /* ⬅️ match figma */
+  font-weight: 400;
 }
 .vwInput::placeholder{
   color: rgba(255,255,255,0.42);
   font-weight: 400;
 }
 
-
 .vwInput:focus {
   border-color: rgba(245,190,46,0.55);
   box-shadow: 0 0 0 5px rgba(245,190,46,0.14);
 }
 
-/* ===== Remember (hollow circle style) ===== */
+/* ===== Remember ===== */
 .vwRemember{
   margin-top: 14px;
   display: inline-flex;
@@ -148,9 +143,8 @@
   gap: 10px;
   color: rgba(255,255,255,0.65);
   font-size: 13px;
-  font-weight: 400;     /* ⬅️ lighter */
+  font-weight: 400;
 }
-
 
 .vwRemember input {
   position: absolute;
@@ -186,20 +180,18 @@
   border: none;
   background: #f5be2e;
   color: #1a1a1a;
-  font-weight: 600;     /* ⬅️ was 800 */
+  font-weight: 600;
   font-size: 15px;
   letter-spacing: 0.2px;
   cursor: pointer;
   box-shadow: 0 16px 44px rgba(245,165,36,0.18);
 }
 
-
 .vwCta:disabled {
   opacity: 0.65;
   cursor: not-allowed;
 }
 
-/* compact CTA for OTP */
 .vwCta--compact{
   height: 44px;
   border-radius: 12px;
@@ -285,7 +277,7 @@
   text-underline-offset: 3px;
 }
 
-/* ===== Verified (green card) ===== */
+/* ===== Verified ===== */
 .vwVerifiedCard{
   margin-top: 8px;
   width: 100%;

@@ -54,6 +54,11 @@ export default function Login() {
 
   const mode = verifiedUI ? "verified" : step; // email | otp | verified
 
+  // ✅ IMPORTANT FIX: force absolute URL for the background in prod
+  // CRA builds return "/static/media/..jpg" already, but this guards edge cases.
+  const bgUrl = String(loginBg || "");
+  const bgAbs = bgUrl.startsWith("/") ? bgUrl : `/${bgUrl}`;
+
   const onSend = async () => {
     const e = email.trim();
     if (!e) return;
@@ -149,11 +154,14 @@ export default function Login() {
   };
 
   return (
-    <div className={`vwLogin vwLogin--${mode}`} style={{ "--vwLoginBg": `url(${loginBg})` }}>
+    <div
+      className={`vwLogin vwLogin--${mode}`}
+      style={{ backgroundImage: `url(${bgAbs})` }}   // ✅ FIXED
+    >
       <div className="vwLoginOverlay" />
 
       <div className="vwLoginCenter">
-        {/* ✅ Header image (your new L1.png) — same for Email + OTP + Verified */}
+        {/* Header logo */}
         <div className="vwHero">
           <img className="vwHeroLogo" src={vizwalkLogo} alt="Vizwalk" />
         </div>
@@ -249,7 +257,6 @@ export default function Login() {
                 }}
               />
 
-
               <label className="vwRemember">
                 <input
                   type="checkbox"
@@ -270,7 +277,6 @@ export default function Login() {
           )}
         </div>
 
-        {/* ✅ Terms outside card (consistent across screens) */}
         <div className="vwTerms">
           By continuing, you agree to our{" "}
           <span className="vwTermLink">Terms of Service</span> and{" "}
