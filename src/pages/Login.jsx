@@ -6,6 +6,7 @@ import "./login.css";
 
 import vizwalkLogo from "../assets/logo.png";
 
+
 /**
  * ✅ PUBLIC background (DO NOT import from /public)
  * - put bg_2.jpg in /public/bg_2.jpg
@@ -161,7 +162,7 @@ export default function Login() {
   };
 
   // ✅ background from /public
-  const loginBgUrl = getPublicUrl("bg_2.jpg");
+  const loginBgUrl = getPublicUrl("../assets/bg_2.jpg");
 
   return (
     <div
