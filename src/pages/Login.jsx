@@ -162,7 +162,7 @@ export default function Login() {
   };
 
   // ✅ background from /public
-  const loginBgUrl = "/bg_2.jpg";
+  const loginBgUrl = "/bg.jpg";
 
   return (
     <div
