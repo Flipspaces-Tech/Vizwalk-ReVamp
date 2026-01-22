@@ -1,41 +1,42 @@
 /* src/pages/login.css */
 
-/* ===== Background ===== */
-
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
-:root{
+
+:root {
   --vw-font: "Poppins", Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
-
-
-
-
 
 .vwLogin {
   font-family: var(--vw-font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
   min-height: 100vh;
   width: 100%;
   position: relative;
+
   display: grid;
   place-items: center;
+
   overflow: hidden;
 
-  background-image: var(--vwLoginBg);
+  /* background is applied inline in JSX */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
 
-.vwLogin img { max-width: 100%; height: auto; }
+.vwLogin img {
+  max-width: 100%;
+  height: auto;
+}
 
 /* Overlay */
 .vwLoginOverlay {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: linear-gradient(1deg, rgba(0,0,0,0.35), rgba(0,0,0,0.72));
+  background: linear-gradient(1deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.72));
 }
 
 /* Center stack */
@@ -51,7 +52,7 @@
   padding: 24px 16px 28px;
 }
 
-/* ===== Header image (L1.png) ===== */
+/* Header */
 .vwHero {
   display: flex;
   flex-direction: column;
@@ -59,45 +60,43 @@
   text-align: center;
 }
 
-/* L1.png already contains "Powered by ..." so just size the image */
 .vwHeroLogo {
   width: 180px;
   max-width: 86vw;
   height: auto;
   display: block;
   object-fit: contain;
-  filter: drop-shadow(0 10px 22px rgba(0,0,0,0.45));
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.45));
 }
 
-/* ===== Glass Card ===== */
+/* Glass Card */
 .vwLoginCard {
   width: min(440px, 92vw);
   border-radius: 14px;
   padding: 26px 28px 18px;
 
-  background: rgba(55,55,55,0.48);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(55, 55, 55, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 
-  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
 }
 
-/* ===== Text ===== */
-.vwCardTitle{
+/* Text */
+.vwCardTitle {
   margin: 0 0 12px;
   font-size: 16px;
-  font-weight: 500;     /* ⬅️ lighter than 700 */
+  font-weight: 500;
   letter-spacing: 0.2px;
-  color: rgba(255,255,255,0.82);
+  color: rgba(255, 255, 255, 0.82);
 }
-
 
 .vwCardTitle--center {
   text-align: center;
   font-size: 13px;
   font-weight: 600;
-  color: rgba(255,255,255,0.70);
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 0;
 }
 
@@ -105,7 +104,7 @@
   margin-top: 12px;
   text-align: center;
   font-size: 14px;
-  color: rgba(255,255,255,0.58);
+  color: rgba(255, 255, 255, 0.58);
 }
 
 .vwMsg {
@@ -113,44 +112,43 @@
   text-align: center;
   font-size: 14px;
   font-weight: 600;
-  color: rgba(255,255,255,0.82);
+  color: rgba(255, 255, 255, 0.82);
 }
 
-/* ===== Email Input ===== */
-.vwInput{
+/* Email Input */
+.vwInput {
   width: 100%;
   height: 54px;
   border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.86);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.86);
   padding: 0 18px;
   outline: none;
   font-size: 14px;
-  font-weight: 400;     /* ⬅️ match figma */
-}
-.vwInput::placeholder{
-  color: rgba(255,255,255,0.42);
   font-weight: 400;
 }
 
-
-.vwInput:focus {
-  border-color: rgba(245,190,46,0.55);
-  box-shadow: 0 0 0 5px rgba(245,190,46,0.14);
+.vwInput::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+  font-weight: 400;
 }
 
-/* ===== Remember (hollow circle style) ===== */
-.vwRemember{
+.vwInput:focus {
+  border-color: rgba(245, 190, 46, 0.55);
+  box-shadow: 0 0 0 5px rgba(245, 190, 46, 0.14);
+}
+
+/* Remember */
+.vwRemember {
   margin-top: 14px;
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: rgba(255,255,255,0.65);
+  color: rgba(255, 255, 255, 0.65);
   font-size: 13px;
-  font-weight: 400;     /* ⬅️ lighter */
+  font-weight: 400;
 }
-
 
 .vwRemember input {
   position: absolute;
@@ -163,22 +161,22 @@
   width: 16px;
   height: 16px;
   border-radius: 999px;
-  border: 2px solid rgba(255,255,255,0.35);
+  border: 2px solid rgba(255, 255, 255, 0.35);
   display: inline-block;
   box-sizing: border-box;
 }
 
 .vwRemember:has(input:checked)::before {
-  border-color: rgba(245,190,46,0.95);
-  background: radial-gradient(circle at 50% 50%, rgba(245,190,46,0.95) 0 45%, transparent 46% 100%);
+  border-color: rgba(245, 190, 46, 0.95);
+  background: radial-gradient(circle at 50% 50%, rgba(245, 190, 46, 0.95) 0 45%, transparent 46% 100%);
 }
 
 .vwRememberText {
-  color: rgba(255,255,255,0.70);
+  color: rgba(255, 255, 255, 0.7);
 }
 
-/* ===== CTA ===== */
-.vwCta{
+/* CTA */
+.vwCta {
   margin-top: 16px;
   width: 100%;
   height: 56px;
@@ -186,37 +184,35 @@
   border: none;
   background: #f5be2e;
   color: #1a1a1a;
-  font-weight: 600;     /* ⬅️ was 800 */
+  font-weight: 600;
   font-size: 15px;
   letter-spacing: 0.2px;
   cursor: pointer;
-  box-shadow: 0 16px 44px rgba(245,165,36,0.18);
+  box-shadow: 0 16px 44px rgba(245, 165, 36, 0.18);
 }
-
 
 .vwCta:disabled {
   opacity: 0.65;
   cursor: not-allowed;
 }
 
-/* compact CTA for OTP */
-.vwCta--compact{
+.vwCta--compact {
   height: 44px;
   border-radius: 12px;
   font-size: 14px;
   margin-top: 14px;
 }
 
-/* ===== OTP ===== */
-.vwOtpEmail{
+/* OTP */
+.vwOtpEmail {
   margin-top: 6px;
   text-align: center;
   font-size: 13px;
-  color: rgba(245,190,46,0.90);
+  color: rgba(245, 190, 46, 0.9);
   font-weight: 600;
 }
 
-.vwOtpRow{
+.vwOtpRow {
   margin-top: 12px;
   display: flex;
   justify-content: center;
@@ -224,7 +220,7 @@
   flex-wrap: wrap;
 }
 
-.vwOtpBox{
+.vwOtpBox {
   width: 36px;
   height: 36px;
   border-radius: 8px;
@@ -232,61 +228,63 @@
   text-align: center;
   font-weight: 700;
 
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.86);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.86);
   outline: none;
 }
 
-.vwOtpBox:focus{
-  border-color: rgba(245,190,46,0.60);
-  box-shadow: 0 0 0 4px rgba(245,190,46,0.16);
+.vwOtpBox:focus {
+  border-color: rgba(245, 190, 46, 0.6);
+  box-shadow: 0 0 0 4px rgba(245, 190, 46, 0.16);
 }
 
-.vwTinyRow{
+.vwTinyRow {
   margin-top: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255, 255, 255, 0.55);
   font-size: 12px;
 }
 
-.vwTinyLink{
+.vwTinyLink {
   background: transparent;
   border: none;
   padding: 0;
-  color: rgba(255,255,255,0.68);
+  color: rgba(255, 255, 255, 0.68);
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-.vwTinyLink:disabled{
+.vwTinyLink:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.vwDot{ opacity: 0.55; }
+.vwDot {
+  opacity: 0.55;
+}
 
-/* ===== Terms ===== */
+/* Terms */
 .vwTerms {
   margin-top: 6px;
   text-align: center;
   font-size: 12px;
-  color: rgba(255,255,255,0.55);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .vwTermLink {
-  color: rgba(255,255,255,0.78);
+  color: rgba(255, 255, 255, 0.78);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
-/* ===== Verified (green card) ===== */
-.vwVerifiedCard{
+/* Verified */
+.vwVerifiedCard {
   margin-top: 8px;
   width: 100%;
   border-radius: 14px;
@@ -294,47 +292,49 @@
   text-align: center;
 
   background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
-  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
-  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.vwVerifiedIconWrap{
+.vwVerifiedIconWrap {
   width: 86px;
   height: 86px;
   margin: 0 auto 14px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.18);
+  background: rgba(255, 255, 255, 0.18);
   display: grid;
   place-items: center;
 }
 
-.vwVerifiedIcon{
+.vwVerifiedIcon {
   width: 48px;
   height: 48px;
 }
 
-.vwVerifiedText{
+.vwVerifiedText {
   font-size: 26px;
   font-weight: 800;
-  color: rgba(255,255,255,0.96);
+  color: rgba(255, 255, 255, 0.96);
 }
 
-.vwVerifiedDesc{
+.vwVerifiedDesc {
   margin-top: 8px;
   font-size: 13px;
-  color: rgba(255,255,255,0.82);
+  color: rgba(255, 255, 255, 0.82);
 }
 
-.vwVerifiedSpinner{
+.vwVerifiedSpinner {
   margin: 18px auto 0;
   width: 18px;
   height: 18px;
   border-radius: 999px;
-  border: 3px solid rgba(255,255,255,0.35);
-  border-top-color: rgba(255,255,255,0.95);
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-top-color: rgba(255, 255, 255, 0.95);
   animation: vwSpin 0.9s linear infinite;
 }
 
-@keyframes vwSpin{
-  to { transform: rotate(360deg); }
+@keyframes vwSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }

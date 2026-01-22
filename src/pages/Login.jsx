@@ -4,8 +4,23 @@ import { useAuth } from "../auth/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./login.css";
 
-import loginBg from "../assets/bg_2.jpg";
 import vizwalkLogo from "../assets/logo.png";
+
+/**
+ * ✅ PUBLIC background (DO NOT import from /public)
+ * - put bg_2.jpg in /public/bg_2.jpg
+ * - access it via absolute public URL
+ */
+function getPublicUrl(path = "") {
+  // Vite: import.meta.env.BASE_URL
+  // CRA:  process.env.PUBLIC_URL
+  const viteBase = typeof import.meta !== "undefined" ? import.meta.env?.BASE_URL : "";
+  const craBase = typeof process !== "undefined" ? process.env?.PUBLIC_URL : "";
+  const base = (viteBase || craBase || "/").toString();
+  const normalizedBase = base.endsWith("/") ? base : base + "/";
+  const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
+  return normalizedBase + normalizedPath;
+}
 
 function sanitizeNext(nextRaw) {
   if (!nextRaw) return "/";
@@ -40,10 +55,7 @@ export default function Login() {
 
   const next = useMemo(() => {
     const qpNext = new URLSearchParams(loc.search).get("next");
-    const stateNext = loc.state?.from
-      ? loc.state.from.pathname + (loc.state.from.search || "")
-      : null;
-
+    const stateNext = loc.state?.from ? loc.state.from.pathname + (loc.state.from.search || "") : null;
     return sanitizeNext(qpNext || stateNext || "/");
   }, [loc.search, loc.state]);
 
@@ -148,12 +160,22 @@ export default function Login() {
     }, 900);
   };
 
+  // ✅ background from /public
+  const loginBgUrl = getPublicUrl("bg_2.jpg");
+
   return (
-    <div className={`vwLogin vwLogin--${mode}`} style={{ "--vwLoginBg": `url(${loginBg})` }}>
+    <div
+      className={`vwLogin vwLogin--${mode}`}
+      style={{
+        backgroundImage: `url(${loginBgUrl})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="vwLoginOverlay" />
 
       <div className="vwLoginCenter">
-        {/* ✅ Header image (your new L1.png) — same for Email + OTP + Verified */}
         <div className="vwHero">
           <img className="vwHeroLogo" src={vizwalkLogo} alt="Vizwalk" />
         </div>
@@ -163,11 +185,7 @@ export default function Login() {
             <div className="vwVerifiedCard">
               <div className="vwVerifiedIconWrap">
                 <svg className="vwVerifiedIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0Z"
-                    stroke="rgba(255,255,255,0.75)"
-                    strokeWidth="2"
-                  />
+                  <path d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0Z" stroke="rgba(255,255,255,0.75)" strokeWidth="2" />
                   <path
                     d="m8 12.2 2.3 2.3L16.5 9"
                     stroke="rgba(255,255,255,0.9)"
@@ -203,11 +221,7 @@ export default function Login() {
                 ))}
               </div>
 
-              <button
-                className="vwCta vwCta--compact"
-                disabled={busy || otpValue.length !== OTP_LEN}
-                onClick={onVerify}
-              >
+              <button className="vwCta vwCta--compact" disabled={busy || otpValue.length !== OTP_LEN} onClick={onVerify}>
                 {busy ? "Verifying…" : "Verify OTP"}
               </button>
 
@@ -249,13 +263,8 @@ export default function Login() {
                 }}
               />
 
-
               <label className="vwRemember">
-                <input
-                  type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
-                />
+                <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
                 <span className="vwRememberText">Remember Me</span>
               </label>
 
@@ -270,10 +279,8 @@ export default function Login() {
           )}
         </div>
 
-        {/* ✅ Terms outside card (consistent across screens) */}
         <div className="vwTerms">
-          By continuing, you agree to our{" "}
-          <span className="vwTermLink">Terms of Service</span> and{" "}
+          By continuing, you agree to our <span className="vwTermLink">Terms of Service</span> and{" "}
           <span className="vwTermLink">Privacy Policy</span>
         </div>
       </div>
