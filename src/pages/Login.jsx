@@ -162,18 +162,18 @@ export default function Login() {
   };
 
   // ✅ background from /public
-  const loginBgUrl = getPublicUrl("../assets/bg_2.jpg");
+  const loginBgUrl = "/bg_2.jpg";
 
   return (
     <div
-      className={`vwLogin vwLogin--${mode}`}
-      style={{
-        backgroundImage: `url(${loginBgUrl})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+  className={`vwLogin vwLogin--${mode}`}
+  style={{
+    backgroundImage: `url(${loginBgUrl})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  }}
+>
       <div className="vwLoginOverlay" />
 
       <div className="vwLoginCenter">
