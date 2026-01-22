@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import LandingNavbar from "../components/LandingNavbar.jsx";
 import "../styles/demo-videos.css";
+import { useAuth } from "../auth/AuthProvider";
 
 // use your youtube icon from assets
 import ytIcon from "../assets/yt1.png";
@@ -89,6 +90,7 @@ export default function DemoVideos() {
 
   const [activeType, setActiveType] = useState("All");
   const [query, setQuery] = useState("");
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     let mounted = true;
@@ -149,7 +151,7 @@ export default function DemoVideos() {
 
   return (
     <div className="dv-page">
-      <LandingNavbar />
+      <LandingNavbar user={user} signOut={signOut} />
 
       <div className="dv-wrap">
         <h1 className="dv-title">Walkthrough Videos</h1>
