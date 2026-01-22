@@ -4,7 +4,7 @@ import { useAuth } from "../auth/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./login.css";
 
-import loginBg from "../assets/bg.png";
+import loginBg from "../assets/bg_2.jpg";
 import vizwalkLogo from "../assets/logo.png";
 
 function sanitizeNext(nextRaw) {
