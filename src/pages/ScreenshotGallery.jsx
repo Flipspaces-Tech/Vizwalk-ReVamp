@@ -728,7 +728,7 @@ const sx = {
 
   // ✅ Reduce big left gap by increasing container max width + using more viewport width
   container: {
-    width: "min(1320px, 96vw)", // was min(1180px, 92vw)
+    width: "min(1195px, 96vw)", // was min(1180px, 92vw)
     margin: "0 auto",
     paddingBottom: 60,
   },
@@ -913,7 +913,7 @@ demoBtnHover: {
     background: "#fff",
     boxShadow: "0 26px 70px rgba(0,0,0,0.14)",
   },
-  heroImgWrap: { position: "relative", cursor: "pointer" },
+  heroImgWrap: { position: "relative", cursor: "pointer"},
   heroHoverOverlay: {
   position: "absolute",
   inset: 0,

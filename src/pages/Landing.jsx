@@ -1384,7 +1384,7 @@ serverBadge: {
   borderRadius: 999,
   background: "#FFE39A",
   color: "#111",
-  fontWeight: 800,
+  // fontWeight: 800,
   fontSize: 14,
   boxShadow: "0 10px 24px rgba(245,165,36,0.22)",
   whiteSpace: "nowrap",
