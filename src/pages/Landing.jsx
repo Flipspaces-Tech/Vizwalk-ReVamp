@@ -8,6 +8,8 @@ import "../styles/testimonials-marquee.css";
 import indiaIcon from "../assets/india.png";
 import usIcon from "../assets/usa.png";
 import { useNavigate } from "react-router-dom";
+import LandingNavbar from "../components/LandingNavbar.jsx";
+
 
 
 const HERO_YOUTUBE_URL = "https://www.youtube.com/watch?v=dumslTDJfQk&feature=youtu.be";
@@ -188,196 +190,196 @@ function ImageWithFallback({ src, alt, style }) {
 }
 
 /** ====== NAVBAR ====== */
-function LandingNavbar({ user, signOut }) {
-  const [open, setOpen] = useState(false);
-  const [dd, setDd] = useState(false);
-  const ddRef = React.useRef(null);
-  const navigate = useNavigate();
+// function LandingNavbar({ user, signOut }) {
+//   const [open, setOpen] = useState(false);
+//   const [dd, setDd] = useState(false);
+//   const ddRef = React.useRef(null);
+//   const navigate = useNavigate();
 
-  useEffect(() => {
-    const onDown = (e) => {
-      if (ddRef.current && !ddRef.current.contains(e.target)) setDd(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, []);
+//   useEffect(() => {
+//     const onDown = (e) => {
+//       if (ddRef.current && !ddRef.current.contains(e.target)) setDd(false);
+//     };
+//     document.addEventListener("mousedown", onDown);
+//     return () => document.removeEventListener("mousedown", onDown);
+//   }, []);
 
-  const scrollTo = (id) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
+//   const scrollTo = (id) => {
+//     const el = document.getElementById(id);
+//     if (el) el.scrollIntoView({ behavior: "smooth" });
+//   };
 
-  return (
-    <header className="lv-header">
-      <div className="lv-container">
-        <nav className="lv-nav">
-          <a href="/" className="lv-logo" onClick={(e) => e.preventDefault()}>
-            <img className="lv-logoImg" src={vizIcon} alt="Vizwalk — Powered by Flipspaces" />
-          </a>
+//   return (
+//     <header className="lv-header">
+//       <div className="lv-container">
+//         <nav className="lv-nav">
+//           <a href="/" className="lv-logo" onClick={(e) => e.preventDefault()}>
+//             <img className="lv-logoImg" src={vizIcon} alt="Vizwalk — Powered by Flipspaces" />
+//           </a>
 
-          <div className="lv-links">
-            <a
-              className="lv-link"
-              href="#featured-projects"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollTo("featured-projects");
-              }}
-            >
-              Features
-            </a>
+//           <div className="lv-links">
+//             <a
+//               className="lv-link"
+//               href="#featured-projects"
+//               onClick={(e) => {
+//                 e.preventDefault();
+//                 scrollTo("featured-projects");
+//               }}
+//             >
+//               Features
+//             </a>
 
-            <a
-              className="lv-link"
-              href="/demo-videos"
-              onClick={(e) => {
-                e.preventDefault();
-                window.open("/demo-videos", "_blank", "noopener,noreferrer");
-              }}
-            >
-              Demo Videos
-            </a>
+//             <a
+//               className="lv-link"
+//               href="/demo-videos"
+//               onClick={(e) => {
+//                 e.preventDefault();
+//                 window.open("/demo-videos", "_blank", "noopener,noreferrer");
+//               }}
+//             >
+//               Demo Videos
+//             </a>
 
 
 
-            <div className="lv-dd" ref={ddRef}>
-              <button type="button" className="lv-link lv-ddBtn" onClick={() => setDd((v) => !v)}>
-                Projects{" "}
-                <span
-                  style={{
-                    marginLeft: 6,
-                    display: "inline-block",
-                    transform: dd ? "rotate(180deg)" : "none",
-                    transition: "transform 0.2s",
-                  }}
-                >
-                  ▾
-                </span>
-              </button>
+//             <div className="lv-dd" ref={ddRef}>
+//               <button type="button" className="lv-link lv-ddBtn" onClick={() => setDd((v) => !v)}>
+//                 Projects{" "}
+//                 <span
+//                   style={{
+//                     marginLeft: 6,
+//                     display: "inline-block",
+//                     transform: dd ? "rotate(180deg)" : "none",
+//                     transition: "transform 0.2s",
+//                   }}
+//                 >
+//                   ▾
+//                 </span>
+//               </button>
 
-              {dd && (
-                <div className="lv-ddMenu">
-                  <button
-                    type="button"
-                    className="lv-ddItem"
-                    onClick={() => {
-                      setDd(false);
-                      scrollTo("featured-projects");
-                    }}
-                  >
-                    Showcase Projects
-                  </button>
-                  <a
-                    className="lv-ddItem"
-                    href="/live-projects"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setDd(false);
-                    }}
-                  >
-                    Live Projects
-                  </a>
-                </div>
-              )}
-            </div>
+//               {dd && (
+//                 <div className="lv-ddMenu">
+//                   <button
+//                     type="button"
+//                     className="lv-ddItem"
+//                     onClick={() => {
+//                       setDd(false);
+//                       scrollTo("featured-projects");
+//                     }}
+//                   >
+//                     Showcase Projects
+//                   </button>
+//                   <a
+//                     className="lv-ddItem"
+//                     href="/live-projects"
+//                     onClick={(e) => {
+//                       e.preventDefault();
+//                       setDd(false);
+//                     }}
+//                   >
+//                     Live Projects
+//                   </a>
+//                 </div>
+//               )}
+//             </div>
 
-            <a
-              className="lv-link"
-              href="#clients"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollTo("clients");
-              }}
-            >
-              Testimonials
-            </a>
-          </div>
+//             <a
+//               className="lv-link"
+//               href="#clients"
+//               onClick={(e) => {
+//                 e.preventDefault();
+//                 scrollTo("clients");
+//               }}
+//             >
+//               Testimonials
+//             </a>
+//           </div>
 
-          <div className="lv-actions">
-            <button type="button" className="lv-iconBtn" title="Settings">
-              ⚙
-            </button>
-            <div className="lv-userPill" title={user?.email || ""}>
-              {user?.email || "user"}
-            </div>
-            <button type="button" className="lv-logout" onClick={signOut}>
-              Logout
-            </button>
-          </div>
+//           <div className="lv-actions">
+//             <button type="button" className="lv-iconBtn" title="Settings">
+//               ⚙
+//             </button>
+//             <div className="lv-userPill" title={user?.email || ""}>
+//               {user?.email || "user"}
+//             </div>
+//             <button type="button" className="lv-logout" onClick={signOut}>
+//               Logout
+//             </button>
+//           </div>
 
-          <button className="lv-mobileBtn" type="button" onClick={() => setOpen((v) => !v)}>
-            {open ? "✕" : "☰"}
-          </button>
-        </nav>
+//           <button className="lv-mobileBtn" type="button" onClick={() => setOpen((v) => !v)}>
+//             {open ? "✕" : "☰"}
+//           </button>
+//         </nav>
 
-        {open && (
-          <div className="lv-mobileMenu">
-            <a
-              href="#featured-projects"
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(false);
-                scrollTo("featured-projects");
-              }}
-            >
-              Features
-            </a>
-            <a
-              href="#featured-projects"
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(false);
-                scrollTo("featured-projects");
-              }}
-            >
-              Demo Videos
-            </a>
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                scrollTo("featured-projects");
-              }}
-            >
-              Showcase Projects
-            </button>
-            <a
-              href="/live-projects"
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(false);
-              }}
-            >
-              Live Projects
-            </a>
-            <a
-              href="#clients"
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(false);
-                scrollTo("clients");
-              }}
-            >
-              Testimonials
-            </a>
+//         {open && (
+//           <div className="lv-mobileMenu">
+//             <a
+//               href="#featured-projects"
+//               onClick={(e) => {
+//                 e.preventDefault();
+//                 setOpen(false);
+//                 scrollTo("featured-projects");
+//               }}
+//             >
+//               Features
+//             </a>
+//             <a
+//               href="#featured-projects"
+//               onClick={(e) => {
+//                 e.preventDefault();
+//                 setOpen(false);
+//                 scrollTo("featured-projects");
+//               }}
+//             >
+//               Demo Videos
+//             </a>
+//             <button
+//               type="button"
+//               onClick={() => {
+//                 setOpen(false);
+//                 scrollTo("featured-projects");
+//               }}
+//             >
+//               Showcase Projects
+//             </button>
+//             <a
+//               href="/live-projects"
+//               onClick={(e) => {
+//                 e.preventDefault();
+//                 setOpen(false);
+//               }}
+//             >
+//               Live Projects
+//             </a>
+//             <a
+//               href="#clients"
+//               onClick={(e) => {
+//                 e.preventDefault();
+//                 setOpen(false);
+//                 scrollTo("clients");
+//               }}
+//             >
+//               Testimonials
+//             </a>
 
-            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  signOut();
-                }}
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </header>
-  );
-}
+//             <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+//               <button
+//                 type="button"
+//                 onClick={() => {
+//                   setOpen(false);
+//                   signOut();
+//                 }}
+//               >
+//                 Logout
+//               </button>
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </header>
+//   );
+// }
 
 /** ====== ICON (hover float) ====== */
 function HoverIcon({ src, alt, href, title }) {
@@ -444,7 +446,7 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
         </div>
 
         {/* server pill */}
-        {serverLabel ? <div style={sx.fpServerPill}>{serverLabel}</div> : null}
+        {/* {serverLabel ? <div style={sx.fpServerPill}>{serverLabel}</div> : null} */}
       </div>
 
       {/* body */}
@@ -915,11 +917,30 @@ const handleOpenVizwalk = (item) => {
 
         <div style={sx.container}>
           <div style={sx.fpHeader}>
-            <div>
-              <div style={sx.fpTitle}>Featured Projects</div>
-              <div style={sx.fpSub}>Explore our projects showcasing tech-enabled interior design expertise</div>
+            <div style={sx.fpHeaderLeft}>
+              <div style={sx.fpTitleRow}>
+                <div style={sx.fpTitle}>Featured Projects</div>
+
+                {/* ✅ badge aligned with title */}
+                <div style={sx.serverBadge}>
+                  <img
+                    src={selectedServer === "india" ? indiaIcon : usIcon}
+                    alt=""
+                    style={sx.serverBadgeIcon}
+                  />
+                  <span style={sx.serverBadgeText}>
+                    {selectedServer === "india" ? "India Server" : "US Server"}
+                  </span>
+                </div>
+              </div>
+
+              <div style={sx.fpSub}>
+                Explore our projects showcasing tech-enabled interior design expertise
+              </div>
             </div>
           </div>
+
+
 
           {/* ✅ one line: chips + search */}
           <div style={sx.fpControls}>
@@ -1337,7 +1358,49 @@ fpHoverBtnGhost: {
   fontWeight: 800,
   cursor: "pointer",
 },
+fpHeader: {
+  display: "flex",
+  justifyContent: "flex-start",
+  alignItems: "flex-start",
+  marginBottom: 10,
+},
 
+fpHeaderLeft: {
+  width: "100%",
+},
+
+fpTitleRow: {
+  display: "flex",
+  alignItems: "center",
+  gap: 18,
+  flexWrap: "wrap", // allows clean wrap on small screens
+},
+
+serverBadge: {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 10,
+  padding: "8px 14px",
+  borderRadius: 999,
+  background: "#FFE39A",
+  color: "#111",
+  fontWeight: 800,
+  fontSize: 14,
+  boxShadow: "0 10px 24px rgba(245,165,36,0.22)",
+  whiteSpace: "nowrap",
+  height: 36,
+},
+
+serverBadgeIcon: {
+  width: 18,
+  height: 18,
+  objectFit: "contain",
+  display: "block",
+},
+
+serverBadgeText: {
+  fontFamily: "var(--font-sans)",
+},
 
 
 };
