@@ -9,7 +9,9 @@ import indiaIcon from "../assets/india.png";
 import usIcon from "../assets/usa.png";
 import { useNavigate } from "react-router-dom";
 import LandingNavbar from "../components/LandingNavbar.jsx";
+import heroVideo from "../assets/Emirates Demo.mp4"; // ✅ change filename
 
+// TEST
 
 
 const HERO_YOUTUBE_URL = "https://www.youtube.com/watch?v=dumslTDJfQk&feature=youtu.be";
@@ -94,6 +96,8 @@ const COLS = {
   vizdomId: ["vizdom project id", "vizdom id"],
   image: ["thumbnail_url", "image_url", "image url", "thumbnail", "image", "thumb"],
   youtube: ["walkthrough link", "youtube link", "youtube"],
+  
+  constructionType: ["construction type"],
 };
 
 const idxOf = (headers, keys) => {
@@ -410,10 +414,13 @@ function HoverIcon({ src, alt, href, title }) {
 
 /** ====== Featured Card ====== */
 function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwalk }) {
-  const category = item.designStyle || item.industry || "Corporate Offices";
+  const category = item.constructionType || item.designStyle || item.industry || "—";
+
   const serverLabel = item.server === "india" ? "India Server" : item.server === "us" ? "US Server" : "";
 
   const [hover, setHover] = useState(false);
+  const hasVizdom = Boolean(String(item.vizdomId || "").trim());
+
 
   return (
     <div style={sx.fpCard}>
@@ -463,25 +470,45 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
 
         <div style={sx.fpRow}>
           <div style={sx.fpLeftIcons}>
-            {item.youtube ? (
-              <HoverIcon src={yt1} alt="YouTube" href={item.youtube} title="Watch on YouTube" />
-            ) : (
-              <span style={{ opacity: 0.25, pointerEvents: "none" }}>
-                <img src={yt1} alt="YouTube disabled" style={{ width: 22, height: 22 }} />
-              </span>
-            )}
+  {/* ✅ YouTube */}
+  {item.youtube ? (
+    <HoverIcon src={yt1} alt="YouTube" href={item.youtube} title="Watch on YouTube" />
+  ) : (
+    <span style={disabledIconWrap} title="Not available">
+      <img src={yt1} alt="YouTube disabled" style={{ width: 22, height: 22, display: "block" }} />
+    </span>
+  )}
 
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenVizdom();
-              }}
-              style={{ display: "inline-flex", cursor: "pointer" }}
-              title="Open in Vizdom"
-            >
-              <img src={vz1} alt="Vizdom" style={{ width: 22, height: 22, display: "block" }} />
-            </span>
-          </div>
+  {/* ✅ Vizdom (greyed out when not available) */}
+  {hasVizdom ? (
+  <span
+    onClick={(e) => {
+      e.stopPropagation();
+      onOpenVizdom();
+    }}
+    style={{ display: "inline-flex", cursor: "pointer" }}
+    title="Open in Vizdom"
+  >
+    <img src={vz1} alt="Vizdom" style={{ width: 22, height: 22, display: "block" }} />
+  </span>
+) : (
+  <span
+    title="Not available"
+    style={{
+      display: "inline-flex",
+      opacity: 0.9,
+      filter: "grayscale(100%)",
+      cursor: "not-allowed",
+      pointerEvents: "none",
+    }}
+  >
+    <img src={vz1} alt="Vizdom disabled" style={{ width: 22, height: 22, display: "block" }} />
+  </span>
+)}
+
+</div>
+
+
 
           <button
             type="button"
@@ -689,6 +716,9 @@ export default function Landing() {
         const iYouTube = idxOf(headers, COLS.youtube);
         const iVizdomId = idxOf(headers, COLS.vizdomId);
 
+        const iConstructionType = idxOf(headers, COLS.constructionType);
+
+
         const data = body
           .map((r) => {
             const status = norm(safeGet(r, iStatus, "Active"));
@@ -712,6 +742,7 @@ export default function Landing() {
               thumb: safeGet(r, iImage),
               youtube: safeGet(r, iYouTube),
               vizdomId: safeGet(r, iVizdomId),
+              constructionType: safeGet(r, iConstructionType),
             };
           })
           .filter(Boolean);
@@ -755,6 +786,19 @@ const handleOpenVizwalk = (item) => {
 
 
 
+const typeOptions = useMemo(() => {
+  const set = new Set(["All"]);
+  items.forEach((it) => {
+    const t = String(it.constructionType || "").trim();
+    if (t) set.add(t);
+  });
+  return Array.from(set);
+}, [items]);
+
+
+
+
+
   /** ✅ filter logic: map your chip text to your sheet values */
   const filtered = useMemo(() => {
     const q = norm(searchQuery2);
@@ -764,20 +808,11 @@ const handleOpenVizwalk = (item) => {
       if (selectedServer && !it.server) return false;
 
       if (activeCategory2 !== "All") {
-        const hay = norm(`${it.designStyle || ""} ${it.industry || ""}`);
-
-        // ✅ chip label → matching keywords
-        const key =
-          activeCategory2 === "Corporate Offices"
-            ? "corporate"
-            : activeCategory2 === "Multifamily Apartment"
-            ? "multifamily"
-            : activeCategory2 === "Co-working"
-            ? "co-working"
-            : norm(activeCategory2);
-
-        if (!hay.includes(key)) return false;
+        const typeOk = String(it.constructionType || "").trim() === activeCategory2;
+        if (!typeOk) return false;
       }
+
+
 
       if (!q) return true;
       const big = `${it.projectName} ${it.buildName} ${it.buildVersion} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
@@ -794,15 +829,19 @@ const handleOpenVizwalk = (item) => {
     window.open(`/gallery?${params.toString()}`, "_blank", "noopener,noreferrer");
   };
 
+
+
+
+
   /** ✅ vz1 -> open Vizdom (update base URL if needed) */
   const handleOpenVizdom = (item) => {
-    const id = item.vizdomId || item.projectSlotId || item.projectName || item.buildName || "";
-    if (!id) return;
+  const id = String(item?.vizdomId || "").trim();
+  if (!id) return;
 
-    // IMPORTANT: change this if your Vizdom URL is different
-    const url = `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(id)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
+  const url = `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(id)}`;
+  window.open(url, "_blank", "noopener,noreferrer");
+};
+
 
   if (loading) return <div style={{ ...sx.page, padding: 24 }}>Loading…</div>;
 
@@ -883,26 +922,29 @@ const handleOpenVizwalk = (item) => {
           </div>
 
           <div className="lv-heroRight">
-            <div className="lv-heroCard" style={{ overflow: "hidden" }}>
-              <div style={{ position: "relative", width: "100%", height: 320, overflow: "hidden", borderRadius: 18 }}>
-                <iframe
-                  src={getYouTubeEmbedUrl(HERO_YOUTUBE_URL)}
-                  title="Vizwalk demo"
-                  style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translate(-50%, -50%)",
-                    width: "110%",
-                    height: "100%",
-                    border: 0,
-                  }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                />
-              </div>
-            </div>
-          </div>
+  <div className="lv-heroCard" style={{ overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "100%", height: 320, overflow: "hidden", borderRadius: 18 }}>
+      <video
+        src={heroVideo}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          borderRadius: 18,
+        }}
+        playsInline
+        muted
+        autoPlay
+        loop
+        controls
+        preload="metadata"
+      />
+    </div>
+  </div>
+</div>
+
         </section>
       </div>
 
@@ -944,23 +986,23 @@ const handleOpenVizwalk = (item) => {
 
           {/* ✅ one line: chips + search */}
           <div style={sx.fpControls}>
-            <div style={sx.fpChips}>
-              {categories2.map((c) => (
+            <div className="dv-chips" style={{ margin: 0 }}>
+              {typeOptions.map((t) => (
                 <button
-                  key={c}
+                  key={t}
                   type="button"
-                  style={{ ...sx.chip, ...(activeCategory2 === c ? sx.chipActive : {}) }}
+                  className={`dv-chip ${t === activeCategory2 ? "dv-chip--active" : ""}`}
                   onClick={() => {
-                    setActiveCategory2(c);
+                    setActiveCategory2(t);
                     setShowAll2(false);
                   }}
-                  // ✅ removes the “focus ring/border” that you’re seeing
-                  onMouseDown={(e) => e.preventDefault()}
                 >
-                  {c}
+                  {t}
                 </button>
               ))}
             </div>
+
+
 
             <div style={sx.fpSearchWrap}>
               <span style={sx.fpSearchIcon}>🔍</span>
@@ -1006,6 +1048,15 @@ const handleOpenVizwalk = (item) => {
     </div>
   );
 }
+
+const disabledIconWrap = {
+  opacity: 0.25,
+  filter: "grayscale(100%)",
+  cursor: "not-allowed",
+  pointerEvents: "none",
+};
+
+
 
 /** ====== STYLES (CLEAN: no duplicates) ====== */
 const sx = {
@@ -1228,7 +1279,6 @@ const sx = {
     background: "transparent",
     cursor: "pointer",
     fontSize: 13,
-    fontWeight: 650,
     opacity: 0.8,
     fontFamily: "var(--font-sans)",
   },
