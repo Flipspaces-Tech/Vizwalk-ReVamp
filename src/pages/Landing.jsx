@@ -1,24 +1,35 @@
+// src/pages/Landing.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import vizIcon from "../assets/L1.png";
-import yt1 from "../assets/yt1.png"; // ✅ your YouTube icon
-import vz1 from "../assets/vz1.png"; // ✅ your Vizdom icon
-import { useAuth } from "../auth/AuthProvider";
-import "../styles/lovable-navbar.css";
-import "../styles/testimonials-marquee.css";
+import yt1 from "../assets/yt1.png";
+import vz1 from "../assets/vz1.png";
 import indiaIcon from "../assets/india.png";
 import usIcon from "../assets/usa.png";
+
+import { useAuth } from "../auth/AuthProvider";
 import LandingNavbar from "../components/LandingNavbar.jsx";
-const HERO_DRIVE_URL = "https://drive.google.com/file/d/1_EKGJJc9lhrnAKQ0C55QGxIGFOR-3emW/view?usp=sharing"; 
 
-/** ✅ HERO VIDEO (served from /public) */
-const heroVideoSrc = driveToPreviewUrl(HERO_DRIVE_URL);
+import "../styles/lovable-navbar.css";
+import "../styles/testimonials-marquee.css";
 
+/**
+ * IMPORTANT NOTES (why your YouTube embed keeps breaking / showing UI):
+ * 1) Autoplay works only if muted. We keep mute=1.
+ * 2) Removing YouTube overlays (title bar, logo, "Watch on YouTube", etc.) is NOT fully possible with YouTube embeds.
+ *    YouTube will still show some branding/overlays in many cases.
+ * 3) "No interaction" is achievable by blocking pointer events on the iframe with an overlay div.
+ * 4) Error 153 / "refused to connect" happens when you try to embed a non-embed URL (youtu.be) or blocked embed,
+ *    or if the browser/network blocks. We use youtube-nocookie embed URL.
+ */
 
-/** ✅ DEFAULT CHIPS (unused now; we generate from sheet like DemoVideos) */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const GID = "0";
 
-/** ====== CSV PARSER (robust) ====== */
+// ✅ Use the embed endpoint (not youtu.be) with autoplay+mute+loop.
+// controls=0 hides controls, but YouTube may still show overlays.
+const VIDEO_ID = "wU2O0AD98Hw";
+const heroVideoSrc = `https://www.youtube-nocookie.com/embed/${VIDEO_ID}?autoplay=1&mute=1&controls=0&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=${VIDEO_ID}&iv_load_policy=3&fs=0&disablekb=1`;
+
 function parseCSV(text) {
   if (!text) return [];
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
@@ -60,7 +71,6 @@ function parseCSV(text) {
   return rows;
 }
 
-/** ====== UTILS ====== */
 const norm = (s = "") =>
   String(s).toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
 
@@ -75,7 +85,6 @@ const safeGet = (row, idx, fallback = "") =>
     ? String(row[idx]).trim()
     : fallback;
 
-/** ====== FLEXIBLE HEADER ALIASES ====== */
 const COLS = {
   status: ["status"],
   server: ["server", "region", "country"],
@@ -174,38 +183,6 @@ function ImageWithFallback({ src, alt, style }) {
   );
 }
 
-function extractDriveId(url = "") {
-  const s = String(url || "");
-
-  // /file/d/<ID>/view
-  let m = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (m?.[1]) return m[1];
-
-  // ?id=<ID>
-  m = s.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m?.[1]) return m[1];
-
-  // /d/<ID>
-  m = s.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (m?.[1]) return m[1];
-
-  return "";
-}
-
-// ✅ Use Drive’s own streaming player (most compatible)
-function driveToPreviewUrl(url = "") {
-  const id = extractDriveId(url);
-  if (!id) return "";
-  return `https://drive.google.com/file/d/${id}/preview`;
-}
-
-
-
-
-
-
-
-
 /** ====== ICON (hover float) ====== */
 function HoverIcon({ src, alt, href, title }) {
   const [hover, setHover] = useState(false);
@@ -228,11 +205,7 @@ function HoverIcon({ src, alt, href, title }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <img
-        src={src}
-        alt={alt}
-        style={{ width: 22, height: 22, display: "block" }}
-      />
+      <img src={src} alt={alt} style={{ width: 22, height: 22, display: "block" }} />
     </a>
   );
 }
@@ -245,15 +218,8 @@ const disabledIconWrap = {
 };
 
 /** ====== Featured Card ====== */
-function FeaturedCard({
-  item,
-  onOpenScreenshotGallery,
-  onOpenVizdom,
-  onOpenVizwalk,
-}) {
-  const category =
-    item.constructionType || item.designStyle || item.industry || "—";
-
+function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwalk }) {
+  const category = item.constructionType || item.designStyle || item.industry || "—";
   const [hover, setHover] = useState(false);
 
   const hasYoutube = Boolean(String(item.youtube || "").trim());
@@ -261,7 +227,6 @@ function FeaturedCard({
 
   return (
     <div style={sx.fpCard}>
-      {/* media */}
       <div
         style={sx.fpMedia}
         onMouseEnter={() => setHover(true)}
@@ -269,7 +234,6 @@ function FeaturedCard({
       >
         <ImageWithFallback src={item.thumb} alt={item.buildName} style={sx.fpImg} />
 
-        {/* hover overlay */}
         <div
           style={{
             ...sx.fpHoverOverlay,
@@ -290,7 +254,6 @@ function FeaturedCard({
         </div>
       </div>
 
-      {/* body */}
       <div style={sx.fpBody}>
         <div style={sx.fpName}>{item.buildName || "Project"}</div>
 
@@ -304,25 +267,14 @@ function FeaturedCard({
 
         <div style={sx.fpRow}>
           <div style={sx.fpLeftIcons}>
-            {/* YouTube */}
             {hasYoutube ? (
-              <HoverIcon
-                src={yt1}
-                alt="YouTube"
-                href={item.youtube}
-                title="Watch on YouTube"
-              />
+              <HoverIcon src={yt1} alt="YouTube" href={item.youtube} title="Watch on YouTube" />
             ) : (
               <span style={disabledIconWrap} title="Not available">
-                <img
-                  src={yt1}
-                  alt="YouTube disabled"
-                  style={{ width: 22, height: 22, display: "block" }}
-                />
+                <img src={yt1} alt="YouTube disabled" style={{ width: 22, height: 22 }} />
               </span>
             )}
 
-            {/* Vizdom */}
             {hasVizdom ? (
               <span
                 onClick={(e) => {
@@ -332,19 +284,11 @@ function FeaturedCard({
                 style={{ display: "inline-flex", cursor: "pointer" }}
                 title="Open in Vizdom"
               >
-                <img
-                  src={vz1}
-                  alt="Vizdom"
-                  style={{ width: 22, height: 22, display: "block" }}
-                />
+                <img src={vz1} alt="Vizdom" style={{ width: 22, height: 22 }} />
               </span>
             ) : (
               <span style={disabledIconWrap} title="Not available">
-                <img
-                  src={vz1}
-                  alt="Vizdom disabled"
-                  style={{ width: 22, height: 22, display: "block" }}
-                />
+                <img src={vz1} alt="Vizdom disabled" style={{ width: 22, height: 22 }} />
               </span>
             )}
           </div>
@@ -491,7 +435,6 @@ function FooterFullBleed() {
   );
 }
 
-/** ====== PAGE ====== */
 export default function Landing() {
   const { user, signOut } = useAuth();
 
@@ -522,7 +465,9 @@ export default function Landing() {
         if (!rows.length) throw new Error("Empty CSV");
 
         const headers = rows[0];
-        const body = rows.slice(1).filter((r) => r.some((c) => String(c || "").trim() !== ""));
+        const body = rows
+          .slice(1)
+          .filter((r) => r.some((c) => String(c || "").trim() !== ""));
 
         const iStatus = idxOf(headers, COLS.status);
         const iServer = idxOf(headers, COLS.server);
@@ -616,7 +561,6 @@ export default function Landing() {
 
   const filtered = useMemo(() => {
     const q = norm(searchQuery2);
-
     return items.filter((it) => {
       if (selectedServer && it.server && it.server !== selectedServer) return false;
       if (selectedServer && !it.server) return false;
@@ -651,7 +595,6 @@ export default function Landing() {
 
   return (
     <div style={sx.page}>
-      {/* Top announcement bar */}
       {showLocbar && (
         <div className="lv-locbar">
           <div className="lv-container">
@@ -702,8 +645,8 @@ export default function Landing() {
             </div>
 
             <div className="lv-heroDesc">
-              Interactive virtual walkthrough offering clients an immersive experience with real-time design modifications using Flipspaces&apos;
-              integrated product library
+              Interactive virtual walkthrough offering clients an immersive experience with real-time
+              design modifications using Flipspaces&apos; integrated product library
             </div>
 
             <div className="lv-heroBtns">
@@ -729,34 +672,42 @@ export default function Landing() {
             </div>
           </div>
 
-          <div className="lv-heroRight">
+          {/* ===== HERO VIDEO CARD (no interaction) ===== */}
+          <div
+  className="lv-heroRight"
+  style={{
+    flex: "0 0 560px",
+    maxWidth: 560,
+    width: "100%",
+    display: "flex",
+    justifyContent: "flex-end",
+  }}
+>
   <div
-    className="lv-heroCard"
     style={{
       width: "100%",
-      height: 360,              // ✅ FORCE HEIGHT
-      borderRadius: 18,
+      aspectRatio: "16 / 9",   // ✅ key line (removes black bars)
+      borderRadius: 22,
       overflow: "hidden",
-      background: "#000",
       position: "relative",
+      background: "#000",
+      boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
     }}
   >
     <iframe
-  src={heroVideoSrc}
-  title="Vizwalk demo"
-  allow="autoplay; fullscreen"
-  allowFullScreen
-  referrerPolicy="no-referrer"
-  style={{
-    width: "100%",
-    height: "100%",
-    border: 0,
-    borderRadius: 18,
-    display: "block",
-    background: "#000",
-  }}
-/>
-
+      src={`https://www.youtube.com/embed/${VIDEO_ID}`}
+      title="Vizwalk demo"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowFullScreen
+      frameBorder="0"
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        border: 0,
+      }}
+    />
   </div>
 </div>
 
@@ -795,7 +746,6 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* ✅ chips from sheet (like DemoVideos) */}
           <div style={sx.fpControls}>
             <div className="dv-chips" style={{ margin: 0 }}>
               {typeOptions.map((t) => (
