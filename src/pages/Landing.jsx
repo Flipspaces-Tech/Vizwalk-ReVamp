@@ -9,7 +9,7 @@ import indiaIcon from "../assets/india.png";
 import usIcon from "../assets/usa.png";
 import { useNavigate } from "react-router-dom";
 import LandingNavbar from "../components/LandingNavbar.jsx";
-import heroVideo from "../assets/Emirates Demo.mp4"; // ✅ change filename
+import heroVideo from "../assets/Emirates Demo trim.mp4"; // ✅ change filename
 
 // TEST
 
