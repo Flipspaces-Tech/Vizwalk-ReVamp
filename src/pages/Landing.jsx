@@ -11,8 +11,6 @@ import { useNavigate } from "react-router-dom";
 import LandingNavbar from "../components/LandingNavbar.jsx";
 import heroVideo from "../assets/Emirates Demo trim.mp4"; // ✅ change filename
 
-// TEST
-
 
 const HERO_YOUTUBE_URL = "https://www.youtube.com/watch?v=dumslTDJfQk&feature=youtu.be";
 
