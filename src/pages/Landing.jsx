@@ -11,6 +11,8 @@ import LandingNavbar from "../components/LandingNavbar.jsx";
 
 /** ✅ HERO VIDEO (served from /public) */
 const HERO_VIDEO_SRC = "/videos/emirates-demo-trim.mp4";
+const heroVideoSrc = "/videos/emirates-demo-trim.mp4";
+
 
 /** ✅ DEFAULT CHIPS (unused now; we generate from sheet like DemoVideos) */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
@@ -696,25 +698,36 @@ export default function Landing() {
           </div>
 
           <div className="lv-heroRight">
-            <div className="lv-heroCard" style={{ overflow: "hidden" }}>
-              <div style={{ position: "relative", width: "100%", height: 320, overflow: "hidden", borderRadius: 18 }}>
-                <video
-                  src={HERO_VIDEO_SRC}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: 18,
-                    objectFit: "cover",
-                    display: "block",
-                    background: "#000",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+  <div
+    className="lv-heroCard"
+    style={{
+      width: "100%",
+      height: 360,              // ✅ FORCE HEIGHT
+      borderRadius: 18,
+      overflow: "hidden",
+      background: "#000",
+      position: "relative",
+    }}
+  >
+    <video
+      src={heroVideoSrc}
+      controls
+      playsInline
+      preload="metadata"
+      controlsList="nodownload"
+      style={{
+        position: "absolute",   // ✅ KEY FIX
+        inset: 0,               // ✅ fills parent
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",     // ✅ cinematic crop
+        display: "block",
+        background: "#000",
+      }}
+    />
+  </div>
+</div>
+
         </section>
       </div>
 
