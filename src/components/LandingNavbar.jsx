@@ -54,23 +54,10 @@ export default function LandingNavbar({ user, signOut }) {
                 goOrScroll("featured-projects");
               }}
             >
-              Features
+              Home
             </a>
 
-            <a
-              className="lv-link"
-              href="/demo-videos"
-              onClick={(e) => {
-                e.preventDefault();
-                window.open("/demo-videos", "_blank", "noopener,noreferrer");
-              }}
-            >
-              Demo Videos
-            </a>
-
-
-
-            <div className="lv-dd" ref={ddRef}>
+              <div className="lv-dd" ref={ddRef}>
               <button
                 type="button"
                 className="lv-link lv-ddBtn"
@@ -117,6 +104,25 @@ export default function LandingNavbar({ user, signOut }) {
               )}
             </div>
 
+
+
+
+
+            <a
+              className="lv-link"
+              href="/demo-videos"
+              onClick={(e) => {
+                e.preventDefault();
+                window.open("/demo-videos", "_blank", "noopener,noreferrer");
+              }}
+            >
+              Videos
+            </a>
+
+
+
+            
+
             <a
               className="lv-link"
               href="#clients"
@@ -125,7 +131,7 @@ export default function LandingNavbar({ user, signOut }) {
                 goOrScroll("clients");
               }}
             >
-              Testimonials
+              Learn
             </a>
           </div>
 

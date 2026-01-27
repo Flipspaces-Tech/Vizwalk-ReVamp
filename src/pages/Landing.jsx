@@ -1,27 +1,20 @@
 import React, { useEffect, useMemo, useState } from "react";
 import vizIcon from "../assets/L1.png";
-import yt1 from "../assets/yt1.png";     // ✅ your YouTube icon
-import vz1 from "../assets/vz1.png";     // ✅ your Vizdom icon
+import yt1 from "../assets/yt1.png"; // ✅ your YouTube icon
+import vz1 from "../assets/vz1.png"; // ✅ your Vizdom icon
 import { useAuth } from "../auth/AuthProvider";
 import "../styles/lovable-navbar.css";
 import "../styles/testimonials-marquee.css";
 import indiaIcon from "../assets/india.png";
 import usIcon from "../assets/usa.png";
-import { useNavigate } from "react-router-dom";
 import LandingNavbar from "../components/LandingNavbar.jsx";
-// import heroVideo from "../public/videos/emirates-demo-trim.mp4"; // ✅ change filename
 
-// TEST
-const HERO_YOUTUBE_URL = "https://www.youtube.com/watch?v=dumslTDJfQk&feature=youtu.be";
+/** ✅ HERO VIDEO (served from /public) */
+const HERO_VIDEO_SRC = "/videos/emirates-demo-trim.mp4";
 
-/** ✅ EXACT chip names like your reference */
-const categories2 = ["All", "Corporate Offices", "Residential", "Multifamily Apartment", "Retail", "Co-working", "Restaurant"];
-
-/** ====== CONFIG ====== */
+/** ✅ DEFAULT CHIPS (unused now; we generate from sheet like DemoVideos) */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const GID = "0";
-
-
 
 /** ====== CSV PARSER (robust) ====== */
 function parseCSV(text) {
@@ -66,7 +59,8 @@ function parseCSV(text) {
 }
 
 /** ====== UTILS ====== */
-const norm = (s = "") => String(s).toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
+const norm = (s = "") =>
+  String(s).toLowerCase().replace(/_/g, " ").replace(/\s+/g, " ").trim();
 
 const headerMap = (headers) => {
   const m = {};
@@ -75,7 +69,9 @@ const headerMap = (headers) => {
 };
 
 const safeGet = (row, idx, fallback = "") =>
-  idx != null && idx < row.length && row[idx] != null ? String(row[idx]).trim() : fallback;
+  idx != null && idx < row.length && row[idx] != null
+    ? String(row[idx]).trim()
+    : fallback;
 
 /** ====== FLEXIBLE HEADER ALIASES ====== */
 const COLS = {
@@ -94,7 +90,6 @@ const COLS = {
   vizdomId: ["vizdom project id", "vizdom id"],
   image: ["thumbnail_url", "image_url", "image url", "thumbnail", "image", "thumb"],
   youtube: ["walkthrough link", "youtube link", "youtube"],
-  
   constructionType: ["construction type"],
 };
 
@@ -121,21 +116,6 @@ function normalizeServer(v = "") {
   return "";
 }
 
-function getYouTubeEmbedUrl(url = "") {
-  if (!url) return "";
-  try {
-    const short = url.match(/youtu\.be\/([^?&/]+)/i);
-    if (short?.[1]) return `https://www.youtube.com/embed/${short[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
-    const watch = url.match(/[?&]v=([^?&]+)/i);
-    if (watch?.[1]) return `https://www.youtube.com/embed/${watch[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
-    const embed = url.match(/youtube\.com\/embed\/([^?&/]+)/i);
-    if (embed?.[1]) return `https://www.youtube.com/embed/${embed[1]}?autoplay=0&mute=0&controls=1&rel=0&modestbranding=1`;
-    return "";
-  } catch {
-    return "";
-  }
-}
-
 /** ====== IMAGE (Drive fallback) ====== */
 function ImageWithFallback({ src, alt, style }) {
   const isDrive = /drive\.google\.com/i.test(src || "");
@@ -158,7 +138,8 @@ function ImageWithFallback({ src, alt, style }) {
       : [src || ""];
 
   const [idx, setIdx] = useState(0);
-  const onError = () => setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
+  const onError = () =>
+    setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
 
   if (!src || idx === -1) {
     return (
@@ -191,198 +172,6 @@ function ImageWithFallback({ src, alt, style }) {
   );
 }
 
-/** ====== NAVBAR ====== */
-// function LandingNavbar({ user, signOut }) {
-//   const [open, setOpen] = useState(false);
-//   const [dd, setDd] = useState(false);
-//   const ddRef = React.useRef(null);
-//   const navigate = useNavigate();
-
-//   useEffect(() => {
-//     const onDown = (e) => {
-//       if (ddRef.current && !ddRef.current.contains(e.target)) setDd(false);
-//     };
-//     document.addEventListener("mousedown", onDown);
-//     return () => document.removeEventListener("mousedown", onDown);
-//   }, []);
-
-//   const scrollTo = (id) => {
-//     const el = document.getElementById(id);
-//     if (el) el.scrollIntoView({ behavior: "smooth" });
-//   };
-
-//   return (
-//     <header className="lv-header">
-//       <div className="lv-container">
-//         <nav className="lv-nav">
-//           <a href="/" className="lv-logo" onClick={(e) => e.preventDefault()}>
-//             <img className="lv-logoImg" src={vizIcon} alt="Vizwalk — Powered by Flipspaces" />
-//           </a>
-
-//           <div className="lv-links">
-//             <a
-//               className="lv-link"
-//               href="#featured-projects"
-//               onClick={(e) => {
-//                 e.preventDefault();
-//                 scrollTo("featured-projects");
-//               }}
-//             >
-//               Features
-//             </a>
-
-//             <a
-//               className="lv-link"
-//               href="/demo-videos"
-//               onClick={(e) => {
-//                 e.preventDefault();
-//                 window.open("/demo-videos", "_blank", "noopener,noreferrer");
-//               }}
-//             >
-//               Demo Videos
-//             </a>
-
-
-
-//             <div className="lv-dd" ref={ddRef}>
-//               <button type="button" className="lv-link lv-ddBtn" onClick={() => setDd((v) => !v)}>
-//                 Projects{" "}
-//                 <span
-//                   style={{
-//                     marginLeft: 6,
-//                     display: "inline-block",
-//                     transform: dd ? "rotate(180deg)" : "none",
-//                     transition: "transform 0.2s",
-//                   }}
-//                 >
-//                   ▾
-//                 </span>
-//               </button>
-
-//               {dd && (
-//                 <div className="lv-ddMenu">
-//                   <button
-//                     type="button"
-//                     className="lv-ddItem"
-//                     onClick={() => {
-//                       setDd(false);
-//                       scrollTo("featured-projects");
-//                     }}
-//                   >
-//                     Showcase Projects
-//                   </button>
-//                   <a
-//                     className="lv-ddItem"
-//                     href="/live-projects"
-//                     onClick={(e) => {
-//                       e.preventDefault();
-//                       setDd(false);
-//                     }}
-//                   >
-//                     Live Projects
-//                   </a>
-//                 </div>
-//               )}
-//             </div>
-
-//             <a
-//               className="lv-link"
-//               href="#clients"
-//               onClick={(e) => {
-//                 e.preventDefault();
-//                 scrollTo("clients");
-//               }}
-//             >
-//               Testimonials
-//             </a>
-//           </div>
-
-//           <div className="lv-actions">
-//             <button type="button" className="lv-iconBtn" title="Settings">
-//               ⚙
-//             </button>
-//             <div className="lv-userPill" title={user?.email || ""}>
-//               {user?.email || "user"}
-//             </div>
-//             <button type="button" className="lv-logout" onClick={signOut}>
-//               Logout
-//             </button>
-//           </div>
-
-//           <button className="lv-mobileBtn" type="button" onClick={() => setOpen((v) => !v)}>
-//             {open ? "✕" : "☰"}
-//           </button>
-//         </nav>
-
-//         {open && (
-//           <div className="lv-mobileMenu">
-//             <a
-//               href="#featured-projects"
-//               onClick={(e) => {
-//                 e.preventDefault();
-//                 setOpen(false);
-//                 scrollTo("featured-projects");
-//               }}
-//             >
-//               Features
-//             </a>
-//             <a
-//               href="#featured-projects"
-//               onClick={(e) => {
-//                 e.preventDefault();
-//                 setOpen(false);
-//                 scrollTo("featured-projects");
-//               }}
-//             >
-//               Demo Videos
-//             </a>
-//             <button
-//               type="button"
-//               onClick={() => {
-//                 setOpen(false);
-//                 scrollTo("featured-projects");
-//               }}
-//             >
-//               Showcase Projects
-//             </button>
-//             <a
-//               href="/live-projects"
-//               onClick={(e) => {
-//                 e.preventDefault();
-//                 setOpen(false);
-//               }}
-//             >
-//               Live Projects
-//             </a>
-//             <a
-//               href="#clients"
-//               onClick={(e) => {
-//                 e.preventDefault();
-//                 setOpen(false);
-//                 scrollTo("clients");
-//               }}
-//             >
-//               Testimonials
-//             </a>
-
-//             <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-//               <button
-//                 type="button"
-//                 onClick={() => {
-//                   setOpen(false);
-//                   signOut();
-//                 }}
-//               >
-//                 Logout
-//               </button>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-//     </header>
-//   );
-// }
-
 /** ====== ICON (hover float) ====== */
 function HoverIcon({ src, alt, href, title }) {
   const [hover, setHover] = useState(false);
@@ -405,20 +194,36 @@ function HoverIcon({ src, alt, href, title }) {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <img src={src} alt={alt} style={{ width: 22, height: 22, display: "block" }} />
+      <img
+        src={src}
+        alt={alt}
+        style={{ width: 22, height: 22, display: "block" }}
+      />
     </a>
   );
 }
 
-/** ====== Featured Card ====== */
-function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwalk }) {
-  const category = item.constructionType || item.designStyle || item.industry || "—";
+const disabledIconWrap = {
+  opacity: 0.25,
+  filter: "grayscale(100%)",
+  cursor: "not-allowed",
+  pointerEvents: "none",
+};
 
-  const serverLabel = item.server === "india" ? "India Server" : item.server === "us" ? "US Server" : "";
+/** ====== Featured Card ====== */
+function FeaturedCard({
+  item,
+  onOpenScreenshotGallery,
+  onOpenVizdom,
+  onOpenVizwalk,
+}) {
+  const category =
+    item.constructionType || item.designStyle || item.industry || "—";
 
   const [hover, setHover] = useState(false);
-  const hasVizdom = Boolean(String(item.vizdomId || "").trim());
 
+  const hasYoutube = Boolean(String(item.youtube || "").trim());
+  const hasVizdom = Boolean(String(item.vizdomId || "").trim());
 
   return (
     <div style={sx.fpCard}>
@@ -430,7 +235,7 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
       >
         <ImageWithFallback src={item.thumb} alt={item.buildName} style={sx.fpImg} />
 
-        {/* ✅ hover overlay */}
+        {/* hover overlay */}
         <div
           style={{
             ...sx.fpHoverOverlay,
@@ -449,9 +254,6 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
             Open Vizwalk
           </button>
         </div>
-
-        {/* server pill */}
-        {/* {serverLabel ? <div style={sx.fpServerPill}>{serverLabel}</div> : null} */}
       </div>
 
       {/* body */}
@@ -468,45 +270,50 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
 
         <div style={sx.fpRow}>
           <div style={sx.fpLeftIcons}>
-  {/* ✅ YouTube */}
-  {item.youtube ? (
-    <HoverIcon src={yt1} alt="YouTube" href={item.youtube} title="Watch on YouTube" />
-  ) : (
-    <span style={disabledIconWrap} title="Not available">
-      <img src={yt1} alt="YouTube disabled" style={{ width: 22, height: 22, display: "block" }} />
-    </span>
-  )}
+            {/* YouTube */}
+            {hasYoutube ? (
+              <HoverIcon
+                src={yt1}
+                alt="YouTube"
+                href={item.youtube}
+                title="Watch on YouTube"
+              />
+            ) : (
+              <span style={disabledIconWrap} title="Not available">
+                <img
+                  src={yt1}
+                  alt="YouTube disabled"
+                  style={{ width: 22, height: 22, display: "block" }}
+                />
+              </span>
+            )}
 
-  {/* ✅ Vizdom (greyed out when not available) */}
-  {hasVizdom ? (
-  <span
-    onClick={(e) => {
-      e.stopPropagation();
-      onOpenVizdom();
-    }}
-    style={{ display: "inline-flex", cursor: "pointer" }}
-    title="Open in Vizdom"
-  >
-    <img src={vz1} alt="Vizdom" style={{ width: 22, height: 22, display: "block" }} />
-  </span>
-) : (
-  <span
-    title="Not available"
-    style={{
-      display: "inline-flex",
-      opacity: 0.9,
-      filter: "grayscale(100%)",
-      cursor: "not-allowed",
-      pointerEvents: "none",
-    }}
-  >
-    <img src={vz1} alt="Vizdom disabled" style={{ width: 22, height: 22, display: "block" }} />
-  </span>
-)}
-
-</div>
-
-
+            {/* Vizdom */}
+            {hasVizdom ? (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenVizdom();
+                }}
+                style={{ display: "inline-flex", cursor: "pointer" }}
+                title="Open in Vizdom"
+              >
+                <img
+                  src={vz1}
+                  alt="Vizdom"
+                  style={{ width: 22, height: 22, display: "block" }}
+                />
+              </span>
+            ) : (
+              <span style={disabledIconWrap} title="Not available">
+                <img
+                  src={vz1}
+                  alt="Vizdom disabled"
+                  style={{ width: 22, height: 22, display: "block" }}
+                />
+              </span>
+            )}
+          </div>
 
           <button
             type="button"
@@ -523,8 +330,6 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
     </div>
   );
 }
-
-
 
 function getInitials(name = "") {
   return name
@@ -546,7 +351,8 @@ function TestimonialsOnly() {
     {
       name: "Vivek Khemani",
       role: "Quantiphi",
-      quote: "Flipspaces was a one-stop solution for our office expansion, using VR technology to perfectly visualize and execute our vision.",
+      quote:
+        "Flipspaces was a one-stop solution for our office expansion, using VR technology to perfectly visualize and execute our vision.",
     },
     {
       name: "Pankaj Tripathi",
@@ -563,7 +369,8 @@ function TestimonialsOnly() {
     {
       name: "Vishal Soni",
       role: "Tacza",
-      quote: "Flipspaces delivered our project on time with professionalism and excellence. Grateful for their hard work and eager to collaborate again!",
+      quote:
+        "Flipspaces delivered our project on time with professionalism and excellence. Grateful for their hard work and eager to collaborate again!",
     },
   ];
 
@@ -573,16 +380,14 @@ function TestimonialsOnly() {
     <section
       id="clients"
       className="lv-testimonials"
-      style={{
-        background: "#EAEAE8",
-        padding: "90px 0 44px", // ✅ increases top gap
-
-      }}
+      style={{ background: "#EAEAE8", padding: "90px 0 44px" }}
     >
       <div className="lv-container">
         <div className="lv-testimonialsHead">
           <h2 className="lv-testimonialsTitle">What Our Clients Say</h2>
-          <div className="lv-testimonialsDesc">Trusted by leading businesses across industries for exceptional workspace transformations</div>
+          <div className="lv-testimonialsDesc">
+            Trusted by leading businesses across industries for exceptional workspace transformations
+          </div>
         </div>
 
         <div className="lv-marquee">
@@ -609,7 +414,6 @@ function TestimonialsOnly() {
   );
 }
 
-/** ✅ FOOTER (keep your existing sx.footer styles) */
 function FooterFullBleed() {
   return (
     <footer style={sx.footerBleed}>
@@ -624,9 +428,7 @@ function FooterFullBleed() {
 
           <div style={sx.footerCol}>
             <div style={sx.footerColTitle}>PRODUCT</div>
-            <a href="#featured-projects" style={sx.footerLink}>
-              Features
-            </a>
+            <a href="#featured-projects" style={sx.footerLink}>Features</a>
             <a href="#featured-projects" style={{ ...sx.footerLink, opacity: 0.55, pointerEvents: "none" }}>
               Gallery
             </a>
@@ -637,27 +439,17 @@ function FooterFullBleed() {
 
           <div style={sx.footerCol}>
             <div style={sx.footerColTitle}>RESOURCES</div>
-            <a href="/docs" style={sx.footerLink}>
-              Documentation
-            </a>
-            <a href="/shortcuts" style={sx.footerLink}>
-              Shortcut Guide
-            </a>
+            <a href="/docs" style={sx.footerLink}>Documentation</a>
+            <a href="/shortcuts" style={sx.footerLink}>Shortcut Guide</a>
           </div>
         </div>
 
         <div style={sx.footerBottom}>
           <div style={sx.footerCopy}>© 2026 Vizwalk.com All rights reserved.</div>
           <div style={sx.footerSocial}>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>
-              YouTube
-            </a>
-            <a href="https://linkedin.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>
-              LinkedIn
-            </a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>
-              Instagram
-            </a>
+            <a href="https://youtube.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>YouTube</a>
+            <a href="https://linkedin.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>LinkedIn</a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>Instagram</a>
           </div>
         </div>
       </div>
@@ -713,9 +505,7 @@ export default function Landing() {
         const iImage = idxOf(headers, COLS.image);
         const iYouTube = idxOf(headers, COLS.youtube);
         const iVizdomId = idxOf(headers, COLS.vizdomId);
-
         const iConstructionType = idxOf(headers, COLS.constructionType);
-
 
         const data = body
           .map((r) => {
@@ -755,49 +545,41 @@ export default function Landing() {
     })();
   }, []);
 
-const handleOpenVizwalk = (item) => {
-  if (!item) return;
+  const handleOpenVizwalk = (item) => {
+    if (!item) return;
 
-  const bust = Date.now();
-  const projectLabel = item.projectName || item.buildName || "project";
+    const bust = Date.now();
+    const projectLabel = item.projectName || item.buildName || "project";
 
-  const sessionId = `${projectLabel
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+    const sessionId = `${projectLabel
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
 
-  const id = projectLabel
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+    const id = projectLabel
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
 
-  const params = new URLSearchParams({
-    project: id,
-    s: String(bust),
-    session: sessionId,
-    build: item.buildName || item.projectName || "Build",
-    ver: item.buildVersion || "",
-  });
+    const params = new URLSearchParams({
+      project: id,
+      s: String(bust),
+      session: sessionId,
+      build: item.buildName || item.projectName || "Build",
+      ver: item.buildVersion || "",
+    });
 
-  window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
-};
+    window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
+  };
 
+  const typeOptions = useMemo(() => {
+    const set = new Set(["All"]);
+    items.forEach((it) => {
+      const t = String(it.constructionType || "").trim();
+      if (t) set.add(t);
+    });
+    return Array.from(set);
+  }, [items]);
 
-
-
-const typeOptions = useMemo(() => {
-  const set = new Set(["All"]);
-  items.forEach((it) => {
-    const t = String(it.constructionType || "").trim();
-    if (t) set.add(t);
-  });
-  return Array.from(set);
-}, [items]);
-
-
-
-
-
-  /** ✅ filter logic: map your chip text to your sheet values */
   const filtered = useMemo(() => {
     const q = norm(searchQuery2);
 
@@ -810,15 +592,12 @@ const typeOptions = useMemo(() => {
         if (!typeOk) return false;
       }
 
-
-
       if (!q) return true;
       const big = `${it.projectName} ${it.buildName} ${it.buildVersion} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
       return norm(big).includes(q);
     });
   }, [items, selectedServer, activeCategory2, searchQuery2]);
 
-  /** ✅ View Detail -> ScreenshotGallery.jsx (your /gallery route) */
   const handleOpenScreenshotGallery = (item) => {
     const params = new URLSearchParams({
       build: item.buildName || item.projectName || "Build",
@@ -827,19 +606,12 @@ const typeOptions = useMemo(() => {
     window.open(`/gallery?${params.toString()}`, "_blank", "noopener,noreferrer");
   };
 
-
-
-
-
-  /** ✅ vz1 -> open Vizdom (update base URL if needed) */
   const handleOpenVizdom = (item) => {
-  const id = String(item?.vizdomId || "").trim();
-  if (!id) return;
-
-  const url = `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(id)}`;
-  window.open(url, "_blank", "noopener,noreferrer");
-};
-
+    const id = String(item?.vizdomId || "").trim();
+    if (!id) return;
+    const url = `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(id)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   if (loading) return <div style={{ ...sx.page, padding: 24 }}>Loading…</div>;
 
@@ -850,17 +622,19 @@ const typeOptions = useMemo(() => {
         <div className="lv-locbar">
           <div className="lv-container">
             <div className="lv-locbarInner">
-              <div className="lv-locbarText">Choose another country or region to see content specific to your location</div>
+              <div className="lv-locbarText">
+                Choose another country or region to see content specific to your location
+              </div>
 
               <div className="lv-locbarRight">
                 <div className="lv-togglePills">
                   <button
-  type="button"
-  className={`lv-pill ${selectedServer === "india" ? "lv-pillActive" : ""}`}
-  onClick={() => setSelectedServer("india")}
->
-  <img src={indiaIcon} alt="" className="lv-pillImg" />
-  <span>India</span>
+                    type="button"
+                    className={`lv-pill ${selectedServer === "india" ? "lv-pillActive" : ""}`}
+                    onClick={() => setSelectedServer("india")}
+                  >
+                    <img src={indiaIcon} alt="" className="lv-pillImg" />
+                    <span>India</span>
                   </button>
 
                   <button
@@ -871,8 +645,6 @@ const typeOptions = useMemo(() => {
                     <img src={usIcon} alt="" className="lv-pillImg" />
                     <span>US</span>
                   </button>
-
-
                 </div>
 
                 <button type="button" className="lv-continue" onClick={handleContinue}>
@@ -904,7 +676,9 @@ const typeOptions = useMemo(() => {
               <button
                 type="button"
                 className="lv-btnPrimary"
-                onClick={() => document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })}
+                onClick={() =>
+                  document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
+                }
               >
                 ▶ Watch Demo
               </button>
@@ -912,7 +686,9 @@ const typeOptions = useMemo(() => {
               <button
                 type="button"
                 className="lv-btnSecondary"
-                onClick={() => document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })}
+                onClick={() =>
+                  document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
+                }
               >
                 Explore Platform
               </button>
@@ -920,45 +696,42 @@ const typeOptions = useMemo(() => {
           </div>
 
           <div className="lv-heroRight">
-  <div className="lv-heroCard" style={{ overflow: "hidden" }}>
-    <div style={{ position: "relative", width: "100%", height: 320, overflow: "hidden", borderRadius: 18 }}>
-      <video
-  src="/videos/emirates-demo-trim.mp4"
-  controls
-  playsInline
-  preload="metadata"
-  style={{
-    width: "100%",
-    height: "100%",
-    borderRadius: 18,
-    objectFit: "cover",
-    display: "block",
-  }}
-/>
-
-    </div>
-  </div>
-</div>
-
+            <div className="lv-heroCard" style={{ overflow: "hidden" }}>
+              <div style={{ position: "relative", width: "100%", height: 320, overflow: "hidden", borderRadius: 18 }}>
+                <video
+                  src={HERO_VIDEO_SRC}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: 18,
+                    objectFit: "cover",
+                    display: "block",
+                    background: "#000",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </section>
       </div>
 
       {/* Featured Projects */}
       <section
-  id="featured-projects"
-  style={{
-    background: "#FFFFFF",
-    padding: "56px 0 80px", // ✅ more bottom gap
-  }}
->
-
+        id="featured-projects"
+        style={{
+          background: "#FFFFFF",
+          padding: "56px 0 80px",
+        }}
+      >
         <div style={sx.container}>
           <div style={sx.fpHeader}>
             <div style={sx.fpHeaderLeft}>
               <div style={sx.fpTitleRow}>
                 <div style={sx.fpTitle}>Featured Projects</div>
 
-                {/* ✅ badge aligned with title */}
                 <div style={sx.serverBadge}>
                   <img
                     src={selectedServer === "india" ? indiaIcon : usIcon}
@@ -977,9 +750,7 @@ const typeOptions = useMemo(() => {
             </div>
           </div>
 
-
-
-          {/* ✅ one line: chips + search */}
+          {/* ✅ chips from sheet (like DemoVideos) */}
           <div style={sx.fpControls}>
             <div className="dv-chips" style={{ margin: 0 }}>
               {typeOptions.map((t) => (
@@ -997,8 +768,6 @@ const typeOptions = useMemo(() => {
               ))}
             </div>
 
-
-
             <div style={sx.fpSearchWrap}>
               <span style={sx.fpSearchIcon}>🔍</span>
               <input
@@ -1012,20 +781,20 @@ const typeOptions = useMemo(() => {
 
           <div style={sx.fpGrid}>
             {(showAll2 ? filtered : filtered.slice(0, 6)).map((item, idx) => (
-             <FeaturedCard
-  key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
-  item={item}
-  onOpenScreenshotGallery={() => handleOpenScreenshotGallery(item)}
-  onOpenVizdom={() => handleOpenVizdom(item)}
-  onOpenVizwalk={() => handleOpenVizwalk(item)}   // ✅ THIS
-/>
-
-
+              <FeaturedCard
+                key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
+                item={item}
+                onOpenScreenshotGallery={() => handleOpenScreenshotGallery(item)}
+                onOpenVizdom={() => handleOpenVizdom(item)}
+                onOpenVizwalk={() => handleOpenVizwalk(item)}
+              />
             ))}
           </div>
 
           {filtered.length === 0 && (
-            <div style={{ textAlign: "center", padding: "24px 0", opacity: 0.75, fontWeight: 700 }}>No projects found matching your criteria.</div>
+            <div style={{ textAlign: "center", padding: "24px 0", opacity: 0.75, fontWeight: 700 }}>
+              No projects found matching your criteria.
+            </div>
           )}
 
           {!showAll2 && filtered.length > 6 && (
@@ -1044,16 +813,7 @@ const typeOptions = useMemo(() => {
   );
 }
 
-const disabledIconWrap = {
-  opacity: 0.25,
-  filter: "grayscale(100%)",
-  cursor: "not-allowed",
-  pointerEvents: "none",
-};
-
-
-
-/** ====== STYLES (CLEAN: no duplicates) ====== */
+/** ====== STYLES ====== */
 const sx = {
   page: {
     minHeight: "100vh",
@@ -1069,10 +829,18 @@ const sx = {
 
   fpHeader: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     alignItems: "flex-start",
-    gap: 14,
     marginBottom: 10,
+  },
+
+  fpHeaderLeft: { width: "100%" },
+
+  fpTitleRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 18,
+    flexWrap: "wrap",
   },
 
   fpTitle: {
@@ -1091,7 +859,6 @@ const sx = {
     fontFamily: "var(--font-sans)",
   },
 
-  /** ✅ one line layout */
   fpControls: {
     marginTop: 22,
     display: "flex",
@@ -1099,49 +866,6 @@ const sx = {
     justifyContent: "space-between",
     gap: 18,
     flexWrap: "nowrap",
-  },
-
-  /** ✅ NO SCROLL BAR */
-  fpChips: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    flexWrap: "nowrap",
-    overflow: "visible",
-    minWidth: 0,
-  },
-
-  /** ✅ chip: light/regular + subtle border like search (#EAEAE8) */
-  chip: {
-    height: 32,
-    padding: "0 12px",
-    borderRadius: 999,
-    border: "1px solid #EAEAE8",
-    background: "#fff",
-    cursor: "pointer",
-    fontWeight: 400,
-    fontSize: 12,
-    color: "#111",
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontFamily: "var(--font-sans)",
-    whiteSpace: "nowrap",
-
-    // ✅ kill focus outline/ring that looks like a border
-    outline: "none",
-    boxShadow: "none",
-    WebkitTapHighlightColor: "transparent",
-  },
-
-  /** ✅ active is YELLOW (your ask) and no border ring */
-  chipActive: {
-    background: "#FFC702",
-    color: "#111",
-    fontWeight: 500,
-    borderColor: "transparent",
-    outline: "none",
-    boxShadow: "none",
   },
 
   fpSearchWrap: {
@@ -1157,10 +881,7 @@ const sx = {
     flex: "0 0 auto",
   },
 
-  fpSearchIcon: {
-    opacity: 0.65,
-    fontSize: 14,
-  },
+  fpSearchIcon: { opacity: 0.65, fontSize: 14 },
 
   fpSearchInput: {
     border: "none",
@@ -1179,7 +900,6 @@ const sx = {
     gap: 18,
   },
 
-  /** ✅ Card (slightly taller) + card base color */
   fpCard: {
     background: "#F1F0EA",
     border: "1px solid rgba(0,0,0,0.10)",
@@ -1188,12 +908,8 @@ const sx = {
     boxShadow: "0 14px 40px rgba(0,0,0,0.08)",
   },
 
-  fpMedia: {
-    position: "relative",
-    cursor: "pointer",
-  },
+  fpMedia: { position: "relative", cursor: "pointer" },
 
-  /** ✅ bigger height */
   fpImg: {
     width: "100%",
     height: 255,
@@ -1201,33 +917,33 @@ const sx = {
     display: "block",
   },
 
-  /** ✅ server pill like your screenshot */
-  fpServerPill: {
+  fpHoverOverlay: {
     position: "absolute",
-    right: 14,
-    bottom: 12,
-    background: "rgba(0,0,0,0.65)",
-    color: "#fff",
-    padding: "6px 12px",
+    inset: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "rgba(0,0,0,0.18)",
+    opacity: 0,
+    pointerEvents: "none",
+    transition: "opacity 0.18s ease",
+  },
+
+  fpHoverBtn: {
+    height: 40,
+    padding: "0 16px",
     borderRadius: 999,
-    fontSize: 11,
+    border: "1px solid rgba(255,255,255,0.65)",
+    background: "#FFC702",
+    color: "#111",
     fontWeight: 800,
-    fontFamily: "var(--font-sans)",
-    boxShadow: "0 10px 22px rgba(0,0,0,0.18)",
+    cursor: "pointer",
   },
 
-  fpBody: {
-    padding: 14,
-    background: "#F1F0EA",
-  },
+  fpBody: { padding: 14, background: "#F1F0EA" },
 
-  fpName: {
-    fontSize: 20,
-    fontWeight: 900,
-    fontFamily: "var(--font-heading)",
-  },
+  fpName: { fontSize: 20, fontWeight: 900, fontFamily: "var(--font-heading)" },
 
-  /** ✅ tag like your Image3 */
   fpCatRow: { marginTop: 8 },
 
   fpCatPill: {
@@ -1249,11 +965,7 @@ const sx = {
     fontWeight: 500,
   },
 
-  fpDivider: {
-    marginTop: 12,
-    height: 1,
-    background: "rgba(0,0,0,0.08)",
-  },
+  fpDivider: { marginTop: 12, height: 1, background: "rgba(0,0,0,0.08)" },
 
   fpRow: {
     marginTop: 12,
@@ -1263,11 +975,7 @@ const sx = {
     gap: 10,
   },
 
-  fpLeftIcons: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-  },
+  fpLeftIcons: { display: "flex", alignItems: "center", gap: 10 },
 
   fpDetail: {
     border: "none",
@@ -1276,6 +984,7 @@ const sx = {
     fontSize: 13,
     opacity: 0.8,
     fontFamily: "var(--font-sans)",
+    fontWeight: 650,
   },
 
   fpBottom: { display: "flex", justifyContent: "center", padding: "18px 0 0" },
@@ -1290,35 +999,43 @@ const sx = {
     fontFamily: "var(--font-sans)",
   },
 
-  /* Footer */
-  footerBleed: {
-    width: "100%",
-    background: "#d0d0cc",
-    padding: "42px 0 22px",
+  serverBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 10,
+    padding: "8px 14px",
+    borderRadius: 999,
+    background: "#FFE39A",
+    color: "#111",
+    fontSize: 14,
+    boxShadow: "0 10px 24px rgba(245,165,36,0.22)",
+    whiteSpace: "nowrap",
+    height: 36,
   },
+
+  serverBadgeIcon: { width: 18, height: 18, objectFit: "contain", display: "block" },
+
+  serverBadgeText: { fontFamily: "var(--font-sans)" },
+
+  footerBleed: { width: "100%", background: "#d0d0cc", padding: "42px 0 22px" },
+
   footerGrid: {
     display: "grid",
     gridTemplateColumns: "1.6fr 0.7fr 0.7fr",
     gap: 80,
     alignItems: "start",
   },
+
   footerBrand: {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "flex-start",
     gap: 10,
-    paddingLeft: 0,
-    marginLeft: 0,
   },
-  footerLogoImg: {
-    display: "block",
-    height: 44,
-    width: "auto",
-    margin: 0,
-    padding: 0,
-    objectFit: "contain",
-  },
+
+  footerLogoImg: { display: "block", height: 44, width: "auto", objectFit: "contain" },
+
   footerDesc: {
     maxWidth: 360,
     fontSize: 13,
@@ -1326,7 +1043,9 @@ const sx = {
     color: "rgba(0,0,0,0.72)",
     fontWeight: 600,
   },
+
   footerCol: { paddingTop: 6 },
+
   footerColTitle: {
     fontWeight: 900,
     fontSize: 12,
@@ -1334,6 +1053,7 @@ const sx = {
     color: "rgba(0,0,0,0.60)",
     marginBottom: 14,
   },
+
   footerLink: {
     display: "block",
     fontSize: 13,
@@ -1342,6 +1062,7 @@ const sx = {
     marginBottom: 10,
     textDecoration: "none",
   },
+
   footerBottom: {
     marginTop: 28,
     paddingTop: 16,
@@ -1351,101 +1072,15 @@ const sx = {
     justifyContent: "space-between",
     gap: 16,
   },
-  footerCopy: {
-    fontSize: 12,
-    color: "rgba(0,0,0,0.65)",
-    fontWeight: 600,
-  },
+
+  footerCopy: { fontSize: 12, color: "rgba(0,0,0,0.65)", fontWeight: 600 },
+
   footerSocial: { display: "flex", gap: 22, alignItems: "center" },
+
   footerSocialLink: {
     fontSize: 12,
     fontWeight: 800,
     color: "rgba(0,0,0,0.60)",
     textDecoration: "none",
   },
-  fpMedia: {
-  position: "relative",
-  cursor: "pointer",
-},
-
-fpHoverOverlay: {
-  position: "absolute",
-  inset: 0,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 10,
-  background: "rgba(0,0,0,0.18)",
-  opacity: 0,
-  pointerEvents: "none",
-  transition: "opacity 0.18s ease",
-  borderRadius: 0, // image already clipped by card overflow
-},
-
-fpHoverBtn: {
-  height: 40,
-  padding: "0 16px",
-  borderRadius: 999,
-  border: "1px solid rgba(255,255,255,0.65)",
-  background: "#FFC702",
-  color: "#111",
-  fontWeight: 800,
-  cursor: "pointer",
-},
-
-fpHoverBtnGhost: {
-  height: 40,
-  padding: "0 16px",
-  borderRadius: 999,
-  border: "1px solid rgba(255,255,255,0.65)",
-  background: "rgba(255,255,255,0.18)",
-  color: "#fff",
-  fontWeight: 800,
-  cursor: "pointer",
-},
-fpHeader: {
-  display: "flex",
-  justifyContent: "flex-start",
-  alignItems: "flex-start",
-  marginBottom: 10,
-},
-
-fpHeaderLeft: {
-  width: "100%",
-},
-
-fpTitleRow: {
-  display: "flex",
-  alignItems: "center",
-  gap: 18,
-  flexWrap: "wrap", // allows clean wrap on small screens
-},
-
-serverBadge: {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 10,
-  padding: "8px 14px",
-  borderRadius: 999,
-  background: "#FFE39A",
-  color: "#111",
-  // fontWeight: 800,
-  fontSize: 14,
-  boxShadow: "0 10px 24px rgba(245,165,36,0.22)",
-  whiteSpace: "nowrap",
-  height: 36,
-},
-
-serverBadgeIcon: {
-  width: 18,
-  height: 18,
-  objectFit: "contain",
-  display: "block",
-},
-
-serverBadgeText: {
-  fontFamily: "var(--font-sans)",
-},
-
-
 };
