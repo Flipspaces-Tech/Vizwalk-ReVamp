@@ -8,10 +8,10 @@ import "../styles/testimonials-marquee.css";
 import indiaIcon from "../assets/india.png";
 import usIcon from "../assets/usa.png";
 import LandingNavbar from "../components/LandingNavbar.jsx";
+const HERO_DRIVE_URL = "https://drive.google.com/file/d/1_EKGJJc9lhrnAKQ0C55QGxIGFOR-3emW/view?usp=sharing"; 
 
 /** ✅ HERO VIDEO (served from /public) */
-const HERO_VIDEO_SRC = "/videos/emirates-demo-trim.mp4";
-const heroVideoSrc = "/videos/emirates-demo-trim.mp4";
+const heroVideoSrc = driveToPreviewUrl(HERO_DRIVE_URL);
 
 
 /** ✅ DEFAULT CHIPS (unused now; we generate from sheet like DemoVideos) */
@@ -173,6 +173,38 @@ function ImageWithFallback({ src, alt, style }) {
     />
   );
 }
+
+function extractDriveId(url = "") {
+  const s = String(url || "");
+
+  // /file/d/<ID>/view
+  let m = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if (m?.[1]) return m[1];
+
+  // ?id=<ID>
+  m = s.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (m?.[1]) return m[1];
+
+  // /d/<ID>
+  m = s.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (m?.[1]) return m[1];
+
+  return "";
+}
+
+// ✅ Use Drive’s own streaming player (most compatible)
+function driveToPreviewUrl(url = "") {
+  const id = extractDriveId(url);
+  if (!id) return "";
+  return `https://drive.google.com/file/d/${id}/preview`;
+}
+
+
+
+
+
+
+
 
 /** ====== ICON (hover float) ====== */
 function HoverIcon({ src, alt, href, title }) {
@@ -709,22 +741,22 @@ export default function Landing() {
       position: "relative",
     }}
   >
-    <video
-      src={heroVideoSrc}
-      controls
-      playsInline
-      preload="metadata"
-      controlsList="nodownload"
-      style={{
-        position: "absolute",   // ✅ KEY FIX
-        inset: 0,               // ✅ fills parent
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",     // ✅ cinematic crop
-        display: "block",
-        background: "#000",
-      }}
-    />
+    <iframe
+  src={heroVideoSrc}
+  title="Vizwalk demo"
+  allow="autoplay; fullscreen"
+  allowFullScreen
+  referrerPolicy="no-referrer"
+  style={{
+    width: "100%",
+    height: "100%",
+    border: 0,
+    borderRadius: 18,
+    display: "block",
+    background: "#000",
+  }}
+/>
+
   </div>
 </div>
 
