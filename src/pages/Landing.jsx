@@ -9,7 +9,7 @@ import indiaIcon from "../assets/india.png";
 import usIcon from "../assets/usa.png";
 import { useNavigate } from "react-router-dom";
 import LandingNavbar from "../components/LandingNavbar.jsx";
-import heroVideo from "../assets/Emirates Demo trim.mp4"; // ✅ change filename
+// import heroVideo from "../public/videos/emirates-demo-trim.mp4"; // ✅ change filename
 
 // TEST
 const HERO_YOUTUBE_URL = "https://www.youtube.com/watch?v=dumslTDJfQk&feature=youtu.be";
@@ -923,22 +923,19 @@ const typeOptions = useMemo(() => {
   <div className="lv-heroCard" style={{ overflow: "hidden" }}>
     <div style={{ position: "relative", width: "100%", height: 320, overflow: "hidden", borderRadius: 18 }}>
       <video
-        src={heroVideo}
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          borderRadius: 18,
-        }}
-        playsInline
-        muted
-        autoPlay
-        loop
-        controls
-        preload="metadata"
-      />
+  src="/videos/emirates-demo-trim.mp4"
+  controls
+  playsInline
+  preload="metadata"
+  style={{
+    width: "100%",
+    height: "100%",
+    borderRadius: 18,
+    objectFit: "cover",
+    display: "block",
+  }}
+/>
+
     </div>
   </div>
 </div>
