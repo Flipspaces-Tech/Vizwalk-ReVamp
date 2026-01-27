@@ -12,7 +12,7 @@ import LandingNavbar from "../components/LandingNavbar.jsx";
 import "../styles/lovable-navbar.css";
 import "../styles/testimonials-marquee.css";
 
-// TEST
+
 
 /**
  * IMPORTANT NOTES (why your YouTube embed keeps breaking / showing UI):
