@@ -128,3 +128,22 @@
   .lv-marqueeFadeRight{ width: 90px; }
   .lv-tCard{ width: 300px; }
 }
+/* Keep title/subtitle aligned to container, but let the slider go full width */
+.lv-testimonials .lv-container {
+  position: relative;
+}
+
+/* Make marquee full-bleed */
+.lv-testimonials .lv-marquee{
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: 48px 48px; /* adjust */
+}
+
+
+/* Optional: make fade overlays also full-bleed */
+.lv-testimonials .lv-marqueeFadeLeft,
+.lv-testimonials .lv-marqueeFadeRight {
+  width: 500px; /* increase if you want smoother fade */
+}

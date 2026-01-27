@@ -6,6 +6,8 @@ import { useAuth } from "../auth/AuthProvider";
 
 // use your youtube icon from assets
 import ytIcon from "../assets/yt1.png";
+import searchIcon from "../assets/search.png"; // change to your actual file name
+
 
 const WEBAPP_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
@@ -172,14 +174,20 @@ export default function DemoVideos() {
             ))}
           </div>
 
-          <div className="dv-search">
-            <span className="dv-searchIcon">🔍</span>
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search Projects.."
-            />
-          </div>
+         <div className="dv-search">
+  <span className="dv-searchIcon">
+    <img className="dv-searchIconImg" src={searchIcon} alt="Search" />
+  </span>
+
+  <input
+    value={query}
+    onChange={(e) => setQuery(e.target.value)}
+    placeholder="Search Projects.."
+  />
+</div>
+
+
+
         </div>
 
         {loading ? (

@@ -236,12 +236,12 @@
   display: inline-flex;
   align-items: center;
   margin-top: 6px;
-  padding: 6px 12px;
+  padding: 4px 4px;
   border-radius: 6px;
   background: #f7e6bc;
   border: 1px solid #f2d48c;
   color: #f59a00;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 1;
 }
@@ -319,6 +319,34 @@
   max-width: 170px;
   transform: translateX(0);
 }
+.dv-search {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #d7d7d7;
+  border-radius: 999px;
+  padding: 8px 14px;
+  min-width: 260px;
+}
+
+.dv-searchIcon {
+  width: 20;
+  height: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 14px;
+}
+
+/* IMPORTANT: constrain the image */
+.dv-searchIconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
 
 @media (max-width: 420px) {
   .dv-titleX {
@@ -330,4 +358,11 @@
   .dv-ytPill:hover {
     width: min(210px, 74vw);
   }
+  .dv-searchIconImg{
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+  display: block;
+}
+
 }

@@ -11,6 +11,8 @@ import LandingNavbar from "../components/LandingNavbar.jsx";
 
 import "../styles/lovable-navbar.css";
 import "../styles/testimonials-marquee.css";
+import searchIcon from "../assets/search.png"; // <-- change filename/path to yours
+
 
 
 
@@ -766,7 +768,12 @@ export default function Landing() {
             </div>
 
             <div style={sx.fpSearchWrap}>
-              <span style={sx.fpSearchIcon}>🔍</span>
+              <img
+                src={searchIcon}
+                alt="Search"
+                style={sx.fpSearchIconImg}
+                draggable={false}
+              />
               <input
                 value={searchQuery2}
                 onChange={(e) => setSearchQuery2(e.target.value)}
@@ -774,6 +781,7 @@ export default function Landing() {
                 style={sx.fpSearchInput}
               />
             </div>
+
           </div>
 
           <div style={sx.fpGrid}>
@@ -945,10 +953,11 @@ const sx = {
 
   fpCatPill: {
     display: "inline-block",
-    padding: "4px 10px",
+    padding: "4px 4px",
     borderRadius: 6,
-    background: "rgba(255,199,2,0.22)",
-    color: "#a56100",
+    background: "#f7e6bc",
+  border: "1px solid #f2d48c",
+  color: "#f59a00",
     fontSize: 12,
     fontWeight: 800,
     fontFamily: "var(--font-sans)",
@@ -996,23 +1005,41 @@ const sx = {
     fontFamily: "var(--font-sans)",
   },
 
-  serverBadge: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 10,
-    padding: "8px 14px",
-    borderRadius: 999,
-    background: "#FFE39A",
-    color: "#111",
-    fontSize: 14,
-    boxShadow: "0 10px 24px rgba(245,165,36,0.22)",
-    whiteSpace: "nowrap",
-    height: 36,
-  },
+serverBadge: {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
 
-  serverBadgeIcon: { width: 18, height: 18, objectFit: "contain", display: "block" },
+  // ✅ match the “Corporate Office” pill
+  padding: "4px 10px",
+  borderRadius: 10,
+  background: "rgba(255,199,2,0.22)",
+  color: "#a56100",
 
-  serverBadgeText: { fontFamily: "var(--font-sans)" },
+  fontSize: 12,
+  fontWeight: 800,
+  fontFamily: "var(--font-sans)",
+
+  // ✅ remove chip/badge feel
+  boxShadow: "none",
+  border: "none",
+  height: "auto",
+  lineHeight: 1,
+},
+
+serverBadgeIcon: {
+  width: 25,
+  height: 25,
+  objectFit: "contain",
+  display: "block",
+},
+
+serverBadgeText: {
+  fontFamily: "var(--font-sans)",
+  fontWeight: 800,
+  fontSize: 12,
+  color: "#a56100",
+},
 
   footerBleed: { width: "100%", background: "#d0d0cc", padding: "42px 0 22px" },
 
@@ -1080,4 +1107,12 @@ const sx = {
     color: "rgba(0,0,0,0.60)",
     textDecoration: "none",
   },
+
+  fpSearchIconImg: {
+  width: 20,
+  height: 20,
+  objectFit: "contain",
+  display: "block",
+},
+
 };
