@@ -1,0 +1,923 @@
+:root{
+  --accent: #f59a00;
+  --accentBg: #fbf3df;
+
+  --text: #111;
+  --muted-72: rgba(0,0,0,0.72);
+  --muted-70: rgba(0,0,0,0.70);
+
+  --line: rgba(0,0,0,0.12);
+  --card-bg: #fff;
+}
+
+/* =======================
+   KEYBOARD (cloc-*)
+======================= */
+
+.cloc-card{
+  background: var(--card-bg);
+  border-radius: 18px;
+  padding: 26px 28px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.35fr;
+  gap: 36px;
+  align-items: center;
+}
+
+.cloc-left, .cloc-mid{
+  display: grid;
+  justify-items: center;
+  align-content: start;
+}
+
+.cloc-topLabel{
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.cloc-altLabel{
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.cloc-center{ margin-bottom: 14px; }
+
+.cloc-bottom3{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  justify-items: center;
+  align-items: start;
+}
+.cloc-bottom3--arrows{ gap: 22px; }
+
+.cloc-col{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.cloc-miniLabel{
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cloc-key{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accentBg);
+  border: 2.5px solid var(--accent);
+  color: var(--accent);
+  border-radius: 14px;
+  width: 48px;
+  height: 48px;
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1;
+  user-select: none;
+}
+
+.cloc-key--sm{
+  width: 40px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.cloc-right{
+  display: grid;
+  align-content: start;
+}
+
+.cloc-row{
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 2px solid var(--line);
+}
+.cloc-row:first-child{
+  border-top: none;
+  padding-top: 0;
+}
+
+.cloc-rowTitle{
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cloc-pair{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cloc-or{
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted-72);
+}
+
+@media (max-width: 980px){
+  .cloc-card{
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+}
+
+/* =======================
+   MOUSE (mcS-*)
+======================= */
+
+.mcS-wrap{ width: 100%; }
+
+.mcS-head{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.mcS-headBadge{
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--accentBg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 14px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
+}
+
+.mcS-headTitle{
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.mcS-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 980px){
+  .mcS-grid{ grid-template-columns: 1fr; }
+}
+
+.mcS-card{
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 10px;
+  padding: 18px 18px 16px;
+  text-align: center;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  cursor: default;
+  outline: none;
+}
+
+.mcS-iconCircle{
+  width: 60px;
+  height: 60px;
+  border-radius: 999px;
+  margin: 0 auto 10px;
+  background: var(--accentBg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04) inset;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.mcS-icon{
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+}
+
+.mcS-title{
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  margin-top: 2px;
+}
+
+.mcS-desc{
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--muted-70);
+}
+
+/* hover */
+.mcS-card:hover,
+.mcS-card:focus-visible{
+  transform: translateY(-2px);
+  border-color: rgba(0,0,0,0.16);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.10);
+}
+
+.mcS-card:hover .mcS-iconCircle,
+.mcS-card:focus-visible .mcS-iconCircle{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.10);
+}
+/* =======================
+   QUICK ACTIONS (qa-*)
+======================= */
+
+.qa-wrap{ width: 100%; }
+
+.qa-head{
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  margin: 0 0 14px;
+}
+
+.qa-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+@media (max-width: 1100px){
+  .qa-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px){
+  .qa-grid{ grid-template-columns: 1fr; }
+}
+
+.qa-card{
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 10px;
+  padding: 16px 16px 14px;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  outline: none;
+}
+
+.qa-card:hover,
+.qa-card:focus-visible{
+  transform: translateY(-2px);
+  border-color: rgba(0,0,0,0.16);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.10);
+}
+
+.qa-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.qa-title{
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.qa-key{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--accentBg);
+  border: 2px solid var(--accent);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1;
+  user-select: none;
+}
+
+.qa-desc{
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--muted-70);
+}
+/* =======================
+   ADVANCED CONTROLS (ac-*)
+======================= */
+
+.ac-wrap{ width: 100%; }
+
+.ac-head{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.ac-headIcon{
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--accentBg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-weight: 900;
+  font-size: 14px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
+}
+
+.ac-headTitle{
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+/* table container */
+.ac-table{
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
+}
+
+/* rows */
+.ac-tr{
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 2fr; /* Action | Keys | Description */
+  align-items: center;
+}
+
+.ac-th{
+  background: #f7e7c7; /* beige header like screenshot */
+  font-weight: 800;
+}
+
+.ac-td{
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* zebra like screenshot */
+.ac-tr:not(.ac-th):nth-child(odd){
+  background: #f3f3f1;
+}
+.ac-tr:not(.ac-th):nth-child(even){
+  background: #efefed;
+}
+
+/* text weights */
+.ac-action{ font-weight: 600; }
+.ac-desc{ color: rgba(0,0,0,0.68); font-weight: 500; }
+
+/* keys group */
+.ac-keys{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ac-key{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: var(--accentBg);
+  border: 1.8px solid var(--accent);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1;
+  user-select: none;
+  min-width: 34px;
+}
+
+/* mobile */
+@media (max-width: 860px){
+  .ac-tr{
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .ac-th{ display: none; }
+  .ac-td{ padding: 10px 14px; }
+  .ac-td::before{ display: none; }
+}
+/* =======================
+   PRO TIPS (pt-*)
+======================= */
+
+.pt-wrap{ width: 100%; }
+
+.pt-head{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.pt-headIcon{
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--accentBg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 15px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
+}
+
+.pt-headTitle{
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+/* main card */
+.pt-card{
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
+}
+
+/* rows */
+.pt-row{
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 10px 0;
+}
+
+.pt-row:not(:last-child){
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+/* number badge */
+.pt-num{
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--accentBg);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* text */
+.pt-text{
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(0,0,0,0.78);
+  font-weight: 500;
+}
+/* =======================
+   LEARN LAYOUT + CONTENTS (toc)
+======================= */
+
+.learnLayout{
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 26px;
+  align-items: start;
+}
+
+.learnMain{
+  min-width: 0;
+}
+
+.learnGap{ height: 26px; }
+
+/* sticky sidebar */
+.learnSide{
+  position: sticky;
+  top: 92px; /* adjust based on navbar height */
+  align-self: start;
+}
+
+/* TOC card */
+.tocCard{
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
+  width: 100%;
+}
+
+.tocTitle{
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: rgba(0,0,0,0.72);
+  margin: 4px 6px 10px;
+}
+
+.tocList{
+  display: grid;
+  gap: 8px;
+}
+
+.tocItem{
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 10px;
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.78);
+
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.tocItem:hover{
+  background: rgba(0,0,0,0.04);
+  transform: translateY(-1px);
+}
+
+.tocIcon{
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  background: rgba(0,0,0,0.04);
+}
+
+.tocItem--active{
+  background: var(--accentBg);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
+  color: var(--text);
+}
+
+.tocItem--active .tocIcon{
+  background: transparent;
+}
+
+/* responsive: on mobile show the TOC centered and non-sticky */
+@media (max-width: 980px){
+  .learnLayout{
+    grid-template-columns: 1fr;
+  }
+  .learnSide{
+    position: relative;
+    top: 0;
+  }
+  .tocCard{
+    max-width: 280px; /* like your screenshot */
+    margin: 0 auto 16px;
+  }
+}
+/* =======================
+   NAVIGATION HEADING (navC-*)
+======================= */
+
+.navC-wrap{ width: 100%; }
+
+.navC-head{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.navC-headIcon{
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--accentBg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 18px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
+}
+
+.navC-headTitle{
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  color: var(--text);
+}
+
+/* =======================
+   Keyboard card hover (cloc)
+======================= */
+
+.cloc-card--hover{
+  border: 1px solid rgba(0,0,0,0.10);  /* match Figma card outline */
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.cloc-card--hover:hover,
+.cloc-card--hover:focus-visible{
+  transform: translateY(-2px);
+  border-color: rgba(0,0,0,0.16);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.10);
+}
+/* =======================
+   KEYBOARD CARD HOVERS (cloc)
+======================= */
+
+/* Whole card hover (if not already) */
+.cloc-card--hover{
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+.cloc-card--hover:hover,
+.cloc-card--hover:focus-visible{
+  transform: translateY(-2px);
+  border-color: rgba(0,0,0,0.16);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.10);
+}
+
+/* Keycap hover (WASD + arrows + list keys) */
+.cloc-key{
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    background 140ms ease,
+    border-color 140ms ease;
+  cursor: default;
+}
+
+/* hover / focus */
+.cloc-key:hover,
+.cloc-key:focus-visible{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+  background: #fff; /* slight pop like Figma */
+  border-color: rgba(245,154,0,0.95);
+}
+
+/* when the whole card is hovered, make keys feel slightly “alive” */
+.cloc-card--hover:hover .cloc-key{
+  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+}
+
+/* Right list row hover */
+.cloc-row{
+  transition: background 140ms ease;
+  border-radius: 10px;
+}
+
+/* hover highlight row (subtle) */
+.cloc-row:hover{
+  background: rgba(0,0,0,0.03);
+}
+
+/* Pair hover: if you hover the row, slightly lift the small keys */
+.cloc-row:hover .cloc-key--sm{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+
+/* Accessibility: show focus for keyboard navigation */
+.cloc-card--hover:focus-visible{
+  outline: 2px solid rgba(245,154,0,0.35);
+  outline-offset: 3px;
+}
+/* =======================
+   ADVANCED CONTROLS (DIV TABLE) — Figma match
+======================= */
+
+:root{
+  --ac-card: #f4f3f0;          /* warm off-white container */
+  --ac-head: #f7e7c6;          /* header beige */
+  --ac-zebra-odd: #f6f5f2;     /* white row */
+  --ac-zebra-even: #ffffff;    /* very light warm grey */
+  /* --ac-zebra-odd: #ffffff;  
+  --ac-zebra-even: #f6f5f2;  */
+  --ac-line: rgba(0,0,0,0.08);
+}
+
+/* section wrapper (optional spacing) */
+.ac-wrap{ width: 100%; }
+
+/* the table card */
+.ac-table{
+  background: var(--ac-card);
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
+}
+
+/* rows */
+.ac-tr{
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 2.2fr; /* Action / Keys / Description */
+  align-items: center;
+}
+
+/* header row */
+.ac-th{
+  background: var(--ac-head);
+  border-bottom: 1px solid rgba(0,0,0,0.10);
+}
+
+.ac-th .ac-td{
+  font-size: 13px;
+  font-weight: 800;
+  color: #111;
+  padding: 14px 16px;
+}
+
+/* body cells */
+.ac-tr:not(.ac-th) .ac-td{
+  padding: 16px 16px;
+  font-size: 13px;
+  color: rgba(0,0,0,0.78);
+  border-bottom: 1px solid rgba(0,0,0,0.06); /* subtle row separators */
+}
+
+/* zebra striping like figma */
+.ac-tr:not(.ac-th):nth-child(odd){
+  background: var(--ac-zebra-odd);
+}
+.ac-tr:not(.ac-th):nth-child(even){
+  background: var(--ac-zebra-even);
+}
+
+/* remove last divider */
+.ac-tr:last-child .ac-td{
+  border-bottom: none;
+}
+
+/* Action column style */
+.ac-action{
+  font-weight: 700;
+  color: #111;
+}
+
+/* Keys group */
+.ac-keys{
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* keycap style */
+.ac-key{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1.8px solid var(--accent);
+  background: var(--accentBg);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1;
+  transition: transform 140ms ease, box-shadow 140ms ease;
+}
+
+/* hover like other cards */
+/* .ac-tr:not(.ac-th):hover{
+  background: rgba(255,255,255,0.92);
+} */
+
+.ac-tr:not(.ac-th):hover .ac-key{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+
+/* Responsive: stack nicely */
+@media (max-width: 900px){
+  .ac-tr{
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .ac-th{ display: none; }
+
+  .ac-tr:not(.ac-th) .ac-td{
+    border-bottom: none;
+    padding: 12px 14px;
+  }
+
+  .ac-table{
+    padding: 8px;
+  }
+
+  .ac-tr:not(.ac-th){
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+}
+/* =======================
+   LEARN PAGE CANVAS (Figma placement)
+======================= */
+
+/* full page bg like figma */
+.learnPage{
+  background: #f6f6f4;
+  min-height: 100vh;
+}
+
+/* centered canvas that creates the left blank gutter */
+.learnShell{
+  width: min(1180px, 92vw);
+  margin: 0 auto;
+  padding: 34px 0 70px;
+}
+
+/* grid inside the canvas */
+.learnLayout{
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* keep sidebar aligned with first card top */
+.learnSide{
+  position: sticky;
+  top: 104px; /* adjust if navbar height differs */
+  align-self: start;
+}
+
+/* main column should not stretch too wide */
+.learnMain{
+  min-width: 0;
+}
+
+/* spacing between sections (matches figma rhythm) */
+.learnGap{
+  height: 28px;
+}
+
+/* TOC card in figma is slightly “raised” and sits on the grey bg */
+.tocCard{
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 12px;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
+}
+
+/* mobile */
+@media (max-width: 980px){
+  .learnShell{
+    width: min(720px, 92vw);
+  }
+  .learnLayout{
+    grid-template-columns: 1fr;
+  }
+  .learnSide{
+    position: relative;
+    top: 0;
+  }
+  .tocCard{
+    max-width: 280px;
+    margin: 0 auto 16px;
+  }
+}
