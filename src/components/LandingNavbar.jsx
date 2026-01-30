@@ -123,16 +123,17 @@ export default function LandingNavbar({ user, signOut }) {
 
             
 
-            <a
-              className="lv-link"
-              href="#clients"
-              onClick={(e) => {
-                e.preventDefault();
-                goOrScroll("clients");
-              }}
-            >
-              Learn
-            </a>
+           <a
+  className="lv-link"
+  href="/learn"
+  onClick={(e) => {
+    e.preventDefault();
+    window.open("/learn", "_blank", "noopener,noreferrer");
+  }}
+>
+  Learn
+</a>
+
           </div>
 
           <div className="lv-actions">

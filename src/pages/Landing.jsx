@@ -29,6 +29,9 @@ import searchIcon from "../assets/search.png"; // <-- change filename/path to yo
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const GID = "0";
 
+const HERO_MP4 ="https://s3-vizwalk-dev.flipspaces.app/uploads/Demo.mp4";
+
+
 // ✅ Use the embed endpoint (not youtu.be) with autoplay+mute+loop.
 // controls=0 hides controls, but YouTube may still show overlays.
 const VIDEO_ID = "wU2O0AD98Hw";
@@ -690,7 +693,7 @@ export default function Landing() {
   <div
     style={{
       width: "100%",
-      aspectRatio: "16 / 9",   // ✅ key line (removes black bars)
+      aspectRatio: "16 / 9",
       borderRadius: 22,
       overflow: "hidden",
       position: "relative",
@@ -698,22 +701,28 @@ export default function Landing() {
       boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
     }}
   >
-    <iframe
-      src={`https://www.youtube.com/embed/${VIDEO_ID}`}
-      title="Vizwalk demo"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowFullScreen
-      frameBorder="0"
+    <video
+      src={HERO_MP4}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="metadata"
+      controls={false}
       style={{
         position: "absolute",
         inset: 0,
         width: "100%",
         height: "100%",
+        objectFit: "cover",
         border: 0,
+        display: "block",
       }}
+      onError={(e) => console.error("Hero MP4 failed:", e)}
     />
   </div>
 </div>
+
 
         </section>
       </div>
