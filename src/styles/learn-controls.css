@@ -196,6 +196,8 @@
 }
 
 .cloc-card--hover{
+  width: 1088px;
+  height: 301px;
   border: 1px solid rgba(0,0,0,0.10);
   transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
   outline: none;
@@ -739,7 +741,7 @@
 }
 
 .learnTocTitle{
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(0,0,0,0.55);
@@ -757,7 +759,7 @@
   background: transparent;
   padding: 10px 10px;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: 12px;
   color: rgba(0,0,0,0.65);
   cursor: pointer;
 }
@@ -850,4 +852,98 @@
     left: 12px;         /* keep it near edge */
     top: 56%;           /* slightly lower so hero area looks clean */
   }
+}
+/* =======================
+   FIGMA CONTENTS (TOC) — matches Image-2
+======================= */
+
+.learnToc{
+  position: fixed;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: none;
+}
+
+@media (min-width: 1280px){
+  .learnToc{ display: block; }
+}
+
+/* Card: 209 x 258 */
+.learnTocCard{
+  width: 280px;
+  height: 340px;
+  box-sizing: border-box;
+
+  background: rgba(255,255,255,0.96);
+  border: 2px solid rgba(0,0,0,0.14);
+  border-radius: 18px;
+
+  padding: 18px 16px;
+  box-shadow: none;
+}
+
+/* Title: CONTENTS */
+.learnTocTitle{
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #111;
+}
+
+/* List spacing */
+.learnTocList{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Row button */
+.learnTocBtn{
+  width: 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 2px 4px;
+  border-radius: 999px;
+
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(0,0,0,0.80);
+
+  text-align: left;
+}
+
+.learnTocBtn:hover{
+  background: rgba(0,0,0,0.04);
+}
+
+/* Icon */
+.learnTocBtnIcon{
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: rgba(0,0,0,0.90);
+}
+
+
+.learnTocBtn.active{
+  background: transparent;
+  border: 2px solid var(--accent);
+  background: #F8EAD3;
+  color: rgba(0,0,0,0.85);
+  font-weight: 600;
 }

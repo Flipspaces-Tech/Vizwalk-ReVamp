@@ -357,15 +357,16 @@ function LearnHero() {
 
 function ContentsNav() {
   const items = useMemo(
-    () => [
-      { id: "nav-controls", label: "Navigation & Camera Controls" },
-      { id: "mouse-controls", label: "Mouse Controls" },
-      { id: "quick-actions", label: "Quick Actions" },
-      { id: "advanced-controls", label: "Advanced Controls" },
-      { id: "pro-tips", label: "Pro Tips" },
-    ],
-    []
-  );
+  () => [
+    { id: "nav-controls", label: "Navigation Controls", icon: "⌨" },
+    { id: "quick-actions", label: "Quick Actions", icon: "✈" },
+    { id: "advanced-controls", label: "Advanced Controls", icon: "⚙" },
+    { id: "mouse-controls", label: "Mouse Controls", icon: "🖱" },
+    { id: "pro-tips", label: "Pro Tips", icon: "💡" },
+  ],
+  []
+);
+
 
   const [activeId, setActiveId] = useState(items[0].id);
 
@@ -387,6 +388,7 @@ function ContentsNav() {
   }, [items]);
 
   const scrollTo = (id) => {
+    setActiveId(id);
     const el = document.getElementById(id);
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -398,16 +400,24 @@ function ContentsNav() {
         <div className="learnTocTitle">CONTENTS</div>
 
         <div className="learnTocList">
-          {items.map((it) => (
-            <button
-              key={it.id}
-              type="button"
-              className={`learnTocBtn ${activeId === it.id ? "active" : ""}`}
-              onClick={() => scrollTo(it.id)}
-            >
-              {it.label}
-            </button>
-          ))}
+         {items.map((it) => {
+  const isActive = activeId === it.id;
+
+  return (
+    <button
+  key={it.id}
+  type="button"
+  className={`learnTocBtn ${activeId === it.id ? "active" : ""}`}
+  onClick={() => scrollTo(it.id)}
+>
+  <span className="learnTocBtnIcon">{it.icon}</span>
+  <span className="learnTocBtnText">{it.label}</span>
+</button>
+
+
+  );
+})}
+
         </div>
       </div>
     </aside>
