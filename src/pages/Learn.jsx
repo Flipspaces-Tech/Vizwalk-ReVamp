@@ -10,7 +10,7 @@ export default function Learn() {
   return (
     <div style={{ minHeight: "100vh", background: "#f6f6f4" }}>
       <LandingNavbar user={user} signOut={signOut} />
-      <div style={{ width: "min(1180px, 92vw)", margin: "0 auto", padding: "44px 0 72px" }}>
+      <div style={{ width: "min(1180px, 92vw)", margin: "0 auto"}}>
         <LearnControls />
       </div>
     </div>

@@ -355,9 +355,6 @@ function LearnHero() {
   );
 }
 
-
-
-
 function ContentsNav() {
   const items = useMemo(
     () => [
