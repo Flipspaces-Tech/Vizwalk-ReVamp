@@ -28,6 +28,7 @@
   background: #f6f6f4;
   min-height: 100vh;
   /* padding: 34px 0 70px; */
+  padding-bottom: 74px;
 }
 
 /* IMPORTANT: no max-width centered canvas here */
@@ -174,7 +175,7 @@
 }
 
 .navC-headTitle{
-  font-size: 15px;
+  font-size: 24px;
   font-weight: 900;
   letter-spacing: -0.2px;
   color: var(--text);
@@ -217,15 +218,13 @@
 }
 
 .cloc-topLabel{
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.08em;
-  font-weight: 700;
   text-transform: uppercase;
   margin-bottom: 10px;
 }
 .cloc-altLabel{
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 14px;
   margin-bottom: 10px;
 }
 .cloc-center{ margin-bottom: 14px; }
@@ -247,9 +246,8 @@
 }
 
 .cloc-miniLabel{
-  font-size: 10px;
+  font-size: 14px;
   letter-spacing: 0.06em;
-  font-weight: 600;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -314,8 +312,7 @@
 }
 
 .cloc-rowTitle{
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
   color: var(--text);
 }
 
@@ -364,7 +361,7 @@
 }
 
 .mcS-headTitle{
-  font-size: 14px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--text);
@@ -411,7 +408,7 @@
 }
 
 .mcS-title{
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 800;
   color: var(--text);
   margin-top: 2px;
@@ -442,7 +439,7 @@
 .qa-wrap{ width: 100%; }
 
 .qa-head{
-  font-size: 14px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--text);
@@ -462,6 +459,8 @@
 }
 
 .qa-card{
+  width: 260px;
+  height: 162px;
   background: var(--card-bg);
   border: 1px solid rgba(0,0,0,0.10);
   border-radius: 10px;
@@ -483,11 +482,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 10px;
+  margin-bottom: 30px;
 }
 
 .qa-title{
-  font-size: 13px;
+  font-size: 16.24px;
   font-weight: 700;
   color: var(--text);
 }
@@ -496,20 +495,19 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 52px;
+  height: 48px;
+  border-radius: 14px;
   background: var(--accentBg);
   border: 2px solid var(--accent);
   color: var(--accent);
   font-weight: 800;
-  font-size: 14px;
-  line-height: 1;
+  font-size: 20px;
   user-select: none;
 }
 
 .qa-desc{
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.35;
   color: var(--muted-70);
 }
@@ -541,7 +539,7 @@
 }
 
 .ac-headTitle{
-  font-size: 14px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--text);
@@ -567,7 +565,7 @@
 }
 
 .ac-th .ac-td{
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 800;
   color: #111;
   padding: 14px 16px;
@@ -575,7 +573,7 @@
 
 .ac-tr:not(.ac-th) .ac-td{
   padding: 16px 16px;
-  font-size: 13px;
+  font-size: 16px;
   color: rgba(0,0,0,0.78);
   border-bottom: 1px solid rgba(0,0,0,0.06);
 }
@@ -586,7 +584,7 @@
 .ac-tr:last-child .ac-td{ border-bottom: none; }
 
 .ac-action{
-  font-weight: 700;
+  font-weight: 500;
   color: #111;
 }
 
@@ -661,7 +659,7 @@
 }
 
 .pt-headTitle{
-  font-size: 14px;
+  font-size: 24px;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--text);
@@ -793,7 +791,7 @@
 }
 
 .learnHeroH1{
-  font-size: 44px;
+  font-size: 48px;
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -803,9 +801,9 @@
 
 .learnHeroSub{
   margin-top: 10px;
-  max-width: 720px;
+  max-width: 590px;
   color: rgba(0,0,0,0.55);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.6;
 }
 
