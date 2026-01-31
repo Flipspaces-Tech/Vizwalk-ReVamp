@@ -1,3 +1,6 @@
+/* =======================
+   THEME TOKENS (single source)
+======================= */
 :root{
   --accent: #f59a00;
   --accentBg: #fbf3df;
@@ -8,12 +11,178 @@
 
   --line: rgba(0,0,0,0.12);
   --card-bg: #fff;
+
+  /* advanced controls palette */
+  --ac-card: #f4f3f0;     /* warm off-white container */
+  --ac-head: #f7e7c6;     /* header beige */
+  --ac-zebra-odd: #f6f5f2;
+  --ac-zebra-even: #ffffff;
+}
+
+/* =======================
+   LEARN PAGE LAYOUT (A/B placement)
+   ✅ sidebar goes to B (left space)
+   ✅ main goes to A (content area)
+======================= */
+.learnPage{
+  background: #f6f6f4;
+  min-height: 100vh;
+  /* padding: 34px 0 70px; */
+}
+
+/* IMPORTANT: no max-width centered canvas here */
+.learnLayout{
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 48px; /* adjust: 24px if you want tighter edges */
+
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr); /* sidebar | main */
+  gap: 28px;
+  align-items: start;
+}
+
+.learnSide{
+  position: sticky;
+  top: 104px; /* tweak if navbar height differs */
+  align-self: start;
+}
+
+.learnMain{
+  min-width: 0;
+}
+
+.learnGap{
+  height: 28px;
+}
+
+/* mobile */
+@media (max-width: 980px){
+  .learnLayout{
+    grid-template-columns: 1fr;
+    /* padding: 0 18px; */
+  }
+  .learnSide{
+    position: relative;
+    top: 0;
+  }
+}
+
+/* =======================
+   CONTENTS / TOC
+======================= */
+.tocCard{
+  background: var(--card-bg);
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
+  width: 100%;
+}
+
+.tocTitle{
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--muted-72);
+  margin: 4px 6px 10px;
+}
+
+.tocList{
+  display: grid;
+  gap: 8px;
+}
+
+.tocItem{
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 10px;
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.78);
+
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.tocItem:hover{
+  background: rgba(0,0,0,0.04);
+  transform: translateY(-1px);
+}
+
+.tocIcon{
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  background: rgba(0,0,0,0.04);
+}
+
+.tocItem--active{
+  background: var(--accentBg);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
+  color: var(--text);
+}
+
+.tocItem--active .tocIcon{
+  background: transparent;
+}
+
+@media (max-width: 980px){
+  .tocCard{
+    max-width: 280px;
+    margin: 0 auto 16px;
+  }
+}
+
+/* =======================
+   NAV HEADER (navC-*)
+======================= */
+.navC-wrap{ width: 100%; }
+
+.navC-head{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.navC-headIcon{
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: var(--accentBg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  font-size: 18px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
+}
+
+.navC-headTitle{
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  color: var(--text);
 }
 
 /* =======================
    KEYBOARD (cloc-*)
 ======================= */
-
 .cloc-card{
   background: var(--card-bg);
   border-radius: 18px;
@@ -23,6 +192,22 @@
   grid-template-columns: 1fr 1fr 1.35fr;
   gap: 36px;
   align-items: center;
+}
+
+.cloc-card--hover{
+  border: 1px solid rgba(0,0,0,0.10);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  outline: none;
+}
+.cloc-card--hover:hover,
+.cloc-card--hover:focus-visible{
+  transform: translateY(-2px);
+  border-color: rgba(0,0,0,0.16);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.10);
+}
+.cloc-card--hover:focus-visible{
+  outline: 2px solid rgba(245,154,0,0.35);
+  outline-offset: 3px;
 }
 
 .cloc-left, .cloc-mid{
@@ -43,7 +228,6 @@
   font-weight: 500;
   margin-bottom: 10px;
 }
-
 .cloc-center{ margin-bottom: 14px; }
 
 .cloc-bottom3{
@@ -84,6 +268,15 @@
   font-size: 18px;
   line-height: 1;
   user-select: none;
+
+  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+.cloc-key:hover,
+.cloc-key:focus-visible{
+  transform: translateY(-2px);
+  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+  background: #fff;
+  border-color: rgba(245,154,0,0.95);
 }
 
 .cloc-key--sm{
@@ -104,10 +297,20 @@
   align-items: center;
   padding: 14px 0;
   border-top: 2px solid var(--line);
+
+  transition: background 140ms ease;
+  border-radius: 10px;
 }
 .cloc-row:first-child{
   border-top: none;
   padding-top: 0;
+}
+.cloc-row:hover{
+  background: rgba(0,0,0,0.03);
+}
+.cloc-row:hover .cloc-key--sm{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
 }
 
 .cloc-rowTitle{
@@ -121,7 +324,6 @@
   align-items: center;
   gap: 10px;
 }
-
 .cloc-or{
   font-size: 13px;
   font-weight: 500;
@@ -138,7 +340,6 @@
 /* =======================
    MOUSE (mcS-*)
 ======================= */
-
 .mcS-wrap{ width: 100%; }
 
 .mcS-head{
@@ -174,7 +375,6 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 22px;
 }
-
 @media (max-width: 980px){
   .mcS-grid{ grid-template-columns: 1fr; }
 }
@@ -224,23 +424,21 @@
   color: var(--muted-70);
 }
 
-/* hover */
 .mcS-card:hover,
 .mcS-card:focus-visible{
   transform: translateY(-2px);
   border-color: rgba(0,0,0,0.16);
   box-shadow: 0 10px 26px rgba(0,0,0,0.10);
 }
-
 .mcS-card:hover .mcS-iconCircle,
 .mcS-card:focus-visible .mcS-iconCircle{
   transform: translateY(-1px);
   box-shadow: 0 12px 30px rgba(0,0,0,0.10);
 }
+
 /* =======================
    QUICK ACTIONS (qa-*)
 ======================= */
-
 .qa-wrap{ width: 100%; }
 
 .qa-head{
@@ -256,7 +454,6 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 18px;
 }
-
 @media (max-width: 1100px){
   .qa-grid{ grid-template-columns: repeat(2, 1fr); }
 }
@@ -316,10 +513,10 @@
   line-height: 1.35;
   color: var(--muted-70);
 }
-/* =======================
-   ADVANCED CONTROLS (ac-*)
-======================= */
 
+/* =======================
+   ADVANCED CONTROLS (ac-*) — Figma match
+======================= */
 .ac-wrap{ width: 100%; }
 
 .ac-head{
@@ -350,50 +547,53 @@
   color: var(--text);
 }
 
-/* table container */
 .ac-table{
-  background: var(--card-bg);
+  background: var(--ac-card);
   border: 1px solid rgba(0,0,0,0.10);
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 0 rgba(0,0,0,0.03);
 }
 
-/* rows */
 .ac-tr{
   display: grid;
-  grid-template-columns: 1fr 1.1fr 2fr; /* Action | Keys | Description */
+  grid-template-columns: 1.1fr 1fr 2.2fr;
   align-items: center;
 }
 
 .ac-th{
-  background: #f7e7c7; /* beige header like screenshot */
-  font-weight: 800;
+  background: var(--ac-head);
+  border-bottom: 1px solid rgba(0,0,0,0.10);
 }
 
-.ac-td{
-  padding: 12px 16px;
+.ac-th .ac-td{
   font-size: 13px;
-  color: var(--text);
+  font-weight: 800;
+  color: #111;
+  padding: 14px 16px;
 }
 
-/* zebra like screenshot */
-.ac-tr:not(.ac-th):nth-child(odd){
-  background: #f3f3f1;
-}
-.ac-tr:not(.ac-th):nth-child(even){
-  background: #efefed;
+.ac-tr:not(.ac-th) .ac-td{
+  padding: 16px 16px;
+  font-size: 13px;
+  color: rgba(0,0,0,0.78);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 
-/* text weights */
-.ac-action{ font-weight: 600; }
-.ac-desc{ color: rgba(0,0,0,0.68); font-weight: 500; }
+.ac-tr:not(.ac-th):nth-child(odd){ background: var(--ac-zebra-odd); }
+.ac-tr:not(.ac-th):nth-child(even){ background: var(--ac-zebra-even); }
 
-/* keys group */
+.ac-tr:last-child .ac-td{ border-bottom: none; }
+
+.ac-action{
+  font-weight: 700;
+  color: #111;
+}
+
 .ac-keys{
   display: inline-flex;
-  align-items: center;
   gap: 10px;
+  align-items: center;
   flex-wrap: wrap;
 }
 
@@ -404,30 +604,40 @@
   height: 28px;
   padding: 0 10px;
   border-radius: 6px;
-  background: var(--accentBg);
   border: 1.8px solid var(--accent);
+  background: var(--accentBg);
   color: var(--accent);
   font-weight: 800;
   font-size: 12px;
   line-height: 1;
-  user-select: none;
   min-width: 34px;
+  transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
-/* mobile */
-@media (max-width: 860px){
-  .ac-tr{
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-  .ac-th{ display: none; }
-  .ac-td{ padding: 10px 14px; }
-  .ac-td::before{ display: none; }
+.ac-tr:not(.ac-th):hover .ac-key{
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
 }
+
+@media (max-width: 900px){
+  .ac-tr{ grid-template-columns: 1fr; gap: 10px; }
+  .ac-th{ display: none; }
+  .ac-tr:not(.ac-th) .ac-td{
+    border-bottom: none;
+    padding: 12px 14px;
+  }
+  .ac-table{ padding: 8px; }
+  .ac-tr:not(.ac-th){
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+}
+
 /* =======================
    PRO TIPS (pt-*)
 ======================= */
-
 .pt-wrap{ width: 100%; }
 
 .pt-head{
@@ -457,7 +667,6 @@
   color: var(--text);
 }
 
-/* main card */
 .pt-card{
   background: var(--card-bg);
   border: 1px solid rgba(0,0,0,0.10);
@@ -466,7 +675,6 @@
   box-shadow: 0 2px 0 rgba(0,0,0,0.03);
 }
 
-/* rows */
 .pt-row{
   display: grid;
   grid-template-columns: 26px 1fr;
@@ -474,12 +682,10 @@
   align-items: start;
   padding: 10px 0;
 }
-
 .pt-row:not(:last-child){
   border-bottom: 1px solid rgba(0,0,0,0.08);
 }
 
-/* number badge */
 .pt-num{
   width: 22px;
   height: 22px;
@@ -494,430 +700,156 @@
   line-height: 1;
 }
 
-/* text */
 .pt-text{
   font-size: 13px;
   line-height: 1.45;
   color: rgba(0,0,0,0.78);
   font-weight: 500;
 }
-/* =======================
-   LEARN LAYOUT + CONTENTS (toc)
-======================= */
-
-.learnLayout{
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 26px;
-  align-items: start;
+/* ===== SIDEBAR (CONTENTS) ===== */
+.learnToc{
+  position: fixed;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: none;
 }
 
-.learnMain{
-  min-width: 0;
+/* show only on desktop like figma */
+@media (min-width: 1280px){
+  .learnToc{ display:block; }
+
+  /* IMPORTANT: give main content just enough room,
+     but NOT a huge empty grey band */
+  .learnMain{
+    max-width: 1120px;
+    margin: 0 auto;
+    /* padding-left: 280px;  space for toc */
+    padding-right: 22px;
+  }
 }
 
-.learnGap{ height: 26px; }
-
-/* sticky sidebar */
-.learnSide{
-  position: sticky;
-  top: 92px; /* adjust based on navbar height */
-  align-self: start;
+/* toc card */
+.learnTocCard{
+  width: 240px;
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
 }
 
-/* TOC card */
-.tocCard{
-  background: var(--card-bg);
-  border: 1px solid rgba(0,0,0,0.10);
-  border-radius: 12px;
-  padding: 12px;
-  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
-  width: 100%;
-}
-
-.tocTitle{
-  font-size: 12px;
+.learnTocTitle{
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.55);
   font-weight: 800;
-  letter-spacing: 0.06em;
-  color: rgba(0,0,0,0.72);
-  margin: 4px 6px 10px;
+  margin-bottom: 10px;
 }
 
-.tocList{
-  display: grid;
-  gap: 8px;
-}
+/* buttons */
+.learnTocList{ display:flex; flex-direction:column; gap:6px; }
 
-.tocItem{
+.learnTocBtn{
   width: 100%;
-  border: none;
-  background: transparent;
   text-align: left;
-  cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
+  border: 0;
+  background: transparent;
   padding: 10px 10px;
   border-radius: 10px;
-
   font-size: 13px;
-  font-weight: 700;
-  color: rgba(0,0,0,0.78);
-
-  transition: background 160ms ease, transform 160ms ease;
+  color: rgba(0,0,0,0.65);
+  cursor: pointer;
 }
 
-.tocItem:hover{
-  background: rgba(0,0,0,0.04);
-  transform: translateY(-1px);
+.learnTocBtn:hover{
+  background: rgba(0,0,0,0.05);
 }
 
-.tocIcon{
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  background: rgba(0,0,0,0.04);
-}
-
-.tocItem--active{
-  background: var(--accentBg);
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
-  color: var(--text);
-}
-
-.tocItem--active .tocIcon{
-  background: transparent;
-}
-
-/* responsive: on mobile show the TOC centered and non-sticky */
-@media (max-width: 980px){
-  .learnLayout{
-    grid-template-columns: 1fr;
-  }
-  .learnSide{
-    position: relative;
-    top: 0;
-  }
-  .tocCard{
-    max-width: 280px; /* like your screenshot */
-    margin: 0 auto 16px;
-  }
-}
-/* =======================
-   NAVIGATION HEADING (navC-*)
-======================= */
-
-.navC-wrap{ width: 100%; }
-
-.navC-head{
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0 0 14px;
-}
-
-.navC-headIcon{
-  width: 44px;
-  height: 44px;
-  border-radius: 999px;
-  background: var(--accentBg);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent);
-  font-size: 18px;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
-}
-
-.navC-headTitle{
-  font-size: 15px;
+.learnTocBtn.active{
+  background: #f4a62a;
+  color: #102b45;
   font-weight: 900;
-  letter-spacing: -0.2px;
-  color: var(--text);
+}
+/* ===== HERO (Image1 style) ===== */
+.learnHero{
+  background: linear-gradient(180deg, #eaf3fb 0%, #f4f4f4 100%);
+  padding: 74px 0 22px;
+  width: 100vw;margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
 }
 
-/* =======================
-   Keyboard card hover (cloc)
-======================= */
-
-.cloc-card--hover{
-  border: 1px solid rgba(0,0,0,0.10);  /* match Figma card outline */
-  transition:
-    transform 160ms ease,
-    box-shadow 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease;
+.learnHeroInner{
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
-.cloc-card--hover:hover,
-.cloc-card--hover:focus-visible{
-  transform: translateY(-2px);
-  border-color: rgba(0,0,0,0.16);
-  box-shadow: 0 10px 26px rgba(0,0,0,0.10);
-}
-/* =======================
-   KEYBOARD CARD HOVERS (cloc)
-======================= */
-
-/* Whole card hover (if not already) */
-.cloc-card--hover{
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
-}
-.cloc-card--hover:hover,
-.cloc-card--hover:focus-visible{
-  transform: translateY(-2px);
-  border-color: rgba(0,0,0,0.16);
-  box-shadow: 0 10px 26px rgba(0,0,0,0.10);
+.learnHeroH1{
+  font-size: 44px;
+  margin: 0;
+  letter-spacing: -0.02em;
 }
 
-/* Keycap hover (WASD + arrows + list keys) */
-.cloc-key{
-  transition:
-    transform 140ms ease,
-    box-shadow 140ms ease,
-    background 140ms ease,
-    border-color 140ms ease;
-  cursor: default;
+.learnHeroBrand{ color: #102b45; font-weight: 900; }
+.learnHeroAccent{ color: #f4a62a; font-weight: 900; }
+
+.learnHeroSub{
+  margin-top: 10px;
+  max-width: 720px;
+  color: rgba(0,0,0,0.55);
+  font-size: 14px;
+  line-height: 1.6;
 }
 
-/* hover / focus */
-.cloc-key:hover,
-.cloc-key:focus-visible{
-  transform: translateY(-2px);
-  box-shadow: 0 10px 18px rgba(0,0,0,0.10);
-  background: #fff; /* slight pop like Figma */
-  border-color: rgba(245,154,0,0.95);
-}
-
-/* when the whole card is hovered, make keys feel slightly “alive” */
-.cloc-card--hover:hover .cloc-key{
-  box-shadow: 0 6px 14px rgba(0,0,0,0.06);
-}
-
-/* Right list row hover */
-.cloc-row{
-  transition: background 140ms ease;
-  border-radius: 10px;
-}
-
-/* hover highlight row (subtle) */
-.cloc-row:hover{
-  background: rgba(0,0,0,0.03);
-}
-
-/* Pair hover: if you hover the row, slightly lift the small keys */
-.cloc-row:hover .cloc-key--sm{
-  transform: translateY(-1px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
-}
-
-/* Accessibility: show focus for keyboard navigation */
-.cloc-card--hover:focus-visible{
-  outline: 2px solid rgba(245,154,0,0.35);
-  outline-offset: 3px;
-}
-/* =======================
-   ADVANCED CONTROLS (DIV TABLE) — Figma match
-======================= */
-
-:root{
-  --ac-card: #f4f3f0;          /* warm off-white container */
-  --ac-head: #f7e7c6;          /* header beige */
-  --ac-zebra-odd: #f6f5f2;     /* white row */
-  --ac-zebra-even: #ffffff;    /* very light warm grey */
-  /* --ac-zebra-odd: #ffffff;  
-  --ac-zebra-even: #f6f5f2;  */
-  --ac-line: rgba(0,0,0,0.08);
-}
-
-/* section wrapper (optional spacing) */
-.ac-wrap{ width: 100%; }
-
-/* the table card */
-.ac-table{
-  background: var(--ac-card);
-  border: 1px solid rgba(0,0,0,0.10);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
-}
-
-/* rows */
-.ac-tr{
-  display: grid;
-  grid-template-columns: 1.1fr 1fr 2.2fr; /* Action / Keys / Description */
-  align-items: center;
-}
-
-/* header row */
-.ac-th{
-  background: var(--ac-head);
-  border-bottom: 1px solid rgba(0,0,0,0.10);
-}
-
-.ac-th .ac-td{
-  font-size: 13px;
-  font-weight: 800;
-  color: #111;
-  padding: 14px 16px;
-}
-
-/* body cells */
-.ac-tr:not(.ac-th) .ac-td{
-  padding: 16px 16px;
-  font-size: 13px;
-  color: rgba(0,0,0,0.78);
-  border-bottom: 1px solid rgba(0,0,0,0.06); /* subtle row separators */
-}
-
-/* zebra striping like figma */
-.ac-tr:not(.ac-th):nth-child(odd){
-  background: var(--ac-zebra-odd);
-}
-.ac-tr:not(.ac-th):nth-child(even){
-  background: var(--ac-zebra-even);
-}
-
-/* remove last divider */
-.ac-tr:last-child .ac-td{
-  border-bottom: none;
-}
-
-/* Action column style */
-.ac-action{
-  font-weight: 700;
-  color: #111;
-}
-
-/* Keys group */
-.ac-keys{
-  display: inline-flex;
+.learnHeroActions{
+  display: flex;
   gap: 10px;
   align-items: center;
 }
 
-/* keycap style */
-.ac-key{
+.learnHeroBtnOutline,
+.learnHeroBtnPrimary{
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.14);
+  background: #fff;
+}
+
+.learnHeroBtnPrimary{
+  background: #f4a62a;
+  border-color: #f4a62a;
+  color: #102b45;
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  height: 28px;
-  padding: 0 10px;
-  border-radius: 6px;
-  border: 1.8px solid var(--accent);
-  background: var(--accentBg);
-  color: var(--accent);
-  font-weight: 800;
-  font-size: 12px;
-  line-height: 1;
-  transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
-/* hover like other cards */
-/* .ac-tr:not(.ac-th):hover{
-  background: rgba(255,255,255,0.92);
-} */
+.learnHeroBtnPrimary:hover{ filter: brightness(0.97); }
 
-.ac-tr:not(.ac-th):hover .ac-key{
-  transform: translateY(-1px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
-}
 
-/* Responsive: stack nicely */
-@media (max-width: 900px){
-  .ac-tr{
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .ac-th{ display: none; }
-
-  .ac-tr:not(.ac-th) .ac-td{
-    border-bottom: none;
-    padding: 12px 14px;
-  }
-
-  .ac-table{
-    padding: 8px;
-  }
-
-  .ac-tr:not(.ac-th){
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 10px;
-  }
-}
-/* =======================
-   LEARN PAGE CANVAS (Figma placement)
-======================= */
-
-/* full page bg like figma */
-.learnPage{
-  background: #f6f6f4;
-  min-height: 100vh;
-}
-
-/* centered canvas that creates the left blank gutter */
-.learnShell{
-  width: min(1180px, 92vw);
-  margin: 0 auto;
-  padding: 34px 0 70px;
-}
-
-/* grid inside the canvas */
-.learnLayout{
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 28px;
-  align-items: start;
-}
-
-/* keep sidebar aligned with first card top */
-.learnSide{
-  position: sticky;
-  top: 104px; /* adjust if navbar height differs */
-  align-self: start;
-}
-
-/* main column should not stretch too wide */
+/* ===== YOUR UPDATED MAIN (keep centered) ===== */
 .learnMain{
-  min-width: 0;
+  max-width: 1120px;
+  margin: 0 auto;
+
 }
 
-/* spacing between sections (matches figma rhythm) */
-.learnGap{
-  height: 28px;
-}
-
-/* TOC card in figma is slightly “raised” and sits on the grey bg */
-.tocCard{
-  background: #fff;
-  border: 1px solid rgba(0,0,0,0.10);
-  border-radius: 12px;
-  box-shadow: 0 2px 0 rgba(0,0,0,0.03);
-}
-
-/* mobile */
-@media (max-width: 980px){
-  .learnShell{
-    width: min(720px, 92vw);
-  }
-  .learnLayout{
-    grid-template-columns: 1fr;
-  }
-  .learnSide{
-    position: relative;
-    top: 0;
-  }
-  .tocCard{
-    max-width: 280px;
-    margin: 0 auto 16px;
+/* ===== TOC: don’t overlap hero/content when no left padding ===== */
+@media (min-width: 1280px){
+  .learnToc{
+    display: block;
+    left: 12px;         /* keep it near edge */
+    top: 56%;           /* slightly lower so hero area looks clean */
   }
 }

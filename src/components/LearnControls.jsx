@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 const IconMonitor = (props) => (
   <svg
@@ -317,14 +317,77 @@ export function ProTipsSection() {
   );
 }
 
+function LearnHero() {
+  const handleDownloadPDF = () => window.print();
+
+  return (
+    <section className="learnHero">
+      <div className="learnHeroInner">
+        
+        <div>
+          <h1 className="learnHeroH1">
+            <span className="learnHeroBrand">VIZWALK</span>{" "}
+            <span className="learnHeroAccent">KeyBind Guide</span>
+          </h1>
+
+          <p className="learnHeroSub">
+            Master Vizwalk with these keyboard shortcuts and controls for faster,
+            more efficient design workflows.
+          </p>
+        </div>
+
+        <div className="learnHeroActions">
+          <button className="learnHeroBtnOutline" onClick={handleDownloadPDF} type="button">
+            Download PDF
+          </button>
+
+          <a
+            className="learnHeroBtnPrimary"
+            href="https://youtu.be/mszU9D8S1NE"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Video Tutorial
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+
+
 function ContentsNav() {
-  const items = [
-    { id: "nav-controls", label: "Navigation Controls", icon: "⌂" },
-    { id: "quick-actions", label: "Quick Actions", icon: "⚡" },
-    { id: "advanced-controls", label: "Advanced Controls", icon: "⚙" },
-    { id: "mouse-controls", label: "Mouse Controls", icon: "🖱" },
-    { id: "pro-tips", label: "Pro Tips", icon: "💡" },
-  ];
+  const items = useMemo(
+    () => [
+      { id: "nav-controls", label: "Navigation & Camera Controls" },
+      { id: "mouse-controls", label: "Mouse Controls" },
+      { id: "quick-actions", label: "Quick Actions" },
+      { id: "advanced-controls", label: "Advanced Controls" },
+      { id: "pro-tips", label: "Pro Tips" },
+    ],
+    []
+  );
+
+  const [activeId, setActiveId] = useState(items[0].id);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY + 220; // same behavior as figma-like sidebar
+      for (let i = items.length - 1; i >= 0; i--) {
+        const el = document.getElementById(items[i].id);
+        if (el && el.offsetTop <= y) {
+          setActiveId(items[i].id);
+          break;
+        }
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [items]);
 
   const scrollTo = (id) => {
     const el = document.getElementById(id);
@@ -333,70 +396,68 @@ function ContentsNav() {
   };
 
   return (
-    <div className="tocCard">
-      <div className="tocTitle">CONTENTS</div>
+    <aside className="learnToc">
+      <div className="learnTocCard">
+        <div className="learnTocTitle">CONTENTS</div>
 
-      <div className="tocList">
-        {items.map((it, idx) => (
-          <button
-            key={it.id}
-            type="button"
-            className={`tocItem ${idx === 0 ? "tocItem--active" : ""}`}
-            onClick={() => scrollTo(it.id)}
-          >
-            <span className="tocIcon">{it.icon}</span>
-            <span className="tocLabel">{it.label}</span>
-          </button>
-        ))}
+        <div className="learnTocList">
+          {items.map((it) => (
+            <button
+              key={it.id}
+              type="button"
+              className={`learnTocBtn ${activeId === it.id ? "active" : ""}`}
+              onClick={() => scrollTo(it.id)}
+            >
+              {it.label}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+    </aside>
   );
 }
-
 
 export default function LearnControls() {
   return (
     <div className="learnPage">
+      <LearnHero />
       <div className="learnShell">
-        <div className="learnLayout">
-          <aside className="learnSide">
-            <ContentsNav />
-          </aside>
+        <ContentsNav />
 
-          <main className="learnMain">
-            <section id="nav-controls">
-              <ControlsLearnOneCard />
-            </section>
+        <main className="learnMain">
+          <section id="nav-controls">
+            <ControlsLearnOneCard />
+          </section>
 
-            <div className="learnGap" />
+          <div className="learnGap" />
 
-            <section id="mouse-controls">
-              <MouseControlsSection />
-            </section>
+          <section id="mouse-controls">
+            <MouseControlsSection />
+          </section>
 
-            <div className="learnGap" />
+          <div className="learnGap" />
 
-            <section id="quick-actions">
-              <QuickActionsSection />
-            </section>
+          <section id="quick-actions">
+            <QuickActionsSection />
+          </section>
 
-            <div className="learnGap" />
+          <div className="learnGap" />
 
-            <section id="advanced-controls">
-              <AdvancedControlsSection />
-            </section>
+          <section id="advanced-controls">
+            <AdvancedControlsSection />
+          </section>
 
-            <div className="learnGap" />
+          <div className="learnGap" />
 
-            <section id="pro-tips">
-              <ProTipsSection />
-            </section>
-          </main>
-        </div>
+          <section id="pro-tips">
+            <ProTipsSection />
+          </section>
+        </main>
       </div>
     </div>
   );
 }
+
 
 
 
