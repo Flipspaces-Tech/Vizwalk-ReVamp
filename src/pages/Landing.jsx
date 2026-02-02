@@ -13,6 +13,9 @@ import "../styles/lovable-navbar.css";
 import "../styles/testimonials-marquee.css";
 import searchIcon from "../assets/search.png"; // <-- change filename/path to yours
 
+import "../pages/Landing.css";
+
+
 
 
 
@@ -233,7 +236,8 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
   const hasVizdom = Boolean(String(item.vizdomId || "").trim());
 
   return (
-    <div style={sx.fpCard}>
+    <div className="fpCard">
+
       <div
         style={sx.fpMedia}
         onMouseEnter={() => setHover(true)}
@@ -684,21 +688,22 @@ export default function Landing() {
   className="lv-heroRight"
   style={{
     flex: "0 0 560px",
-    maxWidth: 560,
-    width: "100%",
+    
+    // width: "100%",
     display: "flex",
-    justifyContent: "flex-end",
+    justifyContent: "center",
   }}
 >
   <div
     style={{
-      width: "100%",
-      aspectRatio: "16 / 9",
+      width: "685px",
+  height: "404px",
+      // aspectRatio: "16 / 9",
       borderRadius: 22,
       overflow: "hidden",
       position: "relative",
       background: "#000",
-      boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
+      // boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
     }}
   >
     <video
@@ -728,98 +733,92 @@ export default function Landing() {
       </div>
 
       {/* Featured Projects */}
-      <section
-        id="featured-projects"
-        style={{
-          background: "#FFFFFF",
-          padding: "56px 0 80px",
-        }}
-      >
-        <div style={sx.container}>
-          <div style={sx.fpHeader}>
-            <div style={sx.fpHeaderLeft}>
-              <div style={sx.fpTitleRow}>
-                <div style={sx.fpTitle}>Featured Projects</div>
+      <section id="featured-projects" className="fpSection">
+  <div className="fpContainer">
+    <div className="fpHeader">
+      <div className="fpHeaderLeft">
+        <div className="fpTitleRow">
+          <div className="fpTitle">Featured Projects</div>
 
-                <div style={sx.serverBadge}>
-                  <img
-                    src={selectedServer === "india" ? indiaIcon : usIcon}
-                    alt=""
-                    style={sx.serverBadgeIcon}
-                  />
-                  <span style={sx.serverBadgeText}>
-                    {selectedServer === "india" ? "India Server" : "US Server"}
-                  </span>
-                </div>
-              </div>
-
-              <div style={sx.fpSub}>
-                Explore our projects showcasing tech-enabled interior design expertise
-              </div>
-            </div>
+          <div className="fpServerBadge">
+            <img
+              src={selectedServer === "india" ? indiaIcon : usIcon}
+              alt=""
+              className="fpServerBadgeIcon"
+            />
+            <span className="fpServerBadgeText">
+              {selectedServer === "india" ? "India Server" : "US Server"}
+            </span>
           </div>
-
-          <div style={sx.fpControls}>
-            <div className="dv-chips" style={{ margin: 0 }}>
-              {typeOptions.map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  className={`dv-chip ${t === activeCategory2 ? "dv-chip--active" : ""}`}
-                  onClick={() => {
-                    setActiveCategory2(t);
-                    setShowAll2(false);
-                  }}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-
-            <div style={sx.fpSearchWrap}>
-              <img
-                src={searchIcon}
-                alt="Search"
-                style={sx.fpSearchIconImg}
-                draggable={false}
-              />
-              <input
-                value={searchQuery2}
-                onChange={(e) => setSearchQuery2(e.target.value)}
-                placeholder="Search Projects.."
-                style={sx.fpSearchInput}
-              />
-            </div>
-
-          </div>
-
-          <div style={sx.fpGrid}>
-            {(showAll2 ? filtered : filtered.slice(0, 6)).map((item, idx) => (
-              <FeaturedCard
-                key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
-                item={item}
-                onOpenScreenshotGallery={() => handleOpenScreenshotGallery(item)}
-                onOpenVizdom={() => handleOpenVizdom(item)}
-                onOpenVizwalk={() => handleOpenVizwalk(item)}
-              />
-            ))}
-          </div>
-
-          {filtered.length === 0 && (
-            <div style={{ textAlign: "center", padding: "24px 0", opacity: 0.75, fontWeight: 700 }}>
-              No projects found matching your criteria.
-            </div>
-          )}
-
-          {!showAll2 && filtered.length > 6 && (
-            <div style={sx.fpBottom}>
-              <button type="button" style={sx.fpViewAllBottom} onClick={() => setShowAll2(true)}>
-                View All Projects →
-              </button>
-            </div>
-          )}
         </div>
-      </section>
+
+        <div className="fpSub">
+          Explore our projects showcasing tech-enabled interior design expertise
+        </div>
+      </div>
+    </div>
+
+    <div className="fpControls">
+      <div className="dv-chips fpChips">
+        {typeOptions.map((t) => (
+          <button
+            key={t}
+            type="button"
+            className={`dv-chip ${t === activeCategory2 ? "dv-chip--active" : ""}`}
+            onClick={() => {
+              setActiveCategory2(t);
+              setShowAll2(false);
+            }}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+
+      <div className="fpSearchWrap">
+        <img
+          src={searchIcon}
+          alt="Search"
+          className="fpSearchIconImg"
+          draggable={false}
+        />
+        <input
+          value={searchQuery2}
+          onChange={(e) => setSearchQuery2(e.target.value)}
+          placeholder="Search Projects.."
+          className="fpSearchInput"
+        />
+      </div>
+    </div>
+
+    <div className="fpGrid">
+      {(showAll2 ? filtered : filtered.slice(0, 6)).map((item, idx) => (
+        <FeaturedCard
+          key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
+          item={item}
+          onOpenScreenshotGallery={() => handleOpenScreenshotGallery(item)}
+          onOpenVizdom={() => handleOpenVizdom(item)}
+          onOpenVizwalk={() => handleOpenVizwalk(item)}
+        />
+      ))}
+    </div>
+
+    {filtered.length === 0 && (
+      <div className="fpEmpty">
+        No projects found matching your criteria.
+      </div>
+    )}
+
+    {!showAll2 && filtered.length > 6 && (
+      <div className="fpBottom">
+        <button type="button" className="fpViewAllBottom" onClick={() => setShowAll2(true)}>
+          View All Projects →
+        </button>
+      </div>
+    )}
+  </div>
+</section>
+
 
       <TestimonialsOnly />
       <FooterFullBleed />
@@ -893,6 +892,7 @@ const sx = {
     padding: "0 14px",
     width: 260,
     flex: "0 0 auto",
+    
   },
 
   fpSearchIcon: { opacity: 0.65, fontSize: 14 },
@@ -905,6 +905,7 @@ const sx = {
     fontSize: 13,
     width: "100%",
     fontFamily: "var(--font-sans)",
+    
   },
 
   fpGrid: {
@@ -915,6 +916,8 @@ const sx = {
   },
 
   fpCard: {
+    width: 437,
+    height:420,
     background: "#F1F0EA",
     border: "1px solid rgba(0,0,0,0.10)",
     borderRadius: 18,
@@ -925,8 +928,8 @@ const sx = {
   fpMedia: { position: "relative", cursor: "pointer" },
 
   fpImg: {
-    width: "100%",
-    height: 255,
+    width: 437,
+    height: 272,
     objectFit: "cover",
     display: "block",
   },
@@ -954,11 +957,11 @@ const sx = {
     cursor: "pointer",
   },
 
-  fpBody: { padding: 14, background: "#F1F0EA" },
+  fpBody: { padding:14, background: "#F1F0EA" },
 
   fpName: { fontSize: 20, fontWeight: 900, fontFamily: "var(--font-heading)" },
 
-  fpCatRow: { marginTop: 8 },
+  fpCatRow: { marginTop: 2 },
 
   fpCatPill: {
     display: "inline-block",
@@ -973,14 +976,14 @@ const sx = {
   },
 
   fpArea: {
-    marginTop: 8,
+    marginTop: 4,
     fontSize: 13,
     opacity: 0.75,
     fontFamily: "var(--font-sans)",
     fontWeight: 500,
   },
 
-  fpDivider: { marginTop: 12, height: 1, background: "rgba(0,0,0,0.08)" },
+  fpDivider: { marginTop: 2, height: 1, background: "rgba(0,0,0,0.08)" },
 
   fpRow: {
     marginTop: 12,

@@ -50,3 +50,210 @@ html, body, #root {
   background: transparent;
   cursor: default;
 }
+/* Featured Projects section */
+/* ✅ Full-width section background, centered inner container */
+.fpSection{
+  width: 100%;
+  background: #FFFFFF;
+  padding: 56px 285px 80px;
+}
+
+/* ✅ fixed container width + centered */
+.fpContainer{
+  width: 1345px;
+  margin: 0 auto;
+}
+
+
+
+
+/* header */
+.fpHeader{
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.fpHeaderLeft{
+  width: 100%;
+}
+
+.fpTitleRow{
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.fpTitle{
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: -0.6px;
+  font-family: var(--font-heading);
+}
+
+.fpSub{
+  margin-top: 5px;
+  font-size: 20px;
+  line-height: 1.6;
+  opacity: 0.72;
+  font-weight: 500;
+  font-family: var(--font-sans);
+}
+
+/* server badge */
+.fpServerBadge{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  background: rgba(255,199,2,0.22);
+  color: #a56100;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: var(--font-sans);
+  box-shadow: none;
+  border: none;
+  height: auto;
+  line-height: 1;
+}
+
+.fpServerBadgeIcon{
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+  display: block;
+}
+
+.fpServerBadgeText{
+  font-family: var(--font-sans);
+  font-weight: 800;
+  font-size: 12px;
+  color: #a56100;
+}
+
+.fpControls{
+  margin-top: 22px;
+  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: nowrap;
+}
+
+/* ✅ chips can shrink and won't push search outside */
+.fpChips{
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+
+  /* ✅ don’t clip */
+  overflow: visible;
+
+  /* ✅ don’t hard-limit height */
+  height: auto;
+
+  /* optional: keeps row neat if chips are tall */
+  align-items: center;
+}
+
+
+/* ✅ force search to stay inside container right edge */
+.fpSearchWrap{
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  border: 2px solid #EAEAE8;
+  border-radius: 999px;
+  padding: 0 14px;
+
+  width: 260px;
+  flex: 0 0 260px;
+  margin-left: auto;
+}
+
+
+.fpSearchIconImg{
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+}
+
+.fpSearchInput{
+  border: none;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+  font-size: 13px;
+  width: 100%;
+  color: #BEBCBA;
+  font-family: var(--font-sans);
+}
+.fpSearchInput::placeholder {
+  color: #BEBCBA;   /* 👈 change this */
+  opacity: 1;       /* important for Safari */
+}
+/* grid */
+.fpGrid{
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+/* empty state */
+.fpEmpty{
+  text-align: center;
+  padding: 24px 0;
+  opacity: 0.75;
+  font-weight: 700;
+}
+
+/* bottom button */
+.fpBottom{
+  display: flex;
+  justify-content: center;
+  padding: 18px 0 0;
+}
+
+.fpViewAllBottom{
+  border: 1px solid rgba(0,0,0,0.14);
+  background: rgba(255,255,255,0.9);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.fpCard {
+  background: #F1F0EA;
+  border: 1px solid rgba(0,0,0,0.10);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 14px 40px rgba(0,0,0,0.08);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* hover border */
+.fpCard:hover {
+  border-color: #FFC702; /* 👈 your highlight color */
+  box-shadow: 0 18px 50px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+/* cursor */
+.tw-cursor::after{
+  content: "|";
+  margin-left: 4px;
+  animation: twBlink 0.9s step-end infinite;
+  opacity: 0.9;
+}
+
+@keyframes twBlink {
+  50% { opacity: 0; }
+}

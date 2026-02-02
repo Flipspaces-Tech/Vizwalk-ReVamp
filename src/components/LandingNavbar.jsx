@@ -141,13 +141,17 @@ export default function LandingNavbar({ user, signOut }) {
               ⚙
             </button>
 
-            <div className="lv-userPill" title={user?.email || ""}>
-              {user?.email || "user"}
-            </div>
+            <div className="lv-logoutWrap">
+  <button type="button" className="lv-link lv-logoutLink" onClick={signOut}>
+    Logout
+  </button>
 
-            <button type="button" className="lv-logout" onClick={signOut}>
-              Logout
-            </button>
+  <div className="lv-logoutTooltip">
+    {user?.email || "user"}
+  </div>
+</div>
+
+
           </div>
 
           <button className="lv-mobileBtn" type="button" onClick={() => setOpen((v) => !v)}>
