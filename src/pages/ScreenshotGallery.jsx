@@ -549,7 +549,10 @@ export default function ScreenshotGallery() {
           {/* Hero */}
           <div style={sx.heroCard}>
   <div
-  style={sx.heroImgWrap}
+  style={{
+    ...sx.heroImgWrap,
+    ...(heroHover ? sx.heroImgWrapHover : null),
+  }}
   role="button"
   tabIndex={0}
   onClick={openVizwalk}
@@ -810,7 +813,11 @@ const sx = {
     gap: 28,
     alignItems: "start",
   },
-  leftMeta: { paddingTop: 8 },
+leftMeta: {
+  paddingTop: 8,
+},
+
+
   bigTitle: {
     fontSize: 42,
     fontWeight: 950,
@@ -841,7 +848,7 @@ const sx = {
   metaText: { fontSize: 12, fontWeight: 850, opacity: 0.75 },
 
   btnStack: {
-    marginTop: 18,
+    marginTop: 105,
     display: "flex",
     flexDirection: "column",
     gap: 12,
@@ -907,11 +914,13 @@ demoBtnHover: {
 
   /* Hero */
   heroCard: {
+    width:532,
+    height:333,
     borderRadius: 18,
     overflow: "hidden",
     border: "1px solid rgba(0,0,0,0.07)",
     background: "#fff",
-    boxShadow: "0 26px 70px rgba(0,0,0,0.14)",
+    // boxShadow: "0 26px 70px rgba(0,0,0,0.14)",
   },
   heroImgWrap: { position: "relative", cursor: "pointer"},
   heroHoverOverlay: {
@@ -926,7 +935,8 @@ demoBtnHover: {
   transition: "opacity 0.18s ease",
 },
 
-  heroImg: { width: "100%", height: 240, objectFit: "cover", display: "block" },
+  heroImg: { width:532,
+    height:333, objectFit: "cover", display: "block" },
   heroCta: {
   padding: "10px 18px",
   borderRadius: 999,
