@@ -505,7 +505,7 @@ export default function ScreenshotGallery() {
                   {version ? (
                     <>
                       <div style={sx.dot}>•</div>
-                      <div style={sx.metaText}>v{version}</div>
+                      <div style={sx.metaText}>{version}</div>
                     </>
                   ) : null}
                 </div>

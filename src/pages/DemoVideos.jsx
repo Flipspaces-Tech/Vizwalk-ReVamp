@@ -191,8 +191,11 @@ export default function DemoVideos() {
         </div>
 
         {loading ? (
-          <div className="dv-loading">Loading demo videos…</div>
-        ) : filtered.length === 0 ? (
+  <div className="dv-loadingWrap">
+    <div className="dv-throbber" aria-label="Loading" />
+  </div>
+) : filtered.length === 0 ? (
+
           <div className="dv-empty">No videos found.</div>
         ) : (
           <div className="dv-grid">

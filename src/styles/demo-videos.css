@@ -366,3 +366,32 @@
 }
 
 }
+/* Loading throbber */
+.dv-loadingWrap{
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 14px;
+  padding: 22px 16px;
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  color: #5d5d5d;
+}
+
+.dv-loadingText{
+  font-size: 13px;
+}
+
+/* clean spinner */
+.dv-throbber{
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 3px solid rgba(0,0,0,0.12);
+  border-top-color: #f2b500; /* matches your active chip */
+  animation: dvSpin 0.8s linear infinite;
+}
+
+@keyframes dvSpin{
+  to { transform: rotate(360deg); }
+}
