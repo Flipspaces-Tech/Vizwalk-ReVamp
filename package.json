@@ -28,7 +28,7 @@
     "react-scripts": "5.0.1",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
-    "streampixelsdk": "git+https://github.com/infinity-void-metaverse/Streampixel-Web-SDK.git#f0d2015f169cd1eb8f4495a6267ea6c991f1e054"
+    "streampixelsdk": "git+https://github.com/infinity-void-metaverse/Streampixel-Web-SDK.git"
   },
   "overrides": {
     "cross-spawn": "7.0.3"
