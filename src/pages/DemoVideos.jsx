@@ -13,7 +13,7 @@ const WEBAPP_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
 
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
-const TAB_NAME = "Demo Videos Data For Website";
+const TAB_NAME = "Demo Videos Page";
 
 function extractDriveFileId(url = "") {
   const s = String(url || "");
