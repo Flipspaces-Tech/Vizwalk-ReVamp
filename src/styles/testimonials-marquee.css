@@ -1,150 +1,148 @@
 /* =========================
-   Testimonials Marquee
+   Testimonials (Figma Image1)
+   1440-only / fixed look
+   Background image ONLY
    ========================= */
 
-.lv-testimonials{
-  background: #EAEAE8;          /* ✅ match Image2 */
-  padding: 72px 0;
-  overflow: hidden;
-}
 
-.lv-testimonialsHead{
-  text-align: center;
-  margin-bottom: 28px;
-}
 
-.lv-testimonialsTitle{
-  font-size: 44px;
-  font-weight: 800;
-  color: #141414;
-  margin: 0;
-}
 
-.lv-testimonialsDesc{
-  margin-top: 10px;
-  font-size: 14px;
-  color: rgba(20,20,20,0.70);
-}
-
-/* marquee wrapper */
-.lv-marquee{
+.tsSection{
+  width: 100%;
+  height: 730px;                 /* figma height */
   position: relative;
   overflow: hidden;
+  background-color: #4b4b4b;
+
+  /* ✅ bg image from assets */
+  background-image: url("../assets/Testimonial BG.png");
+  background-repeat: no-repeat;
+  background-position: center 1%;   /* adjust if needed */
+  background-size: 2000px auto;      /* adjust size to match figma */
 }
 
-/* ✅ add side padding so left/right cards are more visible */
-.lv-marqueeTrack{
+/* ✅ dim overlay to match figma contrast */
+.tsSection::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.25);   /* increase/decrease to match */
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ✅ inner content sits above bg + overlay */
+.tsInner{
+  position: relative;
+  z-index: 1;
+  width: 1520px;                 /* match your fpContainer */
+  margin: 0 auto;
+  height: 100%;
   display: flex;
-  gap: var(--gap, 18px);
-  padding: 0 110px;             /* ✅ makes edges visible */
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 10px;
+}
+
+/* Heading */
+.tsKicker{
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 0.22em;
+  color: rgba(255,255,255,0.70);
+  margin-bottom: 10px;
+}
+
+.tsTitle{
+  text-align: center;
+  color: #fff;
+  font-size: 48px;
+  font-weight: 0;
+  line-height: 1.25;
+  margin: 0 auto 40px;
+  max-width: 1440px;
+}
+
+/* Marquee viewport */
+.tsMarquee{
+  position: relative;
+  width: 100%;
+  /* overflow: hidden; */
+}
+
+/* Track (your JS must duplicate the array) */
+.tsTrack{
+  display: flex;
+  gap: 44px;
   width: max-content;
-  animation: lvMarquee var(--duration, 40s) linear infinite;
   will-change: transform;
+  animation: tsMarquee var(--ts-duration, 38s) linear infinite;
 }
 
-/* card */
-.lv-tCard{
-  width: 350px;
-  min-height: 180px;
+/* Cards */
+.tsCard{
+  width: 585px;
+  height: 227px;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.20);
+  padding: 28px 28px;
   flex: 0 0 auto;
-  background: rgba(255,255,255,0.78);
-  border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 14px;
-  padding: 18px;
-  box-shadow: 0 12px 30px rgba(0,0,0,0.06);
 }
 
-.lv-tTop{
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
+.tsName{
+  font-size: 28px;
+  color: #111;
+  font-weight: 0;
 }
 
-.lv-tAvatar{
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  background: #F9EAC4;
-  border: 2px solid rgb(251, 189, 35);
-  display: grid;
-  place-items: center;
-  font-weight: 800;
-  font-size: 12px;
-  color: #FBBD23;
+.tsRole{
+  font-size: 18px;
+  color: rgba(0,0,0,0.55);
 }
 
-.lv-tName{
-  font-weight: 800;
-  font-size: 13px;
-  color: #141414;
-  line-height: 1.1;
-}
-
-.lv-tRole{
-  margin-top: 2px;
-  font-size: 12px;
-  color: rgba(20,20,20,0.60);
-}
-
-.lv-tQuote{
-  font-size: 13px;
-  color: rgba(20,20,20,0.72);
-  line-height: 1.6;
+.tsQuote{
+  margin-top: 14px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(0,0,0,0.62);
   font-style: italic;
 }
 
-/* ✅ fades must match bg color (#EAEAE8) */
-.lv-marqueeFadeLeft,
-.lv-marqueeFadeRight{
-  pointer-events: none;
+/* Side fades */
+/* .tsFadeL,
+.tsFadeR{
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 170px;                 /* stronger fade area */
-  z-index: 10;
+  width: 210px;
+  pointer-events: none;
+  z-index: 2;
 }
 
-.lv-marqueeFadeLeft{
+.tsFadeL{
   left: 0;
-  background: linear-gradient(to right, #EAEAE8 25%, rgba(234,234,232,0) 100%);
+  background: linear-gradient(to right, #4b4b4b 10%, rgba(75,75,75,0) 100%);
 }
 
-.lv-marqueeFadeRight{
+.tsFadeR{
   right: 0;
-  background: linear-gradient(to left, #EAEAE8 25%, rgba(234,234,232,0) 100%);
-}
+  background: linear-gradient(to left, #4b4b4b 10%, rgba(75,75,75,0) 100%);
+} */
 
-@keyframes lvMarquee{
+/* Infinite loop */
+@keyframes tsMarquee{
   from { transform: translateX(0); }
-  to   { transform: translateX(-50%); } /* you’re duplicating items in JS, so -50% works */
+  to   { transform: translateX(-50%); } /* because array is duplicated in JS */
 }
 
-/* responsive */
-@media (max-width: 900px){
-  .lv-testimonials{ padding: 56px 0; }
-  .lv-testimonialsTitle{ font-size: 34px; }
-  .lv-marqueeTrack{ padding: 0 40px; }
-  .lv-marqueeFadeLeft,
-  .lv-marqueeFadeRight{ width: 90px; }
-  .lv-tCard{ width: 300px; }
+/* Pause on hover */
+/* .tsMarquee:hover .tsTrack{
+  animation-play-state: paused;
+} */
+.tsTitle{
+  font-weight: 100 !important;
+  -webkit-text-stroke: 0.25px rgba(255,255,255,0.35); /* optional: helps thin fonts stay readable */
 }
-/* Keep title/subtitle aligned to container, but let the slider go full width */
-.lv-testimonials .lv-container {
-  position: relative;
-}
-
-/* Make marquee full-bleed */
-.lv-testimonials .lv-marquee{
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-  padding: 48px 48px; /* adjust */
-}
-
-
-/* Optional: make fade overlays also full-bleed */
-.lv-testimonials .lv-marqueeFadeLeft,
-.lv-testimonials .lv-marqueeFadeRight {
-  width: 500px; /* increase if you want smoother fade */
-}
+.tsKicker{ margin-top: -60px; }
+.tsTitle{ margin-top: 8px; }

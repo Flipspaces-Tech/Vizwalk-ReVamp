@@ -1,25 +1,36 @@
+/* =========================================================
+   GLOBAL BASE
+========================================================= */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
   overflow: auto;
 }
-/* e.g., src/pages/Experience.css or a global css you already import */
+
+/* =========================================================
+   LOADER
+========================================================= */
 .sp-loader {
   position: fixed;
   inset: 0;
-  background: #000;            /* or brand color */
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
 }
+
 .sp-loader img {
-  max-width: 520px;            /* adjust as needed */
+  max-width: 520px;
   width: 60vw;
   height: auto;
 }
-.heroVideoCard{
+
+/* =========================================================
+   HERO VIDEO CARD
+========================================================= */
+.heroVideoCard {
   width: 100%;
   height: 360px;
   border-radius: 22px;
@@ -29,231 +40,347 @@ html, body, #root {
   box-shadow: 0 24px 60px rgba(0,0,0,0.18);
 }
 
-/* iframe fills the card */
-.heroVideoFrame{
+.heroVideoFrame {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   border: 0;
 
-  /* ✅ removes black bars by cropping (zoom in) */
+  /* removes black bars by cropping */
   transform: scale(1.18);
   transform-origin: center center;
 }
 
-/* ✅ blocks hover/click/controls completely */
-.heroVideoBlocker{
+.heroVideoBlocker {
   position: absolute;
   inset: 0;
   z-index: 5;
   background: transparent;
   cursor: default;
 }
-/* Featured Projects section */
-/* ✅ Full-width section background, centered inner container */
-.fpSection{
+
+/* =========================================================
+   FEATURED PROJECTS (IMAGE 1 STYLE) — 1440 ONLY
+========================================================= */
+.fpSection {
   width: 100%;
-  background: #FFFFFF;
-  padding: 56px 285px 80px;
+  background: #ffffff;
+  padding: 56px 0 70px;
 }
 
-/* ✅ fixed container width + centered */
-.fpContainer{
-  width: 1345px;
+/* ✅ fixed-width container for 1440 layout */
+.fpContainer {
+  width: 1520px;
   margin: 0 auto;
 }
 
-
-
-
-/* header */
-.fpHeader{
+/* Header */
+.fpHeader {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 10px;
+  gap: 18px;
+  height: 92px;
+  margin-bottom: 50px;
 }
 
-.fpHeaderLeft{
+.fpHeaderLeft {
   width: 100%;
 }
 
-.fpTitleRow{
+.fpTitleRow {
   display: flex;
   align-items: center;
-  gap: 18px;
-  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.fpTitle{
+.fpTitle {
+  margin: 0;
   font-size: 48px;
-  font-weight: 900;
-  letter-spacing: -0.6px;
-  font-family: var(--font-heading);
-}
-
-.fpSub{
-  margin-top: 5px;
-  font-size: 20px;
-  line-height: 1.6;
-  opacity: 0.72;
   font-weight: 500;
-  font-family: var(--font-sans);
+  letter-spacing: -0.2px;
 }
 
-/* server badge */
-.fpServerBadge{
+.fpSub {
+  margin-top: 6px;
+  font-size: 18px;
+  color: rgba(0,0,0,0.55);
+}
+
+/* Server badge */
+.fpServerBadge {
+  width: 126px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 10px;
-  border-radius: 10px;
-  background: rgba(255,199,2,0.22);
-  color: #a56100;
-  font-size: 12px;
-  font-weight: 800;
-  font-family: var(--font-sans);
-  box-shadow: none;
-  border: none;
-  height: auto;
-  line-height: 1;
+  padding: 4px 8px;
+  /* border-radius: 6px; */
+  background: #FFF2B8;
+  border: 1px solid #F5DD6B;
+  color: black;
+  font-size: 14px;
 }
 
-.fpServerBadgeIcon{
-  width: 25px;
-  height: 25px;
+.fpServerBadgeIcon {
+  width: 16px;
+  height: 16px;
   object-fit: contain;
   display: block;
 }
 
-.fpServerBadgeText{
-  font-family: var(--font-sans);
-  font-weight: 800;
-  font-size: 12px;
-  color: #a56100;
+.fpServerBadgeText {
+    width: 84px;
+  height: 16px;
+  font-size: 14px;
 }
 
-.fpControls{
-  margin-top: 22px;
-  
+/* Controls row */
+.fpControls {
+  margin-top: 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
+}
+
+/* Chips (rectangular) - relies on your .dv-chip base */
+.fpChips {
+  display: flex;
+  gap: 10px;
   flex-wrap: nowrap;
 }
 
-/* ✅ chips can shrink and won't push search outside */
-.fpChips{
-  margin: 0;
-  flex: 1 1 auto;
-  min-width: 0;
-
-  /* ✅ don’t clip */
-  overflow: visible;
-
-  /* ✅ don’t hard-limit height */
-  height: auto;
-
-  /* optional: keeps row neat if chips are tall */
-  align-items: center;
+.fpChips .dv-chip {
+  border-radius: 3px !important;
+  padding: 6px 16px !important;
+  font-size: 14px !important;
+  border: 1px solid rgba(0,0,0,0.25) !important;
+  background: #fff !important;
+  color: rgba(0,0,0,0.65) !important;
 }
 
+.fpChips .dv-chip--active {
+  background: #efefef !important;
+  color: #111 !important;
+  font-weight: 900;
+  border-color: rgba(0,0,0,0.35) !important;
+}
 
-/* ✅ force search to stay inside container right edge */
-.fpSearchWrap{
-  height: 34px;
+/* Search (top right) */
+.fpSearchWrap {
+  height: 36px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   background: #fff;
-  border: 2px solid #EAEAE8;
-  border-radius: 999px;
-  padding: 0 14px;
-
-  width: 260px;
-  flex: 0 0 260px;
-  margin-left: auto;
+  border: 1px solid rgba(0,0,0,0.35);
+  border-radius: 3px;
+  padding: 0 10px;
+  width: 210px;
+  flex: 0 0 auto;
 }
 
-
-.fpSearchIconImg{
-  width: 20px;
-  height: 20px;
+.fpSearchIconImg {
+  color: black;
+  width: 14px;
+  height: 14px;
   object-fit: contain;
   display: block;
 }
 
-.fpSearchInput{
+.fpSearchInput {
   border: none;
   outline: none;
-  box-shadow: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 12px;
   width: 100%;
-  color: #BEBCBA;
-  font-family: var(--font-sans);
-}
-.fpSearchInput::placeholder {
-  color: #BEBCBA;   /* 👈 change this */
-  opacity: 1;       /* important for Safari */
-}
-/* grid */
-.fpGrid{
-  margin-top: 22px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
 }
 
-/* empty state */
-.fpEmpty{
+.fpSearchInput::placeholder {
+  color: black;
+  opacity: 1;
+}
+
+/* Grid */
+.fpGrid {
+  margin-top: 36px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+
+/* Card (simple) */
+.fpCard {
+  width: 488px;
+  height: 456px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+
+  /* important: stop previous hover transforms from other css */
+  transform: none !important;
+}
+
+/* Image area */
+.fpMedia {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #eeeeee;
+  /* height: 190px; */
+}
+
+.fpImg {
+  width: 488px;
+  height: 326px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Arrow overlay */
+.fpArrowBtn {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.95);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.fpArrowIcon {
+  font-size: 16px;
+  line-height: 1;
+  transform: translateX(1px);
+}
+
+/* Text below image */
+.fpBody {
+  height: 106px;
+  margin-top: 10px;
+  padding: 0;
+  background: transparent;
+}
+
+.fpName {
+  margin: 0;
+  font-size: 28px;
+}
+
+.fpMetaLine {
+  margin-top: 2px;
+  font-size: 18px;
+  color: rgba(0,0,0,0.65);
+}
+
+/* Actions row */
+.fpActions {
+  margin-top: 8px;
+  margin-left: 2px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 32px;
+}
+
+.fpMiniIconBtn {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.fpMiniIconBtn img {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* View Demo pill */
+.fpViewDemo {
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(0,0,0,0.25);
+  background: #fff;
+  font-size: 10px;
+  cursor: pointer;
+  color: rgba(0,0,0,0.75);
+}
+
+/* Empty state */
+.fpEmpty {
   text-align: center;
   padding: 24px 0;
   opacity: 0.75;
-  font-weight: 700;
+  font-weight: 600;
 }
 
-/* bottom button */
+/* Bottom link */
+/* Bottom link */
 .fpBottom{
   display: flex;
   justify-content: center;
-  padding: 18px 0 0;
+  margin-top: 60px; /* match spacing like Image1 */
 }
 
-.fpViewAllBottom{
-  border: 1px solid rgba(0,0,0,0.14);
-  background: rgba(255,255,255,0.9);
-  border-radius: 999px;
-  padding: 10px 16px;
-  font-weight: 800;
+/* View All Projects (Image1 style) */
+.fpViewAllLink{
+  
+  position: relative;
+  border: 0;
+  background: transparent;
   cursor: pointer;
-  font-family: var(--font-sans);
-}
-.fpCard {
-  background: #F1F0EA;
-  border: 1px solid rgba(0,0,0,0.10);
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 14px 40px rgba(0,0,0,0.08);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+
+  font-size: 22px;         /* big like Image1 */
+  font-weight: 300;        /* thin */
+  letter-spacing: 0.18em;  /* spaced letters */
+  color: #111;
+  padding: 0 0 8px;       /* space for underline */
+  line-height: 1;
 }
 
-/* hover border */
+/* underline */
+.fpViewAllLink::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+
+  width: 340px;           /* long underline like Image1 */
+  height: 2px;
+  background: rgba(0,0,0,0.35);
+}
+
+/* arrow sizing */
+.fpViewAllLink span{
+  font-size: 44px;
+  font-weight: 600;
+  letter-spacing: 0;
+  transform: translateY(2px);
+}
+
+/* =========================================================
+   OPTIONAL: if some other CSS is still adding card hover,
+   this neutralizes it without affecting other pages.
+========================================================= */
 .fpCard:hover {
-  border-color: #FFC702; /* 👈 your highlight color */
-  box-shadow: 0 18px 50px rgba(0,0,0,0.12);
-  transform: translateY(-2px);
-}
-/* cursor */
-.tw-cursor::after{
-  content: "|";
-  margin-left: 4px;
-  animation: twBlink 0.9s step-end infinite;
-  opacity: 0.9;
-}
-
-@keyframes twBlink {
-  50% { opacity: 0; }
+  box-shadow: none !important;
+  border-color: transparent !important;
+  transform: none !important;
 }

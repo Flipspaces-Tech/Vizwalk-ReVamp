@@ -5,40 +5,26 @@ import yt1 from "../assets/yt1.png";
 import vz1 from "../assets/vz1.png";
 import indiaIcon from "../assets/india.png";
 import usIcon from "../assets/usa.png";
+import searchIcon from "../assets/search.png";
 
 import { useAuth } from "../auth/AuthProvider";
 import LandingNavbar from "../components/LandingNavbar.jsx";
 
 import "../styles/lovable-navbar.css";
 import "../styles/testimonials-marquee.css";
-import searchIcon from "../assets/search.png"; // <-- change filename/path to yours
-
 import "../pages/Landing.css";
 
+import Footer from "../components/Footer.jsx";
+
+import worldMap  from "../assets/Testimonial BG.png"; // <-- change filename if needed
 
 
-
-
-/**
- * IMPORTANT NOTES (why your YouTube embed keeps breaking / showing UI):
- * 1) Autoplay works only if muted. We keep mute=1.
- * 2) Removing YouTube overlays (title bar, logo, "Watch on YouTube", etc.) is NOT fully possible with YouTube embeds.
- *    YouTube will still show some branding/overlays in many cases.
- * 3) "No interaction" is achievable by blocking pointer events on the iframe with an overlay div.
- * 4) Error 153 / "refused to connect" happens when you try to embed a non-embed URL (youtu.be) or blocked embed,
- *    or if the browser/network blocks. We use youtube-nocookie embed URL.
- */
-
+/** ====== SHEET (CSV) ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
-const GID = "0";
+const GID = "1024074012"; // <-- change to Featured Projects Page gid if needed
 
-const HERO_MP4 ="https://s3-vizwalk-dev.flipspaces.app/uploads/Demo.mp4";
-
-
-// ✅ Use the embed endpoint (not youtu.be) with autoplay+mute+loop.
-// controls=0 hides controls, but YouTube may still show overlays.
-const VIDEO_ID = "wU2O0AD98Hw";
-const heroVideoSrc = `https://www.youtube-nocookie.com/embed/${VIDEO_ID}?autoplay=1&mute=1&controls=0&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=${VIDEO_ID}&iv_load_policy=3&fs=0&disablekb=1`;
+/** ====== HERO ====== */
+const HERO_MP4 = "https://s3-vizwalk-dev.flipspaces.app/uploads/Demo.mp4";
 
 function parseCSV(text) {
   if (!text) return [];
@@ -91,9 +77,7 @@ const headerMap = (headers) => {
 };
 
 const safeGet = (row, idx, fallback = "") =>
-  idx != null && idx < row.length && row[idx] != null
-    ? String(row[idx]).trim()
-    : fallback;
+  idx != null && idx < row.length && row[idx] != null ? String(row[idx]).trim() : fallback;
 
 const COLS = {
   status: ["status"],
@@ -109,7 +93,7 @@ const COLS = {
   industry: ["industry"],
   designStyle: ["design style", "style"],
   vizdomId: ["vizdom project id", "vizdom id"],
-  image: ["thumbnail_url", "image_url", "image url", "thumbnail", "image", "thumb"],
+  image: ["thumbnail_url", "image_url", "image url", "thumbnail_url ", "thumbnail", "image", "thumb"],
   youtube: ["walkthrough link", "youtube link", "youtube"],
   constructionType: ["construction type"],
 };
@@ -137,15 +121,17 @@ function normalizeServer(v = "") {
   return "";
 }
 
-/** ====== IMAGE (Drive fallback) ====== */
-function ImageWithFallback({ src, alt, style }) {
+/** ====== IMAGE WITH FALLBACK (UPDATED: supports className) ====== */
+function ImageWithFallback({ src, alt, style, className }) {
   const isDrive = /drive\.google\.com/i.test(src || "");
+
   const extractDriveId = (url = "") => {
     if (!url) return "";
     const m1 = url.match(/\/d\/([^/]+)\//);
     const m2 = url.match(/[?&]id=([^&]+)/);
     return m1?.[1] || m2?.[1] || "";
   };
+
   const id = isDrive ? extractDriveId(src) : "";
 
   const candidates =
@@ -159,12 +145,12 @@ function ImageWithFallback({ src, alt, style }) {
       : [src || ""];
 
   const [idx, setIdx] = useState(0);
-  const onError = () =>
-    setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
+  const onError = () => setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
 
   if (!src || idx === -1) {
     return (
       <img
+        className={className}
         src="https://picsum.photos/seed/vizwalk/1400/900"
         alt={alt || "preview"}
         style={style}
@@ -182,6 +168,7 @@ function ImageWithFallback({ src, alt, style }) {
 
   return (
     <img
+      className={className}
       src={current}
       alt={alt || "preview"}
       style={style}
@@ -193,126 +180,72 @@ function ImageWithFallback({ src, alt, style }) {
   );
 }
 
-/** ====== ICON (hover float) ====== */
-function HoverIcon({ src, alt, href, title }) {
-  const [hover, setHover] = useState(false);
+/** ====== ICON LINK ====== */
+function MiniIconLink({ src, alt, href, title }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      title={title}
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: 26,
-        height: 26,
-        borderRadius: 6,
-        transform: hover ? "translateY(-2px)" : "translateY(0)",
-        transition: "transform 0.15s ease",
-      }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <img src={src} alt={alt} style={{ width: 22, height: 22, display: "block" }} />
+    <a className="fpMiniIconBtn" href={href} target="_blank" rel="noreferrer" title={title}>
+      <img src={src} alt={alt} />
     </a>
   );
 }
 
-const disabledIconWrap = {
-  opacity: 0.25,
-  filter: "grayscale(100%)",
-  cursor: "not-allowed",
-  pointerEvents: "none",
-};
-
-/** ====== Featured Card ====== */
+/** ====== FEATURED CARD (UPDATED TO IMAGE1 STYLE) ====== */
 function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwalk }) {
-  const category = item.constructionType || item.designStyle || item.industry || "—";
-  const [hover, setHover] = useState(false);
-
   const hasYoutube = Boolean(String(item.youtube || "").trim());
   const hasVizdom = Boolean(String(item.vizdomId || "").trim());
 
   return (
     <div className="fpCard">
+      <div className="fpMedia">
+        <ImageWithFallback className="fpImg" src={item.thumb} alt={item.buildName} />
 
-      <div
-        style={sx.fpMedia}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-      >
-        <ImageWithFallback src={item.thumb} alt={item.buildName} style={sx.fpImg} />
-
-        <div
-          style={{
-            ...sx.fpHoverOverlay,
-            opacity: hover ? 1 : 0,
-            pointerEvents: hover ? "auto" : "none",
+        <button
+          type="button"
+          className="fpArrowBtn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenVizwalk();
           }}
+          title="Open Vizwalk"
         >
-          <button
-            type="button"
-            style={sx.fpHoverBtn}
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenVizwalk();
-            }}
-          >
-            Open Vizwalk
-          </button>
-        </div>
+          <span className="fpArrowIcon">↗</span>
+        </button>
       </div>
 
-      <div style={sx.fpBody}>
-        <div style={sx.fpName}>{item.buildName || "Project"}</div>
+      <div className="fpBody">
+        <div className="fpName">{item.buildName || "Project"}</div>
 
-        <div style={sx.fpCatRow}>
-          <span style={sx.fpCatPill}>{category}</span>
+        <div className="fpMetaLine">
+          {(item.constructionType || item.industry || "—")} | {formatSqft(item.areaSqft || "")}
         </div>
 
-        <div style={sx.fpArea}>Area – {formatSqft(item.areaSqft || "")}</div>
+        <div className="fpActions">
+          {hasYoutube ? (
+            <MiniIconLink src={yt1} alt="YouTube" href={item.youtube} title="Watch Demo (YouTube)" />
+          ) : null}
 
-        <div style={sx.fpDivider} />
-
-        <div style={sx.fpRow}>
-          <div style={sx.fpLeftIcons}>
-            {hasYoutube ? (
-              <HoverIcon src={yt1} alt="YouTube" href={item.youtube} title="Watch on YouTube" />
-            ) : (
-              <span style={disabledIconWrap} title="Not available">
-                <img src={yt1} alt="YouTube disabled" style={{ width: 22, height: 22 }} />
-              </span>
-            )}
-
-            {hasVizdom ? (
-              <span
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenVizdom();
-                }}
-                style={{ display: "inline-flex", cursor: "pointer" }}
-                title="Open in Vizdom"
-              >
-                <img src={vz1} alt="Vizdom" style={{ width: 22, height: 22 }} />
-              </span>
-            ) : (
-              <span style={disabledIconWrap} title="Not available">
-                <img src={vz1} alt="Vizdom disabled" style={{ width: 22, height: 22 }} />
-              </span>
-            )}
-          </div>
+          {hasVizdom ? (
+            <span
+              className="fpMiniIconBtn"
+              title="Open in Vizdom"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenVizdom();
+              }}
+            >
+              <img src={vz1} alt="Vizdom" />
+            </span>
+          ) : null}
 
           <button
             type="button"
-            style={sx.fpDetail}
+            className="fpViewDemo"
             onClick={(e) => {
               e.stopPropagation();
               onOpenScreenshotGallery();
             }}
           >
-            View Details <span style={{ marginLeft: 6 }}>→</span>
+            View Demo
           </button>
         </div>
       </div>
@@ -329,11 +262,15 @@ function getInitials(name = "") {
     .join("");
 }
 
+// ✅ add this import near your other assets imports
+
+// ✅ add this import near your other assets
+
 function TestimonialsOnly() {
   const testimonials = [
     {
       name: "Santosh Upadhyay",
-      role: "BHIL (Bharat financial bank)",
+      role: "BFIL (Bharat financial bank)",
       quote:
         "Our new workspace embodies innovation, creativity, and forward-thinking. Huge thanks to Flipspaces for their expertise, dedication, and swift transformation!",
     },
@@ -363,45 +300,40 @@ function TestimonialsOnly() {
     },
   ];
 
+  // ✅ DUPLICATION for infinite marquee
   const loop = [...testimonials, ...testimonials];
 
   return (
-    <section
-      id="clients"
-      className="lv-testimonials"
-      style={{ background: "#EAEAE8", padding: "90px 0 44px" }}
-    >
-      <div className="lv-container">
-        <div className="lv-testimonialsHead">
-          <h2 className="lv-testimonialsTitle">What Our Clients Say</h2>
-          <div className="lv-testimonialsDesc">
-            Trusted by leading businesses across industries for exceptional workspace transformations
-          </div>
+  <section className="tsSection">
+    <div className="tsInner">
+      <div className="tsKicker">WHAT OUR CLIENTS SAY</div>
+
+      <h2 className="tsTitle">
+        Trusted by leading businesses across industries for exceptional workspace
+        transformations
+      </h2>
+
+      <div className="tsMarquee">
+        <div className="tsTrack">
+          {loop.map((t, idx) => (
+            <div className="tsCard" key={idx}>
+              <div className="tsName">{t.name}</div>
+              <div className="tsRole">{t.role}</div>
+              <div className="tsQuote">“{t.quote}”</div>
+            </div>
+          ))}
         </div>
 
-        <div className="lv-marquee">
-          <div className="lv-marqueeTrack" style={{ ["--duration"]: "40s", ["--gap"]: "18px" }}>
-            {loop.map((t, idx) => (
-              <div className="lv-tCard" key={idx}>
-                <div className="lv-tTop">
-                  <div className="lv-tAvatar">{getInitials(t.name)}</div>
-                  <div>
-                    <div className="lv-tName">{t.name}</div>
-                    <div className="lv-tRole">{t.role}</div>
-                  </div>
-                </div>
-                <div className="lv-tQuote">“{t.quote}”</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="lv-marqueeFadeLeft" />
-          <div className="lv-marqueeFadeRight" />
-        </div>
+        <div className="tsFadeL" />
+        <div className="tsFadeR" />
       </div>
-    </section>
-  );
+    </div>
+  </section>
+);
+
 }
+
+
 
 function FooterFullBleed() {
   return (
@@ -417,28 +349,61 @@ function FooterFullBleed() {
 
           <div style={sx.footerCol}>
             <div style={sx.footerColTitle}>PRODUCT</div>
-            <a href="#featured-projects" style={sx.footerLink}>Features</a>
-            <a href="#featured-projects" style={{ ...sx.footerLink, opacity: 0.55, pointerEvents: "none" }}>
+            <a href="#featured-projects" style={sx.footerLink}>
+              Features
+            </a>
+            <a
+              href="#featured-projects"
+              style={{ ...sx.footerLink, opacity: 0.55, pointerEvents: "none" }}
+            >
               Gallery
             </a>
-            <a href="#featured-projects" style={{ ...sx.footerLink, opacity: 0.55, pointerEvents: "none" }}>
+            <a
+              href="#featured-projects"
+              style={{ ...sx.footerLink, opacity: 0.55, pointerEvents: "none" }}
+            >
               Updates
             </a>
           </div>
 
           <div style={sx.footerCol}>
             <div style={sx.footerColTitle}>RESOURCES</div>
-            <a href="/docs" style={sx.footerLink}>Documentation</a>
-            <a href="/shortcuts" style={sx.footerLink}>Shortcut Guide</a>
+            <a href="/docs" style={sx.footerLink}>
+              Documentation
+            </a>
+            <a href="/shortcuts" style={sx.footerLink}>
+              Shortcut Guide
+            </a>
           </div>
         </div>
 
         <div style={sx.footerBottom}>
           <div style={sx.footerCopy}>© 2026 Vizwalk.com All rights reserved.</div>
           <div style={sx.footerSocial}>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>YouTube</a>
-            <a href="https://linkedin.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>LinkedIn</a>
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" style={sx.footerSocialLink}>Instagram</a>
+            <a
+              href="https://youtube.com"
+              target="_blank"
+              rel="noreferrer"
+              style={sx.footerSocialLink}
+            >
+              YouTube
+            </a>
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noreferrer"
+              style={sx.footerSocialLink}
+            >
+              LinkedIn
+            </a>
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noreferrer"
+              style={sx.footerSocialLink}
+            >
+              Instagram
+            </a>
           </div>
         </div>
       </div>
@@ -476,9 +441,7 @@ export default function Landing() {
         if (!rows.length) throw new Error("Empty CSV");
 
         const headers = rows[0];
-        const body = rows
-          .slice(1)
-          .filter((r) => r.some((c) => String(c || "").trim() !== ""));
+        const body = rows.slice(1).filter((r) => r.some((c) => String(c || "").trim() !== ""));
 
         const iStatus = idxOf(headers, COLS.status);
         const iServer = idxOf(headers, COLS.server);
@@ -683,150 +646,126 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* ===== HERO VIDEO CARD (no interaction) ===== */}
-          <div
-  className="lv-heroRight"
-  style={{
-    flex: "0 0 560px",
-    
-    // width: "100%",
-    display: "flex",
-    justifyContent: "center",
-  }}
->
-  <div
-    style={{
-      width: "685px",
-  height: "404px",
-      // aspectRatio: "16 / 9",
-      borderRadius: 22,
-      overflow: "hidden",
-      position: "relative",
-      background: "#000",
-      // boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
-    }}
-  >
-    <video
-      src={HERO_MP4}
-      autoPlay
-      muted
-      loop
-      playsInline
-      preload="metadata"
-      controls={false}
-      style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        objectFit: "cover",
-        border: 0,
-        display: "block",
-      }}
-      onError={(e) => console.error("Hero MP4 failed:", e)}
-    />
-  </div>
-</div>
-
-
+          <div className="lv-heroRight" style={{ flex: "0 0 560px", display: "flex", justifyContent: "center" }}>
+            <div
+              style={{
+                width: "685px",
+                height: "404px",
+                borderRadius: 22,
+                overflow: "hidden",
+                position: "relative",
+                background: "#000",
+              }}
+            >
+              <video
+                src={HERO_MP4}
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                controls={false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  border: 0,
+                  display: "block",
+                }}
+                onError={(e) => console.error("Hero MP4 failed:", e)}
+              />
+            </div>
+          </div>
         </section>
       </div>
 
-      {/* Featured Projects */}
+      {/* Featured Projects (IMAGE1 CARD STYLE) */}
       <section id="featured-projects" className="fpSection">
-  <div className="fpContainer">
-    <div className="fpHeader">
-      <div className="fpHeaderLeft">
-        <div className="fpTitleRow">
-          <div className="fpTitle">Featured Projects</div>
+        <div className="fpContainer">
+          <div className="fpHeader">
+            <div className="fpHeaderLeft">
+              <div className="fpTitleRow">
+                <div className="fpTitle">Featured Projects</div>
 
-          <div className="fpServerBadge">
-            <img
-              src={selectedServer === "india" ? indiaIcon : usIcon}
-              alt=""
-              className="fpServerBadgeIcon"
-            />
-            <span className="fpServerBadgeText">
-              {selectedServer === "india" ? "India Server" : "US Server"}
-            </span>
+                <div className="fpServerBadge">
+                  <img
+                    src={selectedServer === "india" ? indiaIcon : usIcon}
+                    alt=""
+                    className="fpServerBadgeIcon"
+                  />
+                  <span className="fpServerBadgeText">
+                    {selectedServer === "india" ? "India Server" : "US Server"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="fpSub">
+                Explore our projects showcasing tech-enabled interior design expertise
+              </div>
+            </div>
           </div>
+
+          <div className="fpControls">
+            <div className="dv-chips fpChips">
+              {typeOptions.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  className={`dv-chip ${t === activeCategory2 ? "dv-chip--active" : ""}`}
+                  onClick={() => {
+                    setActiveCategory2(t);
+                    setShowAll2(false);
+                  }}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            <div className="fpSearchWrap">
+              <img src={searchIcon} alt="Search" className="fpSearchIconImg" draggable={false} />
+              <input
+                value={searchQuery2}
+                onChange={(e) => setSearchQuery2(e.target.value)}
+                placeholder="Search Projects.."
+                className="fpSearchInput"
+              />
+            </div>
+          </div>
+
+          <div className="fpGrid">
+            {(showAll2 ? filtered : filtered.slice(0, 6)).map((item, idx) => (
+              <FeaturedCard
+                key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
+                item={item}
+                onOpenScreenshotGallery={() => handleOpenScreenshotGallery(item)}
+                onOpenVizdom={() => handleOpenVizdom(item)}
+                onOpenVizwalk={() => handleOpenVizwalk(item)}
+              />
+            ))}
+          </div>
+
+          {filtered.length === 0 && <div className="fpEmpty">No projects found matching your criteria.</div>}
+
+          {!showAll2 && filtered.length > 6 && (
+            <div className="fpBottom">
+              <button type="button" className="fpViewAllLink" onClick={() => setShowAll2(true)}>
+                View All Projects <span>↗</span>
+              </button>
+            </div>
+          )}
         </div>
-
-        <div className="fpSub">
-          Explore our projects showcasing tech-enabled interior design expertise
-        </div>
-      </div>
-    </div>
-
-    <div className="fpControls">
-      <div className="dv-chips fpChips">
-        {typeOptions.map((t) => (
-          <button
-            key={t}
-            type="button"
-            className={`dv-chip ${t === activeCategory2 ? "dv-chip--active" : ""}`}
-            onClick={() => {
-              setActiveCategory2(t);
-              setShowAll2(false);
-            }}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-
-      <div className="fpSearchWrap">
-        <img
-          src={searchIcon}
-          alt="Search"
-          className="fpSearchIconImg"
-          draggable={false}
-        />
-        <input
-          value={searchQuery2}
-          onChange={(e) => setSearchQuery2(e.target.value)}
-          placeholder="Search Projects.."
-          className="fpSearchInput"
-        />
-      </div>
-    </div>
-
-    <div className="fpGrid">
-      {(showAll2 ? filtered : filtered.slice(0, 6)).map((item, idx) => (
-        <FeaturedCard
-          key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
-          item={item}
-          onOpenScreenshotGallery={() => handleOpenScreenshotGallery(item)}
-          onOpenVizdom={() => handleOpenVizdom(item)}
-          onOpenVizwalk={() => handleOpenVizwalk(item)}
-        />
-      ))}
-    </div>
-
-    {filtered.length === 0 && (
-      <div className="fpEmpty">
-        No projects found matching your criteria.
-      </div>
-    )}
-
-    {!showAll2 && filtered.length > 6 && (
-      <div className="fpBottom">
-        <button type="button" className="fpViewAllBottom" onClick={() => setShowAll2(true)}>
-          View All Projects →
-        </button>
-      </div>
-    )}
-  </div>
-</section>
-
+      </section>
 
       <TestimonialsOnly />
-      <FooterFullBleed />
+      <Footer />
     </div>
   );
 }
 
-/** ====== STYLES ====== */
+/** ====== STYLES (kept from your file) ====== */
 const sx = {
   page: {
     minHeight: "100vh",
@@ -839,219 +778,6 @@ const sx = {
     width: "min(1180px, 92vw)",
     margin: "0 auto",
   },
-
-  fpHeader: {
-    display: "flex",
-    justifyContent: "flex-start",
-    alignItems: "flex-start",
-    marginBottom: 10,
-  },
-
-  fpHeaderLeft: { width: "100%" },
-
-  fpTitleRow: {
-    display: "flex",
-    alignItems: "center",
-    gap: 18,
-    flexWrap: "wrap",
-  },
-
-  fpTitle: {
-    fontSize: 44,
-    fontWeight: 900,
-    letterSpacing: -0.6,
-    fontFamily: "var(--font-heading)",
-  },
-
-  fpSub: {
-    marginTop: 10,
-    fontSize: 16,
-    lineHeight: 1.6,
-    opacity: 0.72,
-    fontWeight: 500,
-    fontFamily: "var(--font-sans)",
-  },
-
-  fpControls: {
-    marginTop: 22,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 18,
-    flexWrap: "nowrap",
-  },
-
-  fpSearchWrap: {
-    height: 34,
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    background: "#fff",
-    border: "1px solid #EAEAE8",
-    borderRadius: 999,
-    padding: "0 14px",
-    width: 260,
-    flex: "0 0 auto",
-    
-  },
-
-  fpSearchIcon: { opacity: 0.65, fontSize: 14 },
-
-  fpSearchInput: {
-    border: "none",
-    outline: "none",
-    boxShadow: "none",
-    background: "transparent",
-    fontSize: 13,
-    width: "100%",
-    fontFamily: "var(--font-sans)",
-    
-  },
-
-  fpGrid: {
-    marginTop: 18,
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: 18,
-  },
-
-  fpCard: {
-    width: 437,
-    height:420,
-    background: "#F1F0EA",
-    border: "1px solid rgba(0,0,0,0.10)",
-    borderRadius: 18,
-    overflow: "hidden",
-    boxShadow: "0 14px 40px rgba(0,0,0,0.08)",
-  },
-
-  fpMedia: { position: "relative", cursor: "pointer" },
-
-  fpImg: {
-    width: 437,
-    height: 272,
-    objectFit: "cover",
-    display: "block",
-  },
-
-  fpHoverOverlay: {
-    position: "absolute",
-    inset: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "rgba(0,0,0,0.18)",
-    opacity: 0,
-    pointerEvents: "none",
-    transition: "opacity 0.18s ease",
-  },
-
-  fpHoverBtn: {
-    height: 40,
-    padding: "0 16px",
-    borderRadius: 999,
-    border: "1px solid rgba(255,255,255,0.65)",
-    background: "#FFC702",
-    color: "#111",
-    fontWeight: 800,
-    cursor: "pointer",
-  },
-
-  fpBody: { padding:14, background: "#F1F0EA" },
-
-  fpName: { fontSize: 20, fontWeight: 900, fontFamily: "var(--font-heading)" },
-
-  fpCatRow: { marginTop: 2 },
-
-  fpCatPill: {
-    display: "inline-block",
-    padding: "4px 4px",
-    borderRadius: 6,
-    background: "#f7e6bc",
-  border: "1px solid #f2d48c",
-  color: "#f59a00",
-    fontSize: 12,
-    fontWeight: 800,
-    fontFamily: "var(--font-sans)",
-  },
-
-  fpArea: {
-    marginTop: 4,
-    fontSize: 13,
-    opacity: 0.75,
-    fontFamily: "var(--font-sans)",
-    fontWeight: 500,
-  },
-
-  fpDivider: { marginTop: 2, height: 1, background: "rgba(0,0,0,0.08)" },
-
-  fpRow: {
-    marginTop: 12,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 10,
-  },
-
-  fpLeftIcons: { display: "flex", alignItems: "center", gap: 10 },
-
-  fpDetail: {
-    border: "none",
-    background: "transparent",
-    cursor: "pointer",
-    fontSize: 13,
-    opacity: 0.8,
-    fontFamily: "var(--font-sans)",
-    fontWeight: 650,
-  },
-
-  fpBottom: { display: "flex", justifyContent: "center", padding: "18px 0 0" },
-
-  fpViewAllBottom: {
-    border: "1px solid rgba(0,0,0,0.14)",
-    background: "rgba(255,255,255,0.9)",
-    borderRadius: 999,
-    padding: "10px 16px",
-    fontWeight: 800,
-    cursor: "pointer",
-    fontFamily: "var(--font-sans)",
-  },
-
-serverBadge: {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 8,
-
-  // ✅ match the “Corporate Office” pill
-  padding: "4px 10px",
-  borderRadius: 10,
-  background: "rgba(255,199,2,0.22)",
-  color: "#a56100",
-
-  fontSize: 12,
-  fontWeight: 800,
-  fontFamily: "var(--font-sans)",
-
-  // ✅ remove chip/badge feel
-  boxShadow: "none",
-  border: "none",
-  height: "auto",
-  lineHeight: 1,
-},
-
-serverBadgeIcon: {
-  width: 25,
-  height: 25,
-  objectFit: "contain",
-  display: "block",
-},
-
-serverBadgeText: {
-  fontFamily: "var(--font-sans)",
-  fontWeight: 800,
-  fontSize: 12,
-  color: "#a56100",
-},
 
   footerBleed: { width: "100%", background: "#d0d0cc", padding: "42px 0 22px" },
 
@@ -1119,12 +845,4 @@ serverBadgeText: {
     color: "rgba(0,0,0,0.60)",
     textDecoration: "none",
   },
-
-  fpSearchIconImg: {
-  width: 20,
-  height: 20,
-  objectFit: "contain",
-  display: "block",
-},
-
 };
