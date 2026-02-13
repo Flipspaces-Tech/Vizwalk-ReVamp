@@ -40,7 +40,7 @@ html, body, #root {
 ========================================================= */
 .hero2{
   width: 100%;
-  height: 794px; /* adjust if needed */
+  height: 840px; /* adjust if needed */
   position: relative;
   overflow: hidden;
   display: grid;
@@ -473,9 +473,10 @@ html, body, #root {
 }
 
 .fpViewAllLink span {
-  font-size: 44px;
-  font-weight: 600;
+  font-size: 30px;
   letter-spacing: 0;
+  margin-left: -10px;
+  margin-top: -10px;
   transform: translateY(2px);
 }
 

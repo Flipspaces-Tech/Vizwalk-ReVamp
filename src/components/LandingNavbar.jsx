@@ -1,7 +1,6 @@
-// src/components/LandingNavbar.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import vizIcon from "../assets/vw1.png"; // Ensure this is just the 'V' logo
+import vizIcon from "../assets/vw1.png"; 
 import "../styles/navbar-v2.css";
 
 export default function LandingNavbar({
@@ -24,7 +23,6 @@ export default function LandingNavbar({
   }, []);
 
   const goOrScroll = (id) => {
-    // Navigate logic here
     const el = document.getElementById(id);
     if (el) return el.scrollIntoView({ behavior: "smooth" });
     navigate(`/#${id}`);
@@ -70,14 +68,13 @@ export default function LandingNavbar({
 
             {/* Center: Links */}
             <div className="vwNavLinks">
-              {/* HOME is bold/active by default based on design */}
               <button className="vwNavLink isActive" onClick={() => goOrScroll("featured-projects")}>
                 HOME
               </button>
 
               <div className="vwDd" ref={ddRef}>
                 <button className="vwNavLink" onClick={() => setDd((v) => !v)}>
-                  PROJECTS
+                  PROJECTS ▾
                 </button>
                 {dd && (
                   <div className="vwDdMenu">
@@ -102,7 +99,6 @@ export default function LandingNavbar({
 
             {/* Right: Controls */}
             <div className="vwNavRight">
-              {/* Region Toggle */}
               <div className="vwRegionGroup">
                 <button
                   className={`vwRegionBtn ${selectedServer === "india" ? "active" : ""}`}
@@ -118,8 +114,7 @@ export default function LandingNavbar({
                 </button>
               </div>
 
-              {/* Sun Icon */}
-              <button className="vwIconBtn" title="Theme">
+              <button className="vwIconBtn" title="Theme Settings">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="5"></circle>
                   <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -133,8 +128,12 @@ export default function LandingNavbar({
                 </svg>
               </button>
 
-              {/* Logout Icon */}
-              <button className="vwIconBtn" title="Logout" onClick={signOut}>
+              {/* Logout Icon with Email Hover Prompt */}
+              <button 
+                className="vwIconBtn" 
+                title={user?.email || "Logout"} 
+                onClick={signOut}
+              >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                   <polyline points="16 17 21 12 16 7"></polyline>
@@ -145,7 +144,7 @@ export default function LandingNavbar({
           </div>
         </div>
       </div>
-      <div className="vwHeaderSpacer" style={{ height: showTopBar ? "86px" : "52px" }} />
+      <div className="vwHeaderSpacer" style={{ height: showTopBar ? "124px" : "76px" }} />
     </>
   );
 }

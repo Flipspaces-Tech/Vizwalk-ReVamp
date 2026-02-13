@@ -125,7 +125,7 @@
   border: none;
   cursor: pointer;
   font-size: 18px;
-  letter-spacing: 0.08em;
+  letter-spacing: 8%;
   color: rgba(255, 255, 255, 0.8); /* Slightly dimmed inactive state */
   text-transform: uppercase;
   padding: 5px 0;
