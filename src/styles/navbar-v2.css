@@ -238,3 +238,65 @@
 @media (max-width: 768px) {
   .vwNavLinks { display: none; }
 }
+
+/* SERVER TOGGLE CONTAINER - THE PILL SHAPE */
+.vwRegionContainer {
+  display: flex;
+  align-items: center;
+  background: #2D2C28; /* Dark inner background */
+  border: 1px solid rgba(255, 255, 255, 0.4); /* The thin outer white ring from Image 2 */
+  border-radius: 4px; /* Fully rounded pill shape */
+  padding: 2px;
+  height: 38px;
+  overflow: hidden;
+}
+
+.vwRegionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 16px;
+  height: 100%;
+  cursor: pointer;
+  border-radius: 4px; /* Inner pill rounding */
+  transition: all 0.3s ease;
+}
+
+/* ACTIVE STATE - THE YELLOW HIGHLIGHT */
+.vwRegionBtn.active {
+  background: #F3C21A; /* Figma Yellow */
+  color: #000000;      /* Black text when active */
+}
+
+/* FLAG ICON STYLING */
+.vwFlagIcon {
+  width: 20px;
+  height: 14px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+/* ICON BUTTONS (Sun/Exit) */
+.vwIconBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px; /* Slightly rounded squares */
+  height: 34px;
+  width: 34px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.vwIconBtn:hover {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}

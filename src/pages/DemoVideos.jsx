@@ -8,25 +8,19 @@ import { useAuth } from "../auth/AuthProvider";
 import ytIcon from "../assets/yt1.png";
 import searchIcon from "../assets/search.png";
 import indiaIcon from "../assets/india.png";
-
-// ✅ add your two icons (replace filenames with your actual assets)
-import vizwalkIcon from "../assets/vz1.png"; // yellow+green icon
-import demoIcon from "../assets/view demo.png";       // purple play icon
+import vizwalkIcon from "../assets/vz1.png"; 
+import demoIcon from "../assets/view demo.png"; 
 
 import "../styles/demo-videos.css";
 
-const WEBAPP_URL =
-  "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const TAB_NAME = "Demo Videos Page";
 
-/* ---------------------------
-   ✅ Robust Drive Helpers
----------------------------- */
+/* --- Robust Drive Helpers --- */
 function extractDriveFileId(url = "") {
   const s = String(url || "").trim();
   if (!s) return null;
-
   const patterns = [
     /\/file\/d\/([a-zA-Z0-9_-]+)/,
     /\/d\/([a-zA-Z0-9_-]+)/,
@@ -35,7 +29,6 @@ function extractDriveFileId(url = "") {
     /lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/,
     /drive\.usercontent\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/,
   ];
-
   for (const p of patterns) {
     const m = s.match(p);
     if (m?.[1]) return m[1];
@@ -50,13 +43,10 @@ function isProbablyDriveId(x) {
 
 function getDriveImageCandidates(urlOrId = "") {
   if (!urlOrId) return ["https://picsum.photos/seed/viz/1400/900"];
-
   const raw = String(urlOrId).trim();
   const extracted = extractDriveFileId(raw);
   const id = extracted || (isProbablyDriveId(raw) ? raw : null);
-
   if (!id) return [raw];
-
   return [
     `https://lh3.googleusercontent.com/d/${id}=w1400`,
     `https://drive.usercontent.google.com/uc?id=${id}&export=view`,
@@ -65,17 +55,11 @@ function getDriveImageCandidates(urlOrId = "") {
   ];
 }
 
-/* ---------------------------
-   ✅ Image component with retry
----------------------------- */
 function ImageWithFallback({ src, alt, className }) {
   const candidates = useMemo(() => getDriveImageCandidates(src), [src]);
   const [idx, setIdx] = useState(0);
-
   useEffect(() => setIdx(0), [src, candidates.length]);
-
-  const finalSrc =
-    candidates[idx] || "https://picsum.photos/seed/vizwalk/1400/900";
+  const finalSrc = candidates[idx] || "https://picsum.photos/seed/vizwalk/1400/900";
 
   return (
     <img
@@ -96,6 +80,7 @@ export default function DemoVideos() {
   const [loading, setLoading] = useState(true);
   const [activeType, setActiveType] = useState("All");
   const [query, setQuery] = useState("");
+  const [selectedServer, setSelectedServer] = useState("india");
   const { user, signOut } = useAuth();
 
   useEffect(() => {
@@ -106,7 +91,6 @@ export default function DemoVideos() {
         u.searchParams.set("action", "demovideos");
         u.searchParams.set("sheetId", SHEET_ID);
         u.searchParams.set("tab", TAB_NAME);
-
         const res = await fetch(u.toString());
         const data = await res.json();
         setRows(Array.isArray(data?.rows) ? data.rows : []);
@@ -131,46 +115,34 @@ export default function DemoVideos() {
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
     return rows.filter((r) => {
-      const typeOk =
-        activeType === "All" ||
-        r.constructionType === activeType ||
-        r.industry === activeType;
-
-      const match =
-        !q ||
-        [r.videoName, r.constructionType, r.industry].some((s) =>
-          String(s || "")
-            .toLowerCase()
-            .includes(q)
+      const typeOk = activeType === "All" || r.constructionType === activeType || r.industry === activeType;
+      const match = !q || [r.videoName, r.constructionType, r.industry].some((s) =>
+          String(s || "").toLowerCase().includes(q)
         );
-
       return typeOk && match;
     });
   }, [rows, activeType, query]);
 
   return (
     <div className="dv-page-container">
-      <div className="dv-top-promo">
-        Make Sure Choose the region closest to you for a seamless experience
-        <span className="dv-promo-close">✕</span>
-      </div>
-
-      <LandingNavbar user={user} signOut={signOut} />
+      <LandingNavbar 
+        user={user} 
+        signOut={signOut} 
+        selectedServer={selectedServer}
+        setSelectedServer={setSelectedServer}
+      />
 
       <main className="dv-main-content">
         <header className="dv-header-top">
           <div className="dv-title-group">
             <h1 className="dv-heading">Walkthrough Videos</h1>
-
             <div className="dv-badge-server">
               <img src={indiaIcon} alt="IN" />
               <span>India Server</span>
             </div>
           </div>
-
           <p className="dv-description">
-            Explore our premium architectural visualizations and immersive 3D
-            walkthroughs
+            Explore our premium architectural visualizations and immersive 3D walkthroughs
           </p>
         </header>
 
@@ -187,7 +159,6 @@ export default function DemoVideos() {
             ))}
           </div>
 
-          {/* ✅ compact search */}
           <div className="dv-search-box">
             <img src={searchIcon} alt="" className="dv-search-icon-img" />
             <input
@@ -205,9 +176,9 @@ export default function DemoVideos() {
         ) : (
           <div className="dv-projects-grid">
             {filtered.map((r, idx) => {
-              const thumb =
-                r.thumbnailUrl || r.image_url || r.thumbnail || r.image || "";
-
+              const thumb = r.thumbnailUrl || r.image_url || r.thumbnail || r.image || "";
+              
+              // This maps to Column L in your spreadsheet
               const demoUrl = r.vizwalkDemoUrl || r.walkthrough_link;
               const ytUrl = r.youtubeUrl || r.youtube;
 
@@ -220,14 +191,16 @@ export default function DemoVideos() {
                       alt={r.videoName || "Project"}
                     />
 
-                    {/* ✅ View Project pill (top-right bottom) */}
-                    <button
-                      className="dv-viewpill"
-                      onClick={() => window.open(demoUrl, "_blank")}
-                      type="button"
-                    >
-                      View Project <span className="dv-viewpill-ico">↗</span>
-                    </button>
+                    {/* ✅ ONLY SHOW if demoUrl exists (Column L is not empty) */}
+                    {demoUrl && (
+                      <button
+                        className="dv-viewpill"
+                        onClick={() => window.open(demoUrl, "_blank")}
+                        type="button"
+                      >
+                        View Project <span className="dv-viewpill-ico">↗</span>
+                      </button>
+                    )}
                   </div>
 
                   <div className="dv-card-details">
@@ -237,12 +210,9 @@ export default function DemoVideos() {
 
                     <p className="dv-project-meta">
                       {r.constructionType || r.industry || "Design"} |{" "}
-                      {r.areaSqft
-                        ? `${String(r.areaSqft).replace(/,/g, "")} Sqft`
-                        : "—"}
+                      {r.areaSqft ? `${String(r.areaSqft).replace(/,/g, "")} Sqft` : "—"}
                     </p>
 
-                    {/* ✅ footer buttons EXACT scale like Figma */}
                     <div className="dv-card-footer">
                       {/* YouTube square */}
                       <button
@@ -251,11 +221,7 @@ export default function DemoVideos() {
                         aria-label="Open YouTube"
                         type="button"
                       >
-                        <img
-                          src={ytIcon}
-                          alt=""
-                          className="dv-footerSquareImg dv-ytImg"
-                        />
+                        <img src={ytIcon} alt="" className="dv-footerSquareImg dv-ytImg" />
                       </button>
 
                       {/* VizWalk square */}
@@ -265,22 +231,20 @@ export default function DemoVideos() {
                         aria-label="Open VizWalk"
                         type="button"
                       >
-                        <img
-                          src={vizwalkIcon}
-                          alt=""
-                          className="dv-footerSquareImg"
-                        />
+                        <img src={vizwalkIcon} alt="" className="dv-footerSquareImg" />
                       </button>
 
-                      {/* View Demo pill */}
-                      <button
-                        className="dv-footerDemoBtn"
-                        onClick={() => window.open(demoUrl, "_blank")}
-                        type="button"
-                      >
-                        <img src={demoIcon} alt="" className="dv-demoIcon" />
-                        <span>View Demo</span>
-                      </button>
+                      {/* ✅ ONLY SHOW if demoUrl exists */}
+                      {demoUrl && (
+                        <button
+                          className="dv-footerDemoBtn"
+                          onClick={() => window.open(demoUrl, "_blank")}
+                          type="button"
+                        >
+                          <img src={demoIcon} alt="" className="dv-demoIcon" />
+                          <span>View Demo</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </article>
