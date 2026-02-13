@@ -1,400 +1,307 @@
 /* src/styles/demo-videos.css */
 
-/* Page */
-.dv-page {
-  min-height: 100vh;
+/* BASE PAGE STYLES */
+.dv-page-container {
   background: #ffffff;
+  min-height: 100vh;
+  width: 100%;
+  font-family: "Inter", sans-serif;
 }
 
-.dv-wrap {
-  max-width: 1255px;
-  margin: 0 auto;
-  padding: 28px 24px 60px;
-}
-
-.dv-title {
-  font-size: 44px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin: 10px 0 6px;
-  color: #0f0f0f;
-}
-
-.dv-subtitle {
+.dv-top-promo {
+  background: #ffc702;
+  color: #000;
+  text-align: center;
+  padding: 10px;
   font-size: 14px;
-  color: #6b6b6b;
-  margin: 0 0 18px;
+  font-weight: 600;
+  position: relative;
 }
 
-/* Controls */
-.dv-controls {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin: 18px 0 18px;
-}
-
-.dv-chips {
- 
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.dv-chip {
-  
-  border: 1px solid #d7d7d7;
-  background: #fff;
-  color: #6D6D6D;
-  
-  font-size: 13px;
-  padding: 5px 10px;
-  border-radius: 999px;
+.dv-promo-close {
+  position: absolute;
+  right: 20px;
   cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
 }
 
-.dv-chip:hover {
-  /* transform: translateY(-1px);
-  box-shadow: 0 10px 18px rgba(0,0,0,0.08); */
-  border-color: #FFC702;
+.dv-main-content {
+  width: 1520px;
+  max-width: 94vw;
+  margin: 0 auto;
+  padding: 40px 0 80px;
 }
 
-.dv-chip--active {
-  background: #f2b500;
-  border-color: #f2b500;
-  color: white;
-  /* box-shadow: 0 10px 18px rgba(242, 181, 0, 0.25); */
+/* HEADER SECTION */
+.dv-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* Search */
-.dv-search {
-  margin-left: auto;
+/* light heading override */
+.dv-title-group .dv-heading {
+  font-size: 48px;
+  margin: 0;
+  color: #000;
+  font-weight: 300 !important;
+  letter-spacing: -0.02em;
+}
+
+.dv-badge-server {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: #fff2b8;
+  border: 1px solid #f5dd6b;
+  color: #000;
+  font-size: 14px;
+  font-weight: 500;
+  height: 28px;
+  border-radius: 2px;
+}
+
+.dv-badge-server img {
+  width: 16px;
+}
+
+.dv-description {
+  margin: 12px 0 40px;
+  font-size: 18px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+/* FILTERS & SEARCH */
+.dv-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.dv-filter-chips {
+  display: flex;
+  gap: 12px;
+}
+
+.dv-type-chip {
+  padding: 8px 18px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.dv-type-chip.active {
+  background: #efefef;
+  color: #000;
+  font-weight: 700;
+  border-color: #999;
+}
+
+/* ✅ compact search like your ref */
+.dv-search-box {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #fff;
-  border: 1px solid #d7d7d7;
-  border-radius: 999px;
-  padding: 8px 14px;
-  min-width: 260px;
+
+  height: 40px;
+  width: 260px;
+  padding: 0 14px;
+
+  background: transparent;
+  border: 1px solid #8f8f8f;
+  border-radius: 4px;
 }
 
-.dv-searchIcon {
-  font-size: 14px;
-  opacity: 0.6;
+.dv-search-icon-img {
+  width: 18px;
+  height: 18px;
+  opacity: 0.75;
+  margin: 0;
 }
 
-.dv-search input {
+.dv-search-box input {
   border: none;
   outline: none;
   width: 100%;
-  font-size: 13px;
   background: transparent;
-}
-
-/* Grid */
-.dv-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  justify-content: center; /* keeps the row centered */
-  gap: 22px;
-  margin-top: 14px;
-}
-
-@media (max-width: 1020px) {
-  .dv-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .dv-grid {
-    grid-template-columns: 1fr;
-  }
-  .dv-title {
-    font-size: 34px;
-  }
-}
-
-/* Empty/Loading */
-.dv-empty,
-.dv-loading {
-  background: #fff;
-  border: 1px solid #e3e3e3;
-  border-radius: 14px;
-  padding: 16px;
-  color: #5d5d5d;
   font-size: 14px;
+  color: #333;
 }
 
-/* ==========================
-   Figma Card (White Version)
-   ========================== */
+.dv-search-box input::placeholder {
+  color: #666;
+}
 
-.dv-cardX {
-  border-radius: 18px;
+/* GRID & CARDS (16:9 RATIO) */
+.dv-projects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px 28px;
+}
+
+.dv-card-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
   overflow: hidden;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.14);
-  transition: transform 0.14s ease, box-shadow 0.14s ease;
-  width: 381px;
-  /* height: 427.5px; */
+  background: #f5f5f5;
+  margin-bottom: 16px;
+}
+
+.dv-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* View Project pill */
+.dv-viewpill {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 6px;
+
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+  cursor: pointer;
+}
+
+.dv-viewpill-ico {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* TEXT DETAILS */
+.dv-card-details {
   display: flex;
   flex-direction: column;
 }
 
-.dv-cardX:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 24px 55px rgba(0, 0, 0, 0.18);
+.dv-project-name {
+  font-size: 30px;
+  font-weight: 300; /* ✅ closer to figma */
+  color: #111;
+  margin: 0 0 6px 0;
 }
 
-/* Image area */
-.dv-mediaX {
-  aspect-ratio: 16 / 9;
-  background: #d9d9d9;
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  height: 255px;        /* ✅ same as landing */
-  background: #d9d9d9;
-  overflow: hidden;
+.dv-project-meta {
+  font-size: 18px;
+  color: #444;
+  margin: 0 0 10px 0;
 }
 
-.dv-imgX {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: filter 0.18s ease, transform 0.18s ease;
+/* ✅ FOOTER matches Figma scale exactly */
+.dv-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;          /* ✅ Figma gap */
+  margin-top: 1px;
 }
 
-/* blur ONLY when hovering image area */
-.dv-mediaX:hover .dv-imgX {
-  filter: blur(4px);
-  transform: scale(1.02);
-}
-
-/* Yellow play (hidden until hover of image) */
-.dv-centerPlay {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-
-  width: 68px;
-  height: 68px;
-  border-radius: 999px;
-  border: 0;
-  background: #f2b500;
-  cursor: pointer;
+/* square icon buttons (32x32) */
+.dv-footerSquare {
+  width: 32px;
+  height: 32px;
+  border-radius: 3px;                 /* ✅ Figma radius */
+  border: 0.5px solid rgba(0, 0, 0, 0.35);
+  background: #fff;
 
   display: grid;
   place-items: center;
-
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  cursor: pointer;
+  padding: 0;
 }
 
-.dv-mediaX:hover .dv-centerPlay {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translate(-50%, -50%) scale(1.02);
+/* icon inside square */
+.dv-footerSquareImg {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
-.dv-centerPlayTri {
-  width: 0;
-  height: 0;
-  border-left: 14px solid #111;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  transform: translateX(2px);
+/* YouTube slightly larger inside 32x32 */
+.dv-ytImg {
+  width: 20px;
+  height: 20px;
 }
 
-/* Info panel */
-.dv-infoX {
-  position: relative;
-  padding: 16px 16px 18px;
-  background: #F1F0EA;
+/* View Demo pill (32px height) */
+.dv-footerDemoBtn {
+  height: 32px;           /* ✅ Figma height */
+  padding: 8px 20px;      /* ✅ Figma padding L/R */
+  border-radius: 3px;
+  border: 0.5px solid rgba(0, 0, 0, 0.35);
+  background: #fff;
 
-  /* space for pill on right */
-  /* padding-right: 150px; */
-}
-
-.dv-titleX {
-  margin: 0 0 4px;
-  font-size: 20px;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  color: #111;
-  line-height: 1.05;
-}
-
-.dv-tagX {
   display: inline-flex;
   align-items: center;
-  margin-top: 6px;
-  padding: 4px 4px;
-  border-radius: 6px;
-  background: #f7e6bc;
-  border: 1px solid #f2d48c;
-  color: #f59a00;
-  font-size: 12px;
-  font-weight: 700;
+  gap: 12px;
+
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+
+  cursor: pointer;
+  white-space: nowrap;
   line-height: 1;
 }
 
-.dv-metaX {
-  margin-top: 4px;
-  font-size: 14px;
-  color: rgba(0, 0, 0, 0.75);
+/* View demo icon inside pill */
+.dv-demoIcon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
 }
 
-/* Red YouTube pill bottom-right */
-.dv-ytPill {
-  position: absolute;
-  right: 14px;
-  bottom: 40px;
-
-  height: 36px;
-  width: 54px; /* collapsed (icon visible) */
-  border-radius: 999px;
-
-
-  cursor: pointer;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0;
-  overflow: hidden;
-  transition: width 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
-
-  background: transparent;   /* removes white oval */
-  border: 0;                 /* removes outline */
-  box-shadow: none;          /* removes shadow */
-  padding: 0; 
-}
-
-.dv-ytPill:hover {
-  width: 225px; /* reduced width */
-  justify-content: flex-start;
-  padding: 0 12px;
-  transform: translateY(-1px);
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.18);
-}
-.dv-ytIconWrap{
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-}
-
-.dv-ytIcon {
-  width: 22px;
-  height: 22px;
-  display: block;
-}
-
-/* label hidden until hover */
-.dv-ytLabel {
-  white-space: nowrap;
-  opacity: 0;
-  max-width: 0;
-  overflow: hidden;
-  transform: translateX(-4px);
-  transition: opacity 0.16s ease, max-width 0.18s ease, transform 0.18s ease;
-
-  font-size: 13px;
-  font-weight: 800;
-  color: #111;
-}
-
-.dv-ytPill:hover .dv-ytLabel {
-  opacity: 1;
-  max-width: 170px;
-  transform: translateX(0);
-}
-.dv-search {
-  margin-left: auto;
+/* LOADER */
+.dv-loader-container {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #fff;
-  border: 1px solid #d7d7d7;
-  border-radius: 999px;
-  padding: 8px 14px;
-  min-width: 260px;
-}
-
-.dv-searchIcon {
-  width: 20;
-  height: 20;
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  flex: 0 0 14px;
+  padding: 100px;
 }
 
-/* IMPORTANT: constrain the image */
-.dv-searchIconImg {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
+.dv-loader-ring {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #ffc702;
+  border-radius: 50%;
+  animation: dv-spin 1s linear infinite;
 }
 
-@media (max-width: 420px) {
-  .dv-titleX {
-    font-size: 24px;
+@keyframes dv-spin {
+  to {
+    transform: rotate(360deg);
   }
-  .dv-infoX {
-    padding-right: 140px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1100px) {
+  .dv-projects-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-  .dv-ytPill:hover {
-    width: min(210px, 74vw);
+}
+
+@media (max-width: 700px) {
+  .dv-projects-grid {
+    grid-template-columns: 1fr;
   }
-  .dv-searchIconImg{
-  width: 14px;
-  height: 14px;
-  object-fit: contain;
-  display: block;
-}
-
-}
-/* Loading throbber */
-.dv-loadingWrap{
-  background: #fff;
-  /* border: 1px solid #e3e3e3; */
-  border-radius: 14px;
-  padding: 120px 16px;
-  display: grid;
-  place-items: center;
-  gap: 10px;
-  color: #5d5d5d;
-}
-
-.dv-loadingText{
-  font-size: 13px;
-}
-
-/* clean spinner */
-.dv-throbber{
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: 3px solid rgba(0,0,0,0.12);
-  border-top-color: #f2b500; /* matches your active chip */
-  animation: dvSpin 0.8s linear infinite;
-}
-
-@keyframes dvSpin{
-  to { transform: rotate(360deg); }
 }

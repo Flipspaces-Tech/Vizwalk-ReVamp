@@ -1,87 +1,92 @@
 // src/pages/DemoVideos.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import LandingNavbar from "../components/LandingNavbar.jsx";
-import "../styles/demo-videos.css";
+import Footer from "../components/Footer.jsx";
 import { useAuth } from "../auth/AuthProvider";
 
-// use your youtube icon from assets
+// Assets
 import ytIcon from "../assets/yt1.png";
-import searchIcon from "../assets/search.png"; // change to your actual file name
+import searchIcon from "../assets/search.png";
+import indiaIcon from "../assets/india.png";
 
+// ✅ add your two icons (replace filenames with your actual assets)
+import vizwalkIcon from "../assets/vz1.png"; // yellow+green icon
+import demoIcon from "../assets/view demo.png";       // purple play icon
+
+import "../styles/demo-videos.css";
 
 const WEBAPP_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
-
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const TAB_NAME = "Demo Videos Page";
 
+/* ---------------------------
+   ✅ Robust Drive Helpers
+---------------------------- */
 function extractDriveFileId(url = "") {
-  const s = String(url || "");
-  const m1 = s.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (m1?.[1]) return m1[1];
-  const m2 = s.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (m2?.[1]) return m2[1];
-  const m3 = s.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (m3?.[1]) return m3[1];
+  const s = String(url || "").trim();
+  if (!s) return null;
+
+  const patterns = [
+    /\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /\/d\/([a-zA-Z0-9_-]+)/,
+    /[?&]id=([a-zA-Z0-9_-]+)/,
+    /thumbnail\?id=([a-zA-Z0-9_-]+)/,
+    /lh3\.googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/,
+    /drive\.usercontent\.google\.com\/uc\?id=([a-zA-Z0-9_-]+)/,
+  ];
+
+  for (const p of patterns) {
+    const m = s.match(p);
+    if (m?.[1]) return m[1];
+  }
   return null;
 }
 
-function driveToDirectImageUrl(url = "") {
-  const id = extractDriveFileId(url);
-  if (!id) return String(url || "");
-  return `https://drive.google.com/uc?export=view&id=${id}`;
+function isProbablyDriveId(x) {
+  const s = String(x || "").trim();
+  return /^[a-zA-Z0-9_-]{20,}$/.test(s);
 }
 
+function getDriveImageCandidates(urlOrId = "") {
+  if (!urlOrId) return ["https://picsum.photos/seed/viz/1400/900"];
+
+  const raw = String(urlOrId).trim();
+  const extracted = extractDriveFileId(raw);
+  const id = extracted || (isProbablyDriveId(raw) ? raw : null);
+
+  if (!id) return [raw];
+
+  return [
+    `https://lh3.googleusercontent.com/d/${id}=w1400`,
+    `https://drive.usercontent.google.com/uc?id=${id}&export=view`,
+    `https://drive.google.com/thumbnail?id=${id}&sz=w1400`,
+    `https://drive.google.com/uc?export=view&id=${id}`,
+  ];
+}
+
+/* ---------------------------
+   ✅ Image component with retry
+---------------------------- */
 function ImageWithFallback({ src, alt, className }) {
-  const isDrive = /drive\.google\.com/i.test(src || "");
-  const extractDriveId = (url = "") => {
-    if (!url) return "";
-    const m1 = url.match(/\/d\/([^/]+)\//);
-    const m2 = url.match(/[?&]id=([^&]+)/);
-    return m1?.[1] || m2?.[1] || "";
-  };
-  const id = isDrive ? extractDriveId(src) : "";
-
-  const candidates =
-    isDrive && id
-      ? [
-          `https://lh3.googleusercontent.com/d/${id}=w1400-h900-no`,
-          `https://drive.google.com/uc?export=view&id=${id}`,
-          `https://drive.google.com/thumbnail?id=${id}&sz=w1400-h900`,
-          src,
-        ]
-      : [src || ""];
-
+  const candidates = useMemo(() => getDriveImageCandidates(src), [src]);
   const [idx, setIdx] = useState(0);
-  const onError = () => setIdx((i) => (i < candidates.length - 1 ? i + 1 : -1));
 
-  if (!src || idx === -1) {
-    return (
-      <img
-        className={className}
-        src="https://picsum.photos/seed/vizwalk/1400/900"
-        alt={alt || "preview"}
-        loading="lazy"
-        referrerPolicy="no-referrer"
-        crossOrigin="anonymous"
-      />
-    );
-  }
+  useEffect(() => setIdx(0), [src, candidates.length]);
 
-  const bust = Date.now();
-  const current = candidates[idx]
-    ? `${candidates[idx]}${candidates[idx].includes("?") ? "&" : "?"}cb=${bust}`
-    : "";
+  const finalSrc =
+    candidates[idx] || "https://picsum.photos/seed/vizwalk/1400/900";
 
   return (
     <img
       className={className}
-      src={current}
-      alt={alt || "preview"}
+      src={finalSrc}
+      alt={alt}
       loading="lazy"
-      onError={onError}
       referrerPolicy="no-referrer"
-      crossOrigin="anonymous"
+      onError={() => {
+        if (idx < candidates.length - 1) setIdx(idx + 1);
+      }}
     />
   );
 }
@@ -89,84 +94,92 @@ function ImageWithFallback({ src, alt, className }) {
 export default function DemoVideos() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [activeType, setActiveType] = useState("All");
   const [query, setQuery] = useState("");
   const { user, signOut } = useAuth();
 
   useEffect(() => {
-    let mounted = true;
-
     async function load() {
       try {
         setLoading(true);
-
         const u = new URL(WEBAPP_URL);
         u.searchParams.set("action", "demovideos");
         u.searchParams.set("sheetId", SHEET_ID);
         u.searchParams.set("tab", TAB_NAME);
 
-        const res = await fetch(u.toString(), { cache: "no-store" });
+        const res = await fetch(u.toString());
         const data = await res.json();
-
-        if (!mounted) return;
         setRows(Array.isArray(data?.rows) ? data.rows : []);
       } catch (e) {
-        console.error("DemoVideos load error:", e);
-        if (mounted) setRows([]);
+        console.error("Fetch error:", e);
       } finally {
-        if (mounted) setLoading(false);
+        setLoading(false);
       }
     }
-
     load();
-    return () => {
-      mounted = false;
-    };
   }, []);
 
   const typeOptions = useMemo(() => {
     const set = new Set(["All"]);
     rows.forEach((r) => {
-      const t = String(r.constructionType || "").trim();
-      if (t) set.add(t);
+      const val = r.constructionType || r.industry;
+      if (val) set.add(String(val).trim());
     });
     return Array.from(set);
   }, [rows]);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-
+    const q = query.toLowerCase().trim();
     return rows.filter((r) => {
-      const typeOk = activeType === "All" || String(r.constructionType || "") === activeType;
-      if (!typeOk) return false;
+      const typeOk =
+        activeType === "All" ||
+        r.constructionType === activeType ||
+        r.industry === activeType;
 
-      if (!q) return true;
+      const match =
+        !q ||
+        [r.videoName, r.constructionType, r.industry].some((s) =>
+          String(s || "")
+            .toLowerCase()
+            .includes(q)
+        );
 
-      const hay = [r.videoName, r.projectSlot, r.sbu, r.areaSqft, r.constructionType]
-        .map((x) => String(x || "").toLowerCase())
-        .join(" ");
-
-      return hay.includes(q);
+      return typeOk && match;
     });
   }, [rows, activeType, query]);
 
   return (
-    <div className="dv-page">
+    <div className="dv-page-container">
+      <div className="dv-top-promo">
+        Make Sure Choose the region closest to you for a seamless experience
+        <span className="dv-promo-close">✕</span>
+      </div>
+
       <LandingNavbar user={user} signOut={signOut} />
 
-      <div className="dv-wrap">
-        <h1 className="dv-title">Walkthrough Videos</h1>
-        <p className="dv-subtitle">
-          Explore our premium architectural visualizations and immersive 3D walkthroughs
-        </p>
+      <main className="dv-main-content">
+        <header className="dv-header-top">
+          <div className="dv-title-group">
+            <h1 className="dv-heading">Walkthrough Videos</h1>
 
-        <div className="dv-controls">
-          <div className="dv-chips">
+            <div className="dv-badge-server">
+              <img src={indiaIcon} alt="IN" />
+              <span>India Server</span>
+            </div>
+          </div>
+
+          <p className="dv-description">
+            Explore our premium architectural visualizations and immersive 3D
+            walkthroughs
+          </p>
+        </header>
+
+        <section className="dv-filter-bar">
+          <div className="dv-filter-chips">
             {typeOptions.map((t) => (
               <button
                 key={t}
-                className={`dv-chip ${t === activeType ? "dv-chip--active" : ""}`}
+                className={`dv-type-chip ${t === activeType ? "active" : ""}`}
                 onClick={() => setActiveType(t)}
               >
                 {t}
@@ -174,90 +187,114 @@ export default function DemoVideos() {
             ))}
           </div>
 
-         <div className="dv-search">
-  <span className="dv-searchIcon">
-    <img className="dv-searchIconImg" src={searchIcon} alt="Search" />
-  </span>
-
-  <input
-    value={query}
-    onChange={(e) => setQuery(e.target.value)}
-    placeholder="Search Projects.."
-  />
-</div>
-
-
-
-        </div>
+          {/* ✅ compact search */}
+          <div className="dv-search-box">
+            <img src={searchIcon} alt="" className="dv-search-icon-img" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search Projects..."
+            />
+          </div>
+        </section>
 
         {loading ? (
-  <div className="dv-loadingWrap">
-    <div className="dv-throbber" aria-label="Loading" />
-  </div>
-) : filtered.length === 0 ? (
-
-          <div className="dv-empty">No videos found.</div>
+          <div className="dv-loader-container">
+            <div className="dv-loader-ring"></div>
+          </div>
         ) : (
-          <div className="dv-grid">
+          <div className="dv-projects-grid">
             {filtered.map((r, idx) => {
-              const thumb = driveToDirectImageUrl(r.thumbnailUrl);
+              const thumb =
+                r.thumbnailUrl || r.image_url || r.thumbnail || r.image || "";
 
-              // ✅ THESE ARE THE REAL KEYS (from your console screenshot)
-              const projectShowcaseUrl = String(r.youtubeUrl || "").trim();
-              const interactiveVideoUrl = String(r.vizwalkDemoUrl || "").trim();
+              const demoUrl = r.vizwalkDemoUrl || r.walkthrough_link;
+              const ytUrl = r.youtubeUrl || r.youtube;
 
               return (
-                <div className="dv-cardX" key={`${r.videoName || "v"}-${idx}`}>
-                  <div className="dv-mediaX">
-                    <ImageWithFallback src={thumb} alt={r.videoName} className="dv-imgX" />
+                <article className="dv-project-card" key={idx}>
+                  <div className="dv-card-media">
+                    <ImageWithFallback
+                      className="dv-card-img"
+                      src={thumb}
+                      alt={r.videoName || "Project"}
+                    />
 
-                    {/* ✅ Yellow play ONLY on hover + only if link exists */}
-                    {projectShowcaseUrl ? (
-                      <button
-                        type="button"
-                        className="dv-centerPlay"
-                        title="Project Showcase"
-                        onClick={() =>
-                          window.open(projectShowcaseUrl, "_blank", "noopener,noreferrer")
-                        }
-                      >
-                        <span className="dv-centerPlayTri" />
-                      </button>
-                    ) : null}
+                    {/* ✅ View Project pill (top-right bottom) */}
+                    <button
+                      className="dv-viewpill"
+                      onClick={() => window.open(demoUrl, "_blank")}
+                      type="button"
+                    >
+                      View Project <span className="dv-viewpill-ico">↗</span>
+                    </button>
                   </div>
 
-                  <div className="dv-infoX">
-                    <div className="dv-titleX">{r.videoName || "Untitled"}</div>
+                  <div className="dv-card-details">
+                    <h3 className="dv-project-name">
+                      {r.videoName || r.buildName || "Project Name"}
+                    </h3>
 
-                    {r.constructionType ? <div className="dv-tagX">{r.constructionType}</div> : null}
+                    <p className="dv-project-meta">
+                      {r.constructionType || r.industry || "Design"} |{" "}
+                      {r.areaSqft
+                        ? `${String(r.areaSqft).replace(/,/g, "")} Sqft`
+                        : "—"}
+                    </p>
 
-                    <div className="dv-metaX">
-                      {r.areaSqft ? `Area – ${String(r.areaSqft).replace(/,/g, "")} sqft` : ""}
+                    {/* ✅ footer buttons EXACT scale like Figma */}
+                    <div className="dv-card-footer">
+                      {/* YouTube square */}
+                      <button
+                        className="dv-footerSquare"
+                        onClick={() => window.open(ytUrl, "_blank")}
+                        aria-label="Open YouTube"
+                        type="button"
+                      >
+                        <img
+                          src={ytIcon}
+                          alt=""
+                          className="dv-footerSquareImg dv-ytImg"
+                        />
+                      </button>
+
+                      {/* VizWalk square */}
+                      <button
+                        className="dv-footerSquare"
+                        onClick={() => window.open(demoUrl, "_blank")}
+                        aria-label="Open VizWalk"
+                        type="button"
+                      >
+                        <img
+                          src={vizwalkIcon}
+                          alt=""
+                          className="dv-footerSquareImg"
+                        />
+                      </button>
+
+                      {/* View Demo pill */}
+                      <button
+                        className="dv-footerDemoBtn"
+                        onClick={() => window.open(demoUrl, "_blank")}
+                        type="button"
+                      >
+                        <img src={demoIcon} alt="" className="dv-demoIcon" />
+                        <span>View Demo</span>
+                      </button>
                     </div>
-
-                    {/* ✅ Red YouTube pill bottom-right + expands on hover (only if link exists) */}
-                    {interactiveVideoUrl ? (
-                      <button
-                        type="button"
-                        className="dv-ytPill"
-                        title="Vizwalk Interactive Video"
-                        onClick={() =>
-                          window.open(interactiveVideoUrl, "_blank", "noopener,noreferrer")
-                        }
-                      >
-                        <span className="dv-ytIconWrap">
-                          <img className="dv-ytIcon" src={ytIcon} alt="YouTube" />
-                        </span>
-                        <span className="dv-ytLabel">Vizwalk Interactive Video</span>
-                      </button>
-                    ) : null}
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>
         )}
-      </div>
+
+        {!loading && filtered.length === 0 && (
+          <div className="dv-no-results">No projects found.</div>
+        )}
+      </main>
+
+      <Footer />
     </div>
   );
 }
