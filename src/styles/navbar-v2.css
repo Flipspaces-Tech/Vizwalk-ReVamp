@@ -1,0 +1,240 @@
+/* src/styles/navbar-v2.css */
+
+:root {
+  --vwTopBarH: 34px;
+  --vwNavH: 52px;
+
+  /* Colors derived from Figma screenshot */
+  --vwYellow: #F3C21A;
+  --vwDark: #3C3B37; /* The exact warm dark grey from the image */
+  --vwWhite: #FFFFFF;
+  --vwBorder: rgba(255, 255, 255, 0.35); /* Subtle border color */
+}
+
+/* Base Reset for this component */
+.vwNavWrap, .vwNavWrap * {
+  box-sizing: border-box;
+}
+
+.vwNavWrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.vwContainer {
+  width: 96%; /* Matches the wide layout in the screenshot */
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+/* --- Top Bar --- */
+.vwTopBar {
+  background: var(--vwYellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 48px;
+}
+
+.vwTopBarInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vwTopBarText {
+  font-size: 16px;
+  color: #111;
+  letter-spacing: 0.02em;
+}
+
+.vwTopBarClose {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  width: 24px;
+  height: 24px;
+}
+
+/* --- Navbar Main --- */
+.vwNav {
+  background: var(--vwDark);
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  height: 76px;
+}
+
+.vwNavInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* 1. Logo Group */
+.vwLogoGroup {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  height: 100%;
+}
+
+.vwLogoIcon {
+  height: 37px; /* Adjusted to match scale */
+  width: auto;
+  display: block;
+}
+
+.vwLogoDivider {
+  width: 1px;
+  height: 20px;
+  background-color: rgba(255,255,255,0.4);
+  margin: 0 16px; /* Precise gap from image */
+}
+
+.vwLogoText {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--vwWhite);
+  letter-spacing: -0.02em;
+}
+
+/* 2. Navigation Links */
+.vwNavLinks {
+  display: flex;
+  align-items: center;
+  gap: 60px; /* Generous spacing like in Figma */
+  
+  /* This pushes the nav links to be centered but biases them based on free space */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.vwNavLink {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.8); /* Slightly dimmed inactive state */
+  text-transform: uppercase;
+  padding: 5px 0;
+  transition: all 0.2s;
+}
+
+.vwNavLink:hover {
+  color: #fff;
+}
+
+.vwNavLink.isActive {
+  color: #fff;
+  font-weight: 600; /* Bold "HOME" */
+  opacity: 1;
+}
+
+/* Dropdown styling */
+.vwDd { position: relative; }
+.vwDdMenu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  min-width: 160px;
+  padding: 5px 0;
+  display: flex;
+  flex-direction: column;
+}
+.vwDdItem {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.vwDdItem:hover { background: #f7f7f7; }
+
+/* 3. Right Controls */
+.vwNavRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+}
+
+/* Region Toggle (IN/US) */
+.vwRegionGroup {
+
+  display: flex;
+  border: 1px solid var(--vwBorder);
+  border-radius: 3px;
+  height: 28px;
+  
+}
+
+.vwRegionBtn {
+  width: 80px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 0 14px;
+  cursor: pointer;
+  height: 100%;
+  align-items: center;
+}
+
+.vwRegionBtn.active {
+  background: var(--vwYellow);
+  color: #111;
+}
+
+/* Icon Buttons (Sun/Exit) */
+.vwIconBtn {
+  background: transparent;
+  border: 1px solid var(--vwBorder);
+  border-radius: 3px;
+  height: 28px;
+  width: 32px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.vwIconBtn:hover {
+  border-color: #fff;
+}
+
+/* Responsive Handling */
+@media (max-width: 1024px) {
+  .vwNavLinks {
+    position: static;
+    transform: none;
+    margin-left: auto;
+    margin-right: 20px;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .vwNavLinks { display: none; }
+}

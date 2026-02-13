@@ -1,15 +1,19 @@
+// src/components/LandingNavbar.jsx
 import React, { useEffect, useRef, useState } from "react";
-import vizIcon from "../assets/L1.png"; // same logo as landing
-import "../styles/lovable-navbar.css";
 import { useNavigate } from "react-router-dom";
+import vizIcon from "../assets/vw1.png"; // Ensure this is just the 'V' logo
+import "../styles/navbar-v2.css";
 
-
-export default function LandingNavbar({ user, signOut }) {
-  const [open, setOpen] = useState(false);
+export default function LandingNavbar({
+  user,
+  signOut,
+  selectedServer = "india",
+  setSelectedServer,
+}) {
   const [dd, setDd] = useState(false);
+  const [showTopBar, setShowTopBar] = useState(true);
   const ddRef = useRef(null);
   const navigate = useNavigate();
-
 
   useEffect(() => {
     const onDown = (e) => {
@@ -19,215 +23,129 @@ export default function LandingNavbar({ user, signOut }) {
     return () => document.removeEventListener("mousedown", onDown);
   }, []);
 
-  // Works on landing page (scroll), and on other pages it redirects to landing hash.
   const goOrScroll = (id) => {
+    // Navigate logic here
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-    window.location.href = `/#${id}`;
+    if (el) return el.scrollIntoView({ behavior: "smooth" });
+    navigate(`/#${id}`);
   };
 
   return (
-    <header className="lv-header">
-      <div className="lv-container">
-        <nav className="lv-nav">
-          <a
-            href="/"
-            className="lv-logo"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate("/"); // ✅ takes user to Landing.jsx route
-            }}
-          >
-            <img className="lv-logoImg" src={vizIcon} alt="Vizwalk — Powered by Flipspaces" />
-          </a>
-
-
-          <div className="lv-links">
-            <a
-              className="lv-link"
-              href="#featured-projects"
-              onClick={(e) => {
-                e.preventDefault();
-                goOrScroll("featured-projects");
-              }}
-            >
-              Home
-            </a>
-
-              <div className="lv-dd" ref={ddRef}>
+    <>
+      <div className="vwNavWrap">
+        {/* Yellow info bar */}
+        {showTopBar && (
+          <div className="vwTopBar">
+            <div className="vwContainer vwTopBarInner">
+              <div className="vwTopBarText">
+                Make Sure Choose the region closest to you for a seamless experience
+              </div>
               <button
                 type="button"
-                className="lv-link lv-ddBtn"
-                onClick={() => setDd((v) => !v)}
+                className="vwTopBarClose"
+                onClick={() => setShowTopBar(false)}
               >
-                Projects{" "}
-                <span
-                  style={{
-                    marginLeft: 6,
-                    display: "inline-block",
-                    transform: dd ? "rotate(180deg)" : "none",
-                    transition: "transform 0.2s",
-                  }}
-                >
-                  ▾
-                </span>
-              </button>
-
-              {dd && (
-                <div className="lv-ddMenu">
-                  <button
-                    type="button"
-                    className="lv-ddItem"
-                    onClick={() => {
-                      setDd(false);
-                      goOrScroll("featured-projects");
-                    }}
-                  >
-                    Showcase Projects
-                  </button>
-
-                  <a
-                    className="lv-ddItem"
-                    href="/live-projects"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setDd(false);
-                      // keep as-is (you can route it later)
-                    }}
-                  >
-                    Live Projects
-                  </a>
-                </div>
-              )}
-            </div>
-
-
-
-
-
-            <a
-              className="lv-link"
-              href="/demo-videos"
-              onClick={(e) => {
-                e.preventDefault();
-                window.open("/demo-videos", "_blank", "noopener,noreferrer");
-              }}
-            >
-              Videos
-            </a>
-
-
-
-            
-
-           <a
-  className="lv-link"
-  href="/learn"
-  onClick={(e) => {
-    e.preventDefault();
-    window.open("/learn", "_blank", "noopener,noreferrer");
-  }}
->
-  Learn
-</a>
-
-          </div>
-
-          <div className="lv-actions">
-            <button type="button" className="lv-iconBtn" title="Settings">
-              ⚙
-            </button>
-
-            <div className="lv-logoutWrap">
-  <button type="button" className="lv-link lv-logoutLink" onClick={signOut}>
-    Logout
-  </button>
-
-  <div className="lv-logoutTooltip">
-    {user?.email || "user"}
-  </div>
-</div>
-
-
-          </div>
-
-          <button className="lv-mobileBtn" type="button" onClick={() => setOpen((v) => !v)}>
-            {open ? "✕" : "☰"}
-          </button>
-        </nav>
-
-        {open && (
-          <div className="lv-mobileMenu">
-            <a
-              href="#featured-projects"
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(false);
-                goOrScroll("featured-projects");
-              }}
-            >
-              Features
-            </a>
-
-            <a
-              href="#featured-projects"
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(false);
-                goOrScroll("featured-projects");
-              }}
-            >
-              Demo Videos
-            </a>
-
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                goOrScroll("featured-projects");
-              }}
-            >
-              Showcase Projects
-            </button>
-
-            <a
-              href="/live-projects"
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(false);
-              }}
-            >
-              Live Projects
-            </a>
-
-            <a
-              href="#clients"
-              onClick={(e) => {
-                e.preventDefault();
-                setOpen(false);
-                goOrScroll("clients");
-              }}
-            >
-              Testimonials
-            </a>
-
-            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-              <button
-                type="button"
-                onClick={() => {
-                  setOpen(false);
-                  signOut();
-                }}
-              >
-                Logout
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                  <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
               </button>
             </div>
           </div>
         )}
+
+        {/* Dark navbar */}
+        <div className="vwNav">
+          <div className="vwContainer vwNavInner">
+            
+            {/* Left: Logo Area */}
+            <a
+              className="vwLogoGroup"
+              href="/"
+              onClick={(e) => { e.preventDefault(); navigate("/"); }}
+            >
+              <img className="vwLogoIcon" src={vizIcon} alt="Vizwalk Logo" />
+              <div className="vwLogoDivider"></div>
+              <span className="vwLogoText">vizwalk</span>
+            </a>
+
+            {/* Center: Links */}
+            <div className="vwNavLinks">
+              {/* HOME is bold/active by default based on design */}
+              <button className="vwNavLink isActive" onClick={() => goOrScroll("featured-projects")}>
+                HOME
+              </button>
+
+              <div className="vwDd" ref={ddRef}>
+                <button className="vwNavLink" onClick={() => setDd((v) => !v)}>
+                  PROJECTS
+                </button>
+                {dd && (
+                  <div className="vwDdMenu">
+                    <button className="vwDdItem" onClick={() => { setDd(false); goOrScroll("featured-projects"); }}>
+                      Showcase Projects
+                    </button>
+                    <button className="vwDdItem" onClick={() => { setDd(false); window.open("/live-projects", "_blank"); }}>
+                      Live Projects
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <button className="vwNavLink" onClick={() => window.open("/learn", "_blank")}>
+                LEARN
+              </button>
+
+              <button className="vwNavLink" onClick={() => window.open("/demo-videos", "_blank")}>
+                DEMO VIDEOS
+              </button>
+            </div>
+
+            {/* Right: Controls */}
+            <div className="vwNavRight">
+              {/* Region Toggle */}
+              <div className="vwRegionGroup">
+                <button
+                  className={`vwRegionBtn ${selectedServer === "india" ? "active" : ""}`}
+                  onClick={() => setSelectedServer?.("india")}
+                >
+                  IN
+                </button>
+                <button
+                  className={`vwRegionBtn ${selectedServer === "us" ? "active" : ""}`}
+                  onClick={() => setSelectedServer?.("us")}
+                >
+                  US
+                </button>
+              </div>
+
+              {/* Sun Icon */}
+              <button className="vwIconBtn" title="Theme">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+              </button>
+
+              {/* Logout Icon */}
+              <button className="vwIconBtn" title="Logout" onClick={signOut}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </header>
+      <div className="vwHeaderSpacer" style={{ height: showTopBar ? "86px" : "52px" }} />
+    </>
   );
 }

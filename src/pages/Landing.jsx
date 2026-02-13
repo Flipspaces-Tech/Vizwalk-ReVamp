@@ -10,21 +10,17 @@ import searchIcon from "../assets/search.png";
 import { useAuth } from "../auth/AuthProvider";
 import LandingNavbar from "../components/LandingNavbar.jsx";
 
-import "../styles/lovable-navbar.css";
 import "../styles/testimonials-marquee.css";
 import "../pages/Landing.css";
 
 import Footer from "../components/Footer.jsx";
 
-import worldMap  from "../assets/Testimonial BG.png"; // <-- change filename if needed
-
-
 /** ====== SHEET (CSV) ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
-const GID = "1024074012"; // <-- change to Featured Projects Page gid if needed
+const GID = "1024074012"; // Featured Projects Page gid
 
-/** ====== HERO ====== */
 const HERO_MP4 = "https://s3-vizwalk-dev.flipspaces.app/uploads/Demo.mp4";
+
 
 function parseCSV(text) {
   if (!text) return [];
@@ -121,7 +117,7 @@ function normalizeServer(v = "") {
   return "";
 }
 
-/** ====== IMAGE WITH FALLBACK (UPDATED: supports className) ====== */
+/** ====== IMAGE WITH FALLBACK ====== */
 function ImageWithFallback({ src, alt, style, className }) {
   const isDrive = /drive\.google\.com/i.test(src || "");
 
@@ -189,7 +185,7 @@ function MiniIconLink({ src, alt, href, title }) {
   );
 }
 
-/** ====== FEATURED CARD (UPDATED TO IMAGE1 STYLE) ====== */
+/** ====== FEATURED CARD ====== */
 function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwalk }) {
   const hasYoutube = Boolean(String(item.youtube || "").trim());
   const hasVizdom = Boolean(String(item.vizdomId || "").trim());
@@ -253,19 +249,6 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
   );
 }
 
-function getInitials(name = "") {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase())
-    .join("");
-}
-
-// ✅ add this import near your other assets imports
-
-// ✅ add this import near your other assets
-
 function TestimonialsOnly() {
   const testimonials = [
     {
@@ -300,114 +283,33 @@ function TestimonialsOnly() {
     },
   ];
 
-  // ✅ DUPLICATION for infinite marquee
   const loop = [...testimonials, ...testimonials];
 
   return (
-  <section className="tsSection">
-    <div className="tsInner">
-      <div className="tsKicker">WHAT OUR CLIENTS SAY</div>
+    <section className="tsSection">
+      <div className="tsInner">
+        <div className="tsKicker">WHAT OUR CLIENTS SAY</div>
 
-      <h2 className="tsTitle">
-        Trusted by leading businesses across industries for exceptional workspace
-        transformations
-      </h2>
+        <h2 className="tsTitle">
+          Trusted by leading businesses across industries for exceptional workspace transformations
+        </h2>
 
-      <div className="tsMarquee">
-        <div className="tsTrack">
-          {loop.map((t, idx) => (
-            <div className="tsCard" key={idx}>
-              <div className="tsName">{t.name}</div>
-              <div className="tsRole">{t.role}</div>
-              <div className="tsQuote">“{t.quote}”</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="tsFadeL" />
-        <div className="tsFadeR" />
-      </div>
-    </div>
-  </section>
-);
-
-}
-
-
-
-function FooterFullBleed() {
-  return (
-    <footer style={sx.footerBleed}>
-      <div style={sx.container}>
-        <div style={sx.footerGrid}>
-          <div style={sx.footerBrand}>
-            <img src={vizIcon} alt="Vizwalk" style={sx.footerLogoImg} />
-            <div style={sx.footerDesc}>
-              Next-generation architectural visualization platform. Bring your designs to life with stunning realism.
-            </div>
+        <div className="tsMarquee">
+          <div className="tsTrack">
+            {loop.map((t, idx) => (
+              <div className="tsCard" key={idx}>
+                <div className="tsName">{t.name}</div>
+                <div className="tsRole">{t.role}</div>
+                <div className="tsQuote">“{t.quote}”</div>
+              </div>
+            ))}
           </div>
 
-          <div style={sx.footerCol}>
-            <div style={sx.footerColTitle}>PRODUCT</div>
-            <a href="#featured-projects" style={sx.footerLink}>
-              Features
-            </a>
-            <a
-              href="#featured-projects"
-              style={{ ...sx.footerLink, opacity: 0.55, pointerEvents: "none" }}
-            >
-              Gallery
-            </a>
-            <a
-              href="#featured-projects"
-              style={{ ...sx.footerLink, opacity: 0.55, pointerEvents: "none" }}
-            >
-              Updates
-            </a>
-          </div>
-
-          <div style={sx.footerCol}>
-            <div style={sx.footerColTitle}>RESOURCES</div>
-            <a href="/docs" style={sx.footerLink}>
-              Documentation
-            </a>
-            <a href="/shortcuts" style={sx.footerLink}>
-              Shortcut Guide
-            </a>
-          </div>
-        </div>
-
-        <div style={sx.footerBottom}>
-          <div style={sx.footerCopy}>© 2026 Vizwalk.com All rights reserved.</div>
-          <div style={sx.footerSocial}>
-            <a
-              href="https://youtube.com"
-              target="_blank"
-              rel="noreferrer"
-              style={sx.footerSocialLink}
-            >
-              YouTube
-            </a>
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noreferrer"
-              style={sx.footerSocialLink}
-            >
-              LinkedIn
-            </a>
-            <a
-              href="https://instagram.com"
-              target="_blank"
-              rel="noreferrer"
-              style={sx.footerSocialLink}
-            >
-              Instagram
-            </a>
-          </div>
+          <div className="tsFadeL" />
+          <div className="tsFadeR" />
         </div>
       </div>
-    </footer>
+    </section>
   );
 }
 
@@ -421,9 +323,6 @@ export default function Landing() {
   const [activeCategory2, setActiveCategory2] = useState("All");
   const [searchQuery2, setSearchQuery2] = useState("");
   const [showAll2, setShowAll2] = useState(false);
-
-  const [showLocbar, setShowLocbar] = useState(true);
-  const handleContinue = () => setShowLocbar(false);
 
   useEffect(() => {
     setActiveCategory2("All");
@@ -569,119 +468,67 @@ export default function Landing() {
 
   return (
     <div style={sx.page}>
-      {showLocbar && (
-        <div className="lv-locbar">
-          <div className="lv-container">
-            <div className="lv-locbarInner">
-              <div className="lv-locbarText">
-                Choose another country or region to see content specific to your location
-              </div>
+      <LandingNavbar
+        user={user}
+        signOut={signOut}
+        selectedServer={selectedServer}
+        setSelectedServer={setSelectedServer}
+      />
 
-              <div className="lv-locbarRight">
-                <div className="lv-togglePills">
-                  <button
-                    type="button"
-                    className={`lv-pill ${selectedServer === "india" ? "lv-pillActive" : ""}`}
-                    onClick={() => setSelectedServer("india")}
-                  >
-                    <img src={indiaIcon} alt="" className="lv-pillImg" />
-                    <span>India</span>
-                  </button>
+      {/* HERO (Image2 style) */}
+      {/* HERO (video background) */}
+<section className="hero2">
+  <video
+    className="hero2Video"
+    src={HERO_MP4}
+    autoPlay
+    muted
+    loop
+    playsInline
+    preload="metadata"
+    controls={false}
+  />
 
-                  <button
-                    type="button"
-                    className={`lv-pill ${selectedServer === "us" ? "lv-pillActive" : ""}`}
-                    onClick={() => setSelectedServer("us")}
-                  >
-                    <img src={usIcon} alt="" className="lv-pillImg" />
-                    <span>US</span>
-                  </button>
-                </div>
+  {/* overlay for readability */}
+  <div className="hero2Overlay" />
 
-                <button type="button" className="lv-continue" onClick={handleContinue}>
-                  Continue
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+  <div className="hero2Inner">
+    <div className="hero2Kicker">CRAFTING IMMERSIVE EXPERIENCE</div>
 
-      <LandingNavbar user={user} signOut={signOut} />
+    <div className="hero2Title">Bring Spaces To Life</div>
 
-      {/* Hero */}
-      <div className="lv-container">
-        <section className="lv-hero">
-          <div className="lv-heroLeft">
-            <div className="lv-heroTitle">
-              Bring Your Spaces <br />
-              <span className="lv-heroAccent">To Life</span>
-            </div>
+    <div className="hero2Desc">
+      Interactive virtual walkthrough offering clients an <b>immersive experience with real-time</b>{" "}
+      <b>design modifications</b> using Flipspaces&apos; integrated product library
+    </div>
 
-            <div className="lv-heroDesc">
-              Interactive virtual walkthrough offering clients an immersive experience with real-time
-              design modifications using Flipspaces&apos; integrated product library
-            </div>
+    <div className="hero2Btns">
+      <button
+        type="button"
+        className="hero2Btn hero2BtnPrimary"
+        onClick={() =>
+          document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
+        }
+      >
+        <span className="hero2YT" aria-hidden="true" />
+        Watch Demo
+      </button>
 
-            <div className="lv-heroBtns">
-              <button
-                type="button"
-                className="lv-btnPrimary"
-                onClick={() =>
-                  document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
-                }
-              >
-                ▶ Watch Demo
-              </button>
+      <button
+        type="button"
+        className="hero2Btn hero2BtnSecondary"
+        onClick={() =>
+          document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
+        }
+      >
+        Explore Platform
+      </button>
+    </div>
+  </div>
+</section>
 
-              <button
-                type="button"
-                className="lv-btnSecondary"
-                onClick={() =>
-                  document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
-                }
-              >
-                Explore Platform
-              </button>
-            </div>
-          </div>
 
-          <div className="lv-heroRight" style={{ flex: "0 0 560px", display: "flex", justifyContent: "center" }}>
-            <div
-              style={{
-                width: "685px",
-                height: "404px",
-                borderRadius: 22,
-                overflow: "hidden",
-                position: "relative",
-                background: "#000",
-              }}
-            >
-              <video
-                src={HERO_MP4}
-                autoPlay
-                muted
-                loop
-                playsInline
-                preload="metadata"
-                controls={false}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  border: 0,
-                  display: "block",
-                }}
-                onError={(e) => console.error("Hero MP4 failed:", e)}
-              />
-            </div>
-          </div>
-        </section>
-      </div>
-
-      {/* Featured Projects (IMAGE1 CARD STYLE) */}
+      {/* Featured Projects */}
       <section id="featured-projects" className="fpSection">
         <div className="fpContainer">
           <div className="fpHeader">
@@ -772,77 +619,5 @@ const sx = {
     background: "#ffffff",
     color: "#141414",
     fontFamily: "var(--font-sans)",
-  },
-
-  container: {
-    width: "min(1180px, 92vw)",
-    margin: "0 auto",
-  },
-
-  footerBleed: { width: "100%", background: "#d0d0cc", padding: "42px 0 22px" },
-
-  footerGrid: {
-    display: "grid",
-    gridTemplateColumns: "1.6fr 0.7fr 0.7fr",
-    gap: 80,
-    alignItems: "start",
-  },
-
-  footerBrand: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-    gap: 10,
-  },
-
-  footerLogoImg: { display: "block", height: 44, width: "auto", objectFit: "contain" },
-
-  footerDesc: {
-    maxWidth: 360,
-    fontSize: 13,
-    lineHeight: 1.55,
-    color: "rgba(0,0,0,0.72)",
-    fontWeight: 600,
-  },
-
-  footerCol: { paddingTop: 6 },
-
-  footerColTitle: {
-    fontWeight: 900,
-    fontSize: 12,
-    letterSpacing: "0.08em",
-    color: "rgba(0,0,0,0.60)",
-    marginBottom: 14,
-  },
-
-  footerLink: {
-    display: "block",
-    fontSize: 13,
-    fontWeight: 700,
-    color: "rgba(0,0,0,0.70)",
-    marginBottom: 10,
-    textDecoration: "none",
-  },
-
-  footerBottom: {
-    marginTop: 28,
-    paddingTop: 16,
-    borderTop: "1px solid rgba(0,0,0,0.12)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 16,
-  },
-
-  footerCopy: { fontSize: 12, color: "rgba(0,0,0,0.65)", fontWeight: 600 },
-
-  footerSocial: { display: "flex", gap: 22, alignItems: "center" },
-
-  footerSocialLink: {
-    fontSize: 12,
-    fontWeight: 800,
-    color: "rgba(0,0,0,0.60)",
-    textDecoration: "none",
   },
 };

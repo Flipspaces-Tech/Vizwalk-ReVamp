@@ -1,3 +1,5 @@
+/* src/pages/Landing.css */
+
 /* =========================================================
    GLOBAL BASE
 ========================================================= */
@@ -28,40 +30,157 @@ html, body, #root {
 }
 
 /* =========================================================
-   HERO VIDEO CARD
+   HERO (VIDEO BACKGROUND) ✅ CLEAN (no duplicates)
+   - Use with:
+     <section className="hero2">
+       <video className="hero2Video" ... />
+       <div className="hero2Overlay" />
+       <div className="hero2Inner">...</div>
+     </section>
 ========================================================= */
-.heroVideoCard {
+.hero2{
   width: 100%;
-  height: 360px;
-  border-radius: 22px;
-  overflow: hidden;
-  background: #000;
+  height: 794px; /* adjust if needed */
   position: relative;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: #000;
 }
 
-.heroVideoFrame {
+/* Full-bleed background video */
+.hero2Video{
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  border: 0;
-
-  /* removes black bars by cropping */
-  transform: scale(1.18);
-  transform-origin: center center;
+  object-fit: cover;
+  transform: scale(1.06);
+  filter: saturate(0.95) contrast(1.05) brightness(0.75);
 }
 
-.heroVideoBlocker {
+/* Dark overlay for readability */
+.hero2Overlay{
   position: absolute;
   inset: 0;
-  z-index: 5;
-  background: transparent;
-  cursor: default;
+  background:
+    radial-gradient(1000px 600px at 50% 50%, rgba(0,0,0,0.15), rgba(0,0,0,0.55)),
+    linear-gradient(90deg, rgba(0,0,0,0.55), rgba(0,0,0,0.25), rgba(0,0,0,0.55));
+}
+
+/* Center content */
+.hero2Inner{
+  position: relative;
+  z-index: 2;
+  width: min(1348px, 92vw);
+  text-align: center;
+  color: rgba(255,255,255,0.92);
+  padding: 0 16px;
+}
+
+.hero2Kicker{
+  font-size: 22px;
+  letter-spacing: 0.24em;
+  color: rgba(255,255,255,0.70);
+  margin-bottom: 10px;
+}
+
+.hero2Title{
+  font-size: 64px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.hero2Desc{
+  font-size: 30px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.80);
+
+  /* ✅ make it a real centered block */
+  width: 1348px;
+  margin: 0 auto;
+  text-align: center;
+
+  /* ✅ lighter */
+  font-weight: 300;
+
+  /* ✅ improve wrapping so it looks centered */
+  text-wrap: balance;
+}
+
+.hero2Desc b,
+.hero2Desc strong{
+  font-weight: 300;
+}
+
+
+
+/* Buttons */
+.hero2Btns{
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero2Btn{
+  height: 52px;
+  width: 224px;
+  padding: 0 14px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.90);
+  font-size: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(2px);
+}
+
+.hero2Btn:hover{
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.50);
+}
+
+.hero2BtnPrimary{
+  background: rgba(255,255,255,0.10);
+}
+
+.hero2BtnSecondary{
+  background: rgba(255,255,255,0.06);
+}
+
+/* Small YouTube icon */
+.hero2YT{
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  background: #ff0000;
+  position: relative;
+  display: inline-block;
+  margin-right: 5px;
+  margin-left: 10px;
+  scale: 2;
+}
+
+.hero2YT::after{
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 0;
+  height: 0;
+  border-left: 4px solid #fff;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
 }
 
 /* =========================================================
-   FEATURED PROJECTS (IMAGE 1 STYLE) — 1440 ONLY
+   FEATURED PROJECTS (IMAGE1 STYLE)
 ========================================================= */
 .fpSection {
   width: 100%;
@@ -69,7 +188,6 @@ html, body, #root {
   padding: 56px 0 70px;
 }
 
-/* ✅ fixed-width container for 1440 layout */
 .fpContainer {
   width: 1520px;
   margin: 0 auto;
@@ -116,10 +234,9 @@ html, body, #root {
   align-items: center;
   gap: 8px;
   padding: 4px 8px;
-  /* border-radius: 6px; */
   background: #FFF2B8;
   border: 1px solid #F5DD6B;
-  color: black;
+  color: #000;
   font-size: 14px;
 }
 
@@ -131,7 +248,7 @@ html, body, #root {
 }
 
 .fpServerBadgeText {
-    width: 84px;
+  width: 84px;
   height: 16px;
   font-size: 14px;
 }
@@ -145,7 +262,7 @@ html, body, #root {
   gap: 18px;
 }
 
-/* Chips (rectangular) - relies on your .dv-chip base */
+/* Chips */
 .fpChips {
   display: flex;
   gap: 10px;
@@ -168,7 +285,7 @@ html, body, #root {
   border-color: rgba(0,0,0,0.35) !important;
 }
 
-/* Search (top right) */
+/* Search */
 .fpSearchWrap {
   height: 36px;
   display: flex;
@@ -183,7 +300,6 @@ html, body, #root {
 }
 
 .fpSearchIconImg {
-  color: black;
   width: 14px;
   height: 14px;
   object-fit: contain;
@@ -199,7 +315,7 @@ html, body, #root {
 }
 
 .fpSearchInput::placeholder {
-  color: black;
+  color: #000;
   opacity: 1;
 }
 
@@ -211,7 +327,7 @@ html, body, #root {
   gap: 28px;
 }
 
-/* Card (simple) */
+/* Card */
 .fpCard {
   width: 488px;
   height: 456px;
@@ -220,8 +336,6 @@ html, body, #root {
   border-radius: 0;
   box-shadow: none;
   overflow: visible;
-
-  /* important: stop previous hover transforms from other css */
   transform: none !important;
 }
 
@@ -231,7 +345,6 @@ html, body, #root {
   border-radius: 6px;
   overflow: hidden;
   background: #eeeeee;
-  /* height: 190px; */
 }
 
 .fpImg {
@@ -306,7 +419,6 @@ html, body, #root {
   display: block;
 }
 
-/* View Demo pill */
 .fpViewDemo {
   height: 20px;
   padding: 0 8px;
@@ -318,7 +430,7 @@ html, body, #root {
   color: rgba(0,0,0,0.75);
 }
 
-/* Empty state */
+/* Empty */
 .fpEmpty {
   text-align: center;
   padding: 24px 0;
@@ -327,58 +439,47 @@ html, body, #root {
 }
 
 /* Bottom link */
-/* Bottom link */
-.fpBottom{
+.fpBottom {
   display: flex;
   justify-content: center;
-  margin-top: 60px; /* match spacing like Image1 */
+  margin-top: 60px;
 }
 
-/* View All Projects (Image1 style) */
-.fpViewAllLink{
-  
+.fpViewAllLink {
   position: relative;
   border: 0;
   background: transparent;
   cursor: pointer;
-
   display: inline-flex;
   align-items: center;
   gap: 18px;
-
-  font-size: 22px;         /* big like Image1 */
-  font-weight: 300;        /* thin */
-  letter-spacing: 0.18em;  /* spaced letters */
+  font-size: 22px;
+  font-weight: 300;
+  letter-spacing: 0.18em;
   color: #111;
-  padding: 0 0 8px;       /* space for underline */
+  padding: 0 0 8px;
   line-height: 1;
 }
 
-/* underline */
-.fpViewAllLink::after{
+.fpViewAllLink::after {
   content: "";
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   bottom: 0;
-
-  width: 340px;           /* long underline like Image1 */
+  width: 340px;
   height: 2px;
   background: rgba(0,0,0,0.35);
 }
 
-/* arrow sizing */
-.fpViewAllLink span{
+.fpViewAllLink span {
   font-size: 44px;
   font-weight: 600;
   letter-spacing: 0;
   transform: translateY(2px);
 }
 
-/* =========================================================
-   OPTIONAL: if some other CSS is still adding card hover,
-   this neutralizes it without affecting other pages.
-========================================================= */
+/* Neutralize any global hover transforms */
 .fpCard:hover {
   box-shadow: none !important;
   border-color: transparent !important;
