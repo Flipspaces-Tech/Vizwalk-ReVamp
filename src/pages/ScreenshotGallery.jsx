@@ -9,7 +9,7 @@ import { useAuth } from "../auth/AuthProvider";
 import downloadIcon from "../assets/download.png";
 import ytIcon from "../assets/yt1.png";
 import demoIcon from "../assets/view demo.png";
-import vizwalkIcon from "../assets/vw1.png";
+import vizwalkIcon from "../assets/Viz logo.png";
 
 const GDRIVE_API_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
@@ -480,13 +480,17 @@ export default function ScreenshotGallery() {
                   </button>
                 </div>
 
-                <div className="sg-chips">
-                  <span className="sg-chip sg-chip-yellow">{category}</span>
-                  <span className="sg-chip">{areaDisplay || "—"}</span>
-                  <span className="sg-chip">
-                    <span className="sg-flag">🇮🇳</span> {serverLabel}
-                  </span>
-                </div>
+                <div className="sg-chips sg-chips-figma">
+  <div className="sg-subText">
+    <span>{category}</span>
+    <span className="sg-subSep">|</span>
+    <span>{areaDisplay || "—"}</span>
+  </div>
+
+  <div className="sg-serverPill">
+    <span className="sg-flag">🇮🇳</span> {serverLabel}
+  </div>
+</div>
 
                 <div className="sg-actions">
                   <button
@@ -504,7 +508,7 @@ export default function ScreenshotGallery() {
                     <span className="sg-actionText">
                       <span className="sg-actionTitle">Walkthrough Video</span>
                       <span className="sg-actionSub">
-                        Full guided walkthrough experience
+                        A visual Showcase walkthorugh Video for the project
                       </span>
                     </span>
                   </button>
@@ -520,7 +524,7 @@ export default function ScreenshotGallery() {
                     <span className="sg-actionText">
                       <span className="sg-actionTitle">Demo Video</span>
                       <span className="sg-actionSub">
-                        See the interactive finish video
+                        A Tech showcase video for the project
                       </span>
                     </span>
                   </button>
@@ -532,7 +536,7 @@ export default function ScreenshotGallery() {
                     <span className="sg-actionText">
                       <span className="sg-actionTitle">Go To Vizwalk</span>
                       <span className="sg-actionSub">
-                        See the interactive finish video
+                        View VizWalk in Action
                       </span>
                     </span>
                   </button>

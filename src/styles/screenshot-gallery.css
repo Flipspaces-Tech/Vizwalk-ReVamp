@@ -8,7 +8,7 @@
 }
 
 .sg-container{
-  width: min(1220px, 92vw);
+  width: min(1410px, 92vw);
   margin: 0 auto;
   padding: 26px 0 60px;
 }
@@ -25,16 +25,21 @@
   opacity: 0.85;
   margin-bottom: 18px;
 }
-.sg-back span{ font-weight: 600; }
+.sg-back span{ font-weight: 400; }
 
 .sg-topGrid{
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   gap: 34px;
   align-items: start;
+  max-height: 328px;
+  margin-bottom: 50px;
+  width: 1270px;
 }
 
-.sg-left{ padding-top: 6px; }
+.sg-left{ padding-top: 6px;
+height: 328px;
+width: 682px; }
 
 .sg-loading{
   padding: 10px 0;
@@ -52,7 +57,7 @@
 
 .sg-title{
   margin: 0;
-  font-size: 54px;            /* ✅ figma big */
+  font-size: 48px;            /* ✅ figma big */
   letter-spacing: -0.02em;
   font-weight: 300;           /* ✅ figma thin title */
   line-height: 1.05;
@@ -105,16 +110,20 @@
 .sg-actions{
   margin-top: 18px;
   display: grid;
-  gap: 12px;
-  max-width: 520px;
+  gap: 16px;
+  width: 682px;
+  height: 212px;
 }
 
 .sg-action{
+
   width: 100%;
   display: grid;
   grid-template-columns: 44px 1fr;
   gap: 14px;
   align-items: center;
+  
+  
 
   padding: 14px 16px;
   border-radius: 6px;
@@ -122,6 +131,8 @@
   background: #ffffff;
   cursor: pointer;
   text-align: left;
+  height: 60px;
+  
 }
 .sg-action:disabled{
   opacity: 0.55;
@@ -145,8 +156,9 @@
 .sg-actionText{ display: grid; gap: 3px; }
 .sg-actionTitle{
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
   color: #111;
+  letter-spacing: 1px;
 }
 .sg-actionSub{
   font-size: 12px;
@@ -155,15 +167,16 @@
 }
 
 /* Hero */
-.sg-hero{
+.sg-hero{width: 583px;
+  height: 328px;
   border-radius: 14px;
   overflow: hidden;
   border: 1px solid rgba(0,0,0,0.10);
   background: #fff;
 }
 .sg-heroImg{
-  width: 100%;
-  height: 320px;
+  width: 583px;
+  height: 328px;
   object-fit: cover;
   display: block;
 }
@@ -175,6 +188,7 @@
   border-radius: 10px;
   overflow: hidden;
   background: #fff;
+  width: 1270px;
 }
 
 .sg-panelTop{
@@ -341,4 +355,58 @@
   .sg-heroImg{
     height: 280px;
   }
+}
+/* ✅ Figma-like chips row */
+.sg-chips-figma{
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+/* left text: "Corporate Offices | 35,000 Sqft" */
+.sg-subText{
+  font-size: 18px;
+  color: rgba(0,0,0,0.70);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.sg-subSep{ opacity: 0.45; }
+
+/* right yellow pill: "🇮🇳 India Server" */
+.sg-serverPill{
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid #f5dd6b;
+  background: #fff2b8;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+}
+
+/* optional: slightly nicer flag size */
+.sg-serverPill .sg-flag{ font-size: 16px; }
+.sg-action{
+  height: 60px;
+  padding: 8px 16px;     /* reduce padding */
+  align-items: center;
+}
+
+.sg-actionTitle{
+  font-size: 16px;       /* reduce */
+  line-height: 1.1;
+  margin: 0;
+}
+
+.sg-actionSub{
+  font-size: 12px;       /* reduce */
+  line-height: 1.1;
+  margin: 0;
 }
