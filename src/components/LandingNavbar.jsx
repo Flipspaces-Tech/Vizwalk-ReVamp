@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import vizIcon from "../assets/vw1.png"; 
+import vIcon from "../assets/Viz logo_01_w.png"; 
 import "../styles/navbar-v2.css";
 
 export default function LandingNavbar({
@@ -63,7 +64,8 @@ export default function LandingNavbar({
             >
               <img className="vwLogoIcon" src={vizIcon} alt="Vizwalk Logo" />
               <div className="vwLogoDivider"></div>
-              <span className="vwLogoText">vizwalk</span>
+              {/* <span className="vwLogoText">vizwalk</span> */}
+              <img className="vwIcon" src={vIcon} alt="Vizwalk Logo" />
             </a>
 
             {/* Center: Links */}

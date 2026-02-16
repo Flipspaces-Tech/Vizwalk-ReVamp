@@ -15,6 +15,9 @@ import "../pages/Landing.css";
 
 import Footer from "../components/Footer.jsx";
 
+import demoIcon from "../assets/view demo.png";
+
+
 /** ====== SHEET (CSV) ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const GID = "1024074012"; // Featured Projects Page gid
@@ -191,63 +194,78 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
   const hasVizdom = Boolean(String(item.vizdomId || "").trim());
 
   return (
-    <div className="fpCard">
-      <div className="fpMedia">
-        <ImageWithFallback className="fpImg" src={item.thumb} alt={item.buildName} />
-
+    <article className="fpProjectCard"> {/* Hover starts here */}
+      <div className="fpCardMedia">
+        <ImageWithFallback className="fpCardImg" src={item.thumb} alt={item.buildName} />
+        
         <button
-          type="button"
-          className="fpArrowBtn"
+          className="fpViewPill"
           onClick={(e) => {
             e.stopPropagation();
             onOpenVizwalk();
           }}
-          title="Open Vizwalk"
+          type="button"
         >
-          <span className="fpArrowIcon">↗</span>
+          View Project <span className="fpViewPillIco">↗</span>
         </button>
       </div>
 
-      <div className="fpBody">
-        <div className="fpName">{item.buildName || "Project"}</div>
+      <div className="fpCardDetails"> {/* This container slides right */}
+        <h3 className="fpProjectName">{item.buildName || "Project"}</h3>
 
-        <div className="fpMetaLine">
+        <p className="fpProjectMeta">
           {(item.constructionType || item.industry || "—")} | {formatSqft(item.areaSqft || "")}
-        </div>
+        </p>
 
-        <div className="fpActions">
-          {hasYoutube ? (
-            <MiniIconLink src={yt1} alt="YouTube" href={item.youtube} title="Watch Demo (YouTube)" />
-          ) : null}
+        <div className="fpCardFooter">
+  {/* YouTube */}
+  {hasYoutube ? (
+    <button
+      className="fpFooterSquare"
+      onClick={() => window.open(item.youtube, "_blank", "noopener,noreferrer")}
+      aria-label="Open YouTube"
+      type="button"
+    >
+      <img src={yt1} alt="" className="fpFooterSquareImg fpYtImg" />
+    </button>
+  ) : (
+    <span className="fpFooterSquare fpFooterSquare--disabled" aria-hidden="true">
+      <img src={yt1} alt="" className="fpFooterSquareImg fpYtImg" />
+    </span>
+  )}
 
-          {hasVizdom ? (
-            <span
-              className="fpMiniIconBtn"
-              title="Open in Vizdom"
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenVizdom();
-              }}
-            >
-              <img src={vz1} alt="Vizdom" />
-            </span>
-          ) : null}
+  {/* Vizdom */}
+  {hasVizdom ? (
+    <button
+      className="fpFooterSquare"
+      onClick={(e) => { e.stopPropagation(); onOpenVizdom(); }}
+      aria-label="Open Vizdom"
+      type="button"
+    >
+      <img src={vz1} alt="" className="fpFooterSquareImg" />
+    </button>
+  ) : (
+    <span className="fpFooterSquare fpFooterSquare--disabled" aria-hidden="true">
+      <img src={vz1} alt="" className="fpFooterSquareImg" />
+    </span>
+  )}
 
-          <button
-            type="button"
-            className="fpViewDemo"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpenScreenshotGallery();
-            }}
-          >
-            View Demo
-          </button>
-        </div>
+  {/* View Demo (only if you actually want it always visible, otherwise keep conditional) */}
+  <button
+    className="fpFooterDemoBtn"
+    onClick={(e) => { e.stopPropagation(); onOpenScreenshotGallery(); }}
+    type="button"
+  >
+    <img src={demoIcon} alt="" className="fpDemoIcon" />
+    <span>View Demo</span>
+  </button>
+</div>
+
       </div>
-    </div>
+    </article>
   );
 }
+
 
 function TestimonialsOnly() {
   const testimonials = [

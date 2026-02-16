@@ -1,4 +1,13 @@
+:root {
+  --font-heading: "Maven Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
+  /* Optional: color + radius tokens used by Lovable */
+  --radius: 1rem;
+  --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.08);
+  --shadow-yellow: 0 20px 60px -15px hsl(48 96% 53% / 0.3);
+}
 
 body {
   background-color: #1c1c1e;
@@ -337,16 +346,7 @@ body.no-scroll{
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
 /* ===== Lovable tokens (minimal + safe) ===== */
-:root {
-  --font-heading: "Maven Pro", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Poppins", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
 
-  /* Optional: color + radius tokens used by Lovable */
-  --radius: 1rem;
-  --shadow-card: 0 4px 20px -4px hsl(0 0% 0% / 0.08);
-  --shadow-yellow: 0 20px 60px -15px hsl(48 96% 53% / 0.3);
-}
 
 body {
   font-family: var(--font-sans);
@@ -655,3 +655,6 @@ body {
   font-weight: 600;
 }
 
+html, body, #root{
+  font-family: var(--font-sans);
+}

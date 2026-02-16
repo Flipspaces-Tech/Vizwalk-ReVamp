@@ -68,6 +68,7 @@
 /* --- Navbar Main --- */
 .vwNav {
   background: var(--vwDark);
+  background: #3F3932;
   display: flex;
   align-items: center;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
@@ -89,7 +90,7 @@
 }
 
 .vwLogoIcon {
-  height: 37px; /* Adjusted to match scale */
+  height: 38px; /* Adjusted to match scale */
   width: auto;
   display: block;
 }
@@ -100,6 +101,14 @@
   background-color: rgba(255,255,255,0.4);
   margin: 0 16px; /* Precise gap from image */
 }
+
+
+.vwIcon{
+height: 28px; /* Adjusted to match scale */
+  width: auto;
+  display: block;
+}
+
 
 .vwLogoText {
   font-size: 20px;
@@ -125,7 +134,8 @@
   border: none;
   cursor: pointer;
   font-size: 18px;
-  letter-spacing: 8%;
+  font-weight: 300;
+  letter-spacing: 0.06em;
   color: rgba(255, 255, 255, 0.8); /* Slightly dimmed inactive state */
   text-transform: uppercase;
   padding: 5px 0;

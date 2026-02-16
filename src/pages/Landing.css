@@ -8,7 +8,11 @@ html, body, #root {
   margin: 0;
   padding: 0;
   overflow: auto;
+  /* font-family: var(--font-heading); */
+  font-family: var(--font-sans);
 }
+
+
 
 /* =========================================================
    LOADER
@@ -80,22 +84,25 @@ html, body, #root {
 
 .hero2Kicker{
   font-size: 22px;
-  letter-spacing: 0.24em;
-  color: rgba(255,255,255,0.70);
+  letter-spacing: 0.1em;
+  color: white;
   margin-bottom: 10px;
+  font-weight: 200;
 }
 
 .hero2Title{
+  font-family: var(--font-heading);;
   font-size: 64px;
   line-height: 1.05;
-  letter-spacing: -1.5px;
+  letter-spacing: 0.005em;
   margin-bottom: 12px;
+  font-weight: 100;
 }
 
 .hero2Desc{
   font-size: 30px;
   line-height: 1.6;
-  color: rgba(255,255,255,0.80);
+  color: white;
 
   /* ✅ make it a real centered block */
   width: 1348px;
@@ -107,6 +114,7 @@ html, body, #root {
 
   /* ✅ improve wrapping so it looks centered */
   text-wrap: balance;
+  font-family: var(--font-sans);;
 }
 
 .hero2Desc b,
@@ -216,14 +224,16 @@ html, body, #root {
 .fpTitle {
   margin: 0;
   font-size: 48px;
-  font-weight: 500;
+  font-weight: 200;
   letter-spacing: -0.2px;
+  font-family: var(--font-heading);;
 }
 
 .fpSub {
   margin-top: 6px;
   font-size: 18px;
   color: rgba(0,0,0,0.55);
+  
 }
 
 /* Server badge */
@@ -386,6 +396,8 @@ html, body, #root {
 .fpName {
   margin: 0;
   font-size: 28px;
+  font-family: var(--font-heading);
+  font-weight: 100;
 }
 
 .fpMetaLine {
@@ -486,3 +498,237 @@ html, body, #root {
   border-color: transparent !important;
   transform: none !important;
 }
+
+/* ===== Featured Projects card = DemoVideos style (fixed image 488x326) ===== */
+
+.fpProjectCard{
+  width: 488px;
+  /* total height becomes natural; no forced 456px */
+  background: transparent;
+}
+
+.fpCardMedia{
+  position: relative;
+  width: 488px;
+  height: 326px;              /* ✅ fixed size as requested */
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f5f5;
+  margin-bottom: 16px;        /* ✅ like demo-videos */
+}
+
+.fpCardImg{
+  width: 488px;
+  height: 326px;              /* ✅ fixed size as requested */
+  object-fit: cover;
+  display: block;
+}
+
+/* View Project pill (same vibe as demo-videos) */
+.fpViewPill{
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 6px;
+
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.18);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.14);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+  cursor: pointer;
+}
+
+.fpViewPillIco{
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Details */
+.fpCardDetails{
+  display: flex;
+  flex-direction: column;
+}
+
+.fpProjectName{
+  font-size: 30px;
+  font-weight: 300;
+  color: #111;
+  margin: 0 0 6px 0;
+  font-family: var(--font-heading);
+}
+
+.fpProjectMeta{
+  font-size: 18px;
+  color: rgba(0,0,0,0.65);
+  margin: 0 0 10px 0;
+}
+
+/* Footer row (like demo-videos) */
+.fpCardFooter{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1px;
+}
+
+.fpFooterSquare{
+  width: 32px;
+  height: 32px;
+  border-radius: 3px;
+  border: 0.5px solid rgba(0,0,0,0.35);
+  background: #fff;
+
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.fpFooterSquareImg{
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.fpYtImg{
+  width: 20px;
+  height: 20px;
+}
+
+.fpFooterDemoBtn{
+  height: 32px;
+  padding: 8px 20px;
+  border-radius: 3px;
+  border: 0.5px solid rgba(0,0,0,0.35);
+  background: #fff;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.fpFooterDemoIco{
+  font-size: 18px;
+  line-height: 1;
+}
+/* View Demo pill (with icon) */
+.fpFooterDemoBtn{
+  height: 32px;
+  padding: 8px 20px;
+  border-radius: 3px;
+  border: 0.5px solid rgba(0, 0, 0, 0.35);
+  background: #fff;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 16px;
+  font-weight: 600;
+  color: #222;
+
+  cursor: pointer;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.fpDemoIcon{
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+/* 1. Base Card Shadow & Transition */
+.fpProjectCard {
+  width: 488px;
+  background: transparent;
+  transition: box-shadow 0.4s ease;
+  /* padding: 10px; */
+  border-radius: 6px;
+  padding-bottom: 15px;
+}
+
+.fpProjectCard:hover {
+  /* Right circle annotates shadow */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* 2. Darken Image on Hover */
+.fpCardMedia {
+  position: relative;
+  width: 488px;
+  height: 326px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f5f5f5;
+  margin-bottom: 16px;
+}
+
+.fpCardMedia::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4); /* Dark overlay */
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.fpProjectCard:hover .fpCardMedia::after {
+  /* Upper circle annotates image getting dark */
+  opacity: 1;
+}
+
+/* 3. Button turning Yellow */
+.fpViewPill {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 5;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.18);
+  font-size: 14px;
+  font-weight: 600;
+  color: #111;
+  cursor: pointer;
+  transition: background-color 0.4s ease, transform 0.4s ease;
+}
+
+.fpProjectCard:hover .fpViewPill {
+  /* Center circle annotates button turning yellow */
+  background: #FFD700; /* Yellow */
+  border-color: #FFD700;
+}
+
+/* 4. Text sliding to the right */
+.fpCardDetails {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.fpProjectCard:hover .fpCardDetails {
+  /* Middle arrow annotates text sliding right */
+  transform: translateX(15px);
+}
+
