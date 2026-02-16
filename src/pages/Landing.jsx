@@ -16,9 +16,7 @@ import "../pages/Landing.css";
 import Footer from "../components/Footer.jsx";
 
 import demoIcon from "../assets/view demo.png";
-import arrowPng from "../assets/Redirect Arrow.png"; // <- change filename/path
-
-
+import arrowPng from "../assets/Redirect Arrow.png"; // View Project arrow (PNG)
 
 /** ====== SHEET (CSV) ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
@@ -26,7 +24,7 @@ const GID = "1024074012"; // Featured Projects Page gid
 
 const HERO_MP4 = "https://s3-vizwalk-dev.flipspaces.app/uploads/Demo.mp4";
 
-
+/** ====== CSV PARSER ====== */
 function parseCSV(text) {
   if (!text) return [];
   if (text.charCodeAt(0) === 0xfeff) text = text.slice(1);
@@ -80,6 +78,7 @@ const headerMap = (headers) => {
 const safeGet = (row, idx, fallback = "") =>
   idx != null && idx < row.length && row[idx] != null ? String(row[idx]).trim() : fallback;
 
+/** ✅ Added demoLink mapping */
 const COLS = {
   status: ["status"],
   server: ["server", "region", "country"],
@@ -94,9 +93,18 @@ const COLS = {
   industry: ["industry"],
   designStyle: ["design style", "style"],
   vizdomId: ["vizdom project id", "vizdom id"],
-  image: ["thumbnail_url", "image_url", "image url", "thumbnail_url ", "thumbnail", "image", "thumb"],
+  image: [
+    "thumbnail_url",
+    "image_url",
+    "image url",
+    "thumbnail_url ",
+    "thumbnail",
+    "image",
+    "thumb",
+  ],
   youtube: ["walkthrough link", "youtube link", "youtube"],
   constructionType: ["construction type"],
+  demoLink: ["demo link", "demo", "demo url", "demo_url"], // ✅ NEW
 };
 
 const idxOf = (headers, keys) => {
@@ -181,31 +189,35 @@ function ImageWithFallback({ src, alt, style, className }) {
   );
 }
 
-/** ====== ICON LINK ====== */
-function MiniIconLink({ src, alt, href, title }) {
-  return (
-    <a className="fpMiniIconBtn" href={href} target="_blank" rel="noreferrer" title={title}>
-      <img src={src} alt={alt} />
-    </a>
-  );
-}
-
 /** ====== FEATURED CARD ====== */
-function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwalk }) {
+function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom }) {
   const hasYoutube = Boolean(String(item.youtube || "").trim());
   const hasVizdom = Boolean(String(item.vizdomId || "").trim());
+  const hasDemo = Boolean(String(item.demoLink || "").trim());
+
+  const openDemo = (e) => {
+    e.stopPropagation();
+    const url = String(item.demoLink || "").trim();
+    if (!url) return;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const openYoutube = (e) => {
+    e.stopPropagation();
+    window.open(item.youtube, "_blank", "noopener,noreferrer");
+  };
 
   return (
     <article className="fpProjectCard">
       <div className="fpCardMedia">
         <ImageWithFallback className="fpCardImg" src={item.thumb} alt={item.buildName} />
-        
-        {/* UPDATED: This button now opens the Screenshot Gallery page as requested */}
+
+        {/* View Project -> Screenshot Gallery */}
         <button
           className="fpViewPill"
           onClick={(e) => {
             e.stopPropagation();
-            onOpenScreenshotGallery(); // Now linked to the gallery
+            onOpenScreenshotGallery();
           }}
           type="button"
         >
@@ -216,43 +228,46 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
 
       <div className="fpCardDetails">
         <h3 className="fpProjectName">{item.buildName || "Project"}</h3>
+
         <p className="fpProjectMeta">
           {(item.constructionType || item.industry || "—")} | {formatSqft(item.areaSqft || "")}
         </p>
 
         <div className="fpCardFooter">
-          {/* YouTube Icon */}
+          {/* YouTube */}
           {hasYoutube ? (
-            <button className="fpFooterSquare" onClick={() => window.open(item.youtube, "_blank")}>
+            <button className="fpFooterSquare" onClick={openYoutube} type="button" aria-label="Open YouTube">
               <img src={yt1} alt="" className="fpFooterSquareImg fpYtImg" />
             </button>
           ) : null}
 
-          {/* Vizdom Icon */}
+          {/* Vizdom */}
           {hasVizdom ? (
-            <button className="fpFooterSquare" onClick={(e) => { e.stopPropagation(); onOpenVizdom(); }}>
+            <button
+              className="fpFooterSquare"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenVizdom();
+              }}
+              type="button"
+              aria-label="Open Vizdom"
+            >
               <img src={vz1} alt="" className="fpFooterSquareImg" />
             </button>
           ) : null}
 
-          {/* View Demo: This typically triggers the Virtual Walkthrough/Experience */}
-          <button
-            className="fpFooterDemoBtn"
-            onClick={(e) => { 
-              e.stopPropagation(); 
-              onOpenVizwalk(); 
-            }}
-            type="button"
-          >
-            <img src={demoIcon} alt="" className="fpDemoIcon" />
-            <span>View Demo</span>
-          </button>
+          {/* View Demo -> opens Demo link column */}
+          {hasDemo ? (
+            <button className="fpFooterDemoBtn" onClick={openDemo} type="button">
+              <img src={demoIcon} alt="" className="fpDemoIcon" />
+              <span>View Demo</span>
+            </button>
+          ) : null}
         </div>
       </div>
     </article>
   );
 }
-
 
 function TestimonialsOnly() {
   const testimonials = [
@@ -363,6 +378,7 @@ export default function Landing() {
         const iYouTube = idxOf(headers, COLS.youtube);
         const iVizdomId = idxOf(headers, COLS.vizdomId);
         const iConstructionType = idxOf(headers, COLS.constructionType);
+        const iDemoLink = idxOf(headers, COLS.demoLink); // ✅ NEW
 
         const data = body
           .map((r) => {
@@ -388,6 +404,7 @@ export default function Landing() {
               youtube: safeGet(r, iYouTube),
               vizdomId: safeGet(r, iVizdomId),
               constructionType: safeGet(r, iConstructionType),
+              demoLink: safeGet(r, iDemoLink), // ✅ NEW
             };
           })
           .filter(Boolean);
@@ -401,32 +418,6 @@ export default function Landing() {
       }
     })();
   }, []);
-
-  const handleOpenVizwalk = (item) => {
-    if (!item) return;
-
-    const bust = Date.now();
-    const projectLabel = item.projectName || item.buildName || "project";
-
-    const sessionId = `${projectLabel
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
-
-    const id = projectLabel
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-
-    const params = new URLSearchParams({
-      project: id,
-      s: String(bust),
-      session: sessionId,
-      build: item.buildName || item.projectName || "Build",
-      ver: item.buildVersion || "",
-    });
-
-    window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
-  };
 
   const typeOptions = useMemo(() => {
     const set = new Set(["All"]);
@@ -480,58 +471,53 @@ export default function Landing() {
         setSelectedServer={setSelectedServer}
       />
 
-      {/* HERO (Image2 style) */}
       {/* HERO (video background) */}
-<section className="hero2">
-  <video
-    className="hero2Video"
-    src={HERO_MP4}
-    autoPlay
-    muted
-    loop
-    playsInline
-    preload="metadata"
-    controls={false}
-  />
+      <section className="hero2">
+        <video
+          className="hero2Video"
+          src={HERO_MP4}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          controls={false}
+        />
+        <div className="hero2Overlay" />
 
-  {/* overlay for readability */}
-  <div className="hero2Overlay" />
+        <div className="hero2Inner">
+          <div className="hero2Kicker">CRAFTING IMMERSIVE EXPERIENCE</div>
+          <div className="hero2Title">Bring Spaces To Life</div>
 
-  <div className="hero2Inner">
-    <div className="hero2Kicker">CRAFTING IMMERSIVE EXPERIENCE</div>
+          <div className="hero2Desc">
+            Interactive virtual walkthrough offering clients an <b>immersive experience with real-time</b>{" "}
+            <b>design modifications</b> using Flipspaces&apos; integrated product library
+          </div>
 
-    <div className="hero2Title">Bring Spaces To Life</div>
+          <div className="hero2Btns">
+            <button
+              type="button"
+              className="hero2Btn hero2BtnPrimary"
+              onClick={() =>
+                document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              <span className="hero2YT" aria-hidden="true" />
+              Watch Demo
+            </button>
 
-    <div className="hero2Desc">
-      Interactive virtual walkthrough offering clients an <b>immersive experience with real-time</b>{" "}
-      <b>design modifications</b> using Flipspaces&apos; integrated product library
-    </div>
-
-    <div className="hero2Btns">
-      <button
-        type="button"
-        className="hero2Btn hero2BtnPrimary"
-        onClick={() =>
-          document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
-        }
-      >
-        <span className="hero2YT" aria-hidden="true" />
-        Watch Demo
-      </button>
-
-      <button
-        type="button"
-        className="hero2Btn hero2BtnSecondary"
-        onClick={() =>
-          document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
-        }
-      >
-        Explore Platform
-      </button>
-    </div>
-  </div>
-</section>
-
+            <button
+              type="button"
+              className="hero2Btn hero2BtnSecondary"
+              onClick={() =>
+                document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              Explore Platform
+            </button>
+          </div>
+        </div>
+      </section>
 
       {/* Featured Projects */}
       <section id="featured-projects" className="fpSection">
@@ -594,12 +580,13 @@ export default function Landing() {
                 item={item}
                 onOpenScreenshotGallery={() => handleOpenScreenshotGallery(item)}
                 onOpenVizdom={() => handleOpenVizdom(item)}
-                onOpenVizwalk={() => handleOpenVizwalk(item)}
               />
             ))}
           </div>
 
-          {filtered.length === 0 && <div className="fpEmpty">No projects found matching your criteria.</div>}
+          {filtered.length === 0 && (
+            <div className="fpEmpty">No projects found matching your criteria.</div>
+          )}
 
           {!showAll2 && filtered.length > 6 && (
             <div className="fpBottom">

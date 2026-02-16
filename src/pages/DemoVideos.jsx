@@ -1,4 +1,3 @@
-// src/pages/DemoVideos.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import LandingNavbar from "../components/LandingNavbar.jsx";
 import Footer from "../components/Footer.jsx";
@@ -8,8 +7,9 @@ import { useAuth } from "../auth/AuthProvider";
 import ytIcon from "../assets/yt1.png";
 import searchIcon from "../assets/search.png";
 import indiaIcon from "../assets/india.png";
-import vizwalkIcon from "../assets/vz1.png"; 
-import demoIcon from "../assets/view demo.png"; 
+import vizwalkIcon from "../assets/vz1.png";
+import demoIcon from "../assets/view demo.png";
+import openArrowPng from "../assets/Redirect Arrow.png";
 
 import "../styles/demo-videos.css";
 
@@ -58,7 +58,9 @@ function getDriveImageCandidates(urlOrId = "") {
 function ImageWithFallback({ src, alt, className }) {
   const candidates = useMemo(() => getDriveImageCandidates(src), [src]);
   const [idx, setIdx] = useState(0);
+
   useEffect(() => setIdx(0), [src, candidates.length]);
+
   const finalSrc = candidates[idx] || "https://picsum.photos/seed/vizwalk/1400/900";
 
   return (
@@ -103,6 +105,14 @@ export default function DemoVideos() {
     load();
   }, []);
 
+  const openScreenshotGallery = (row) => {
+    const params = new URLSearchParams({
+      build: row.videoName || row.buildName || "Build",
+      ver: row.buildVersion || row.ver || "",
+    });
+    window.open(`/gallery?${params.toString()}`, "_blank", "noopener,noreferrer");
+  };
+
   const typeOptions = useMemo(() => {
     const set = new Set(["All"]);
     rows.forEach((r) => {
@@ -115,19 +125,26 @@ export default function DemoVideos() {
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
     return rows.filter((r) => {
-      const typeOk = activeType === "All" || r.constructionType === activeType || r.industry === activeType;
-      const match = !q || [r.videoName, r.constructionType, r.industry].some((s) =>
+      const typeOk =
+        activeType === "All" ||
+        r.constructionType === activeType ||
+        r.industry === activeType;
+
+      const match =
+        !q ||
+        [r.videoName, r.constructionType, r.industry].some((s) =>
           String(s || "").toLowerCase().includes(q)
         );
+
       return typeOk && match;
     });
   }, [rows, activeType, query]);
 
   return (
     <div className="dv-page-container">
-      <LandingNavbar 
-        user={user} 
-        signOut={signOut} 
+      <LandingNavbar
+        user={user}
+        signOut={signOut}
         selectedServer={selectedServer}
         setSelectedServer={setSelectedServer}
       />
@@ -153,6 +170,7 @@ export default function DemoVideos() {
                 key={t}
                 className={`dv-type-chip ${t === activeType ? "active" : ""}`}
                 onClick={() => setActiveType(t)}
+                type="button"
               >
                 {t}
               </button>
@@ -177,8 +195,6 @@ export default function DemoVideos() {
           <div className="dv-projects-grid">
             {filtered.map((r, idx) => {
               const thumb = r.thumbnailUrl || r.image_url || r.thumbnail || r.image || "";
-              
-              // This maps to Column L in your spreadsheet
               const demoUrl = r.vizwalkDemoUrl || r.walkthrough_link;
               const ytUrl = r.youtubeUrl || r.youtube;
 
@@ -190,62 +206,73 @@ export default function DemoVideos() {
                       src={thumb}
                       alt={r.videoName || "Project"}
                     />
-
-                    {/* ✅ ONLY SHOW if demoUrl exists (Column L is not empty) */}
-                    {demoUrl && (
+                    {ytUrl && (
                       <button
-                        className="dv-viewpill"
-                        onClick={() => window.open(demoUrl, "_blank")}
+                        className="dvPlayBtn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(ytUrl, "_blank", "noopener,noreferrer");
+                        }}
                         type="button"
                       >
-                        View Project <span className="dv-viewpill-ico">↗</span>
+                        <span className="dvPlayTri" aria-hidden="true" />
                       </button>
                     )}
                   </div>
 
                   <div className="dv-card-details">
-                    <h3 className="dv-project-name">
-                      {r.videoName || r.buildName || "Project Name"}
-                    </h3>
-
-                    <p className="dv-project-meta">
-                      {r.constructionType || r.industry || "Design"} |{" "}
-                      {r.areaSqft ? `${String(r.areaSqft).replace(/,/g, "")} Sqft` : "—"}
-                    </p>
-
-                    <div className="dv-card-footer">
-                      {/* YouTube square */}
-                      <button
-                        className="dv-footerSquare"
-                        onClick={() => window.open(ytUrl, "_blank")}
-                        aria-label="Open YouTube"
-                        type="button"
-                      >
-                        <img src={ytIcon} alt="" className="dv-footerSquareImg dv-ytImg" />
-                      </button>
-
-                      {/* VizWalk square */}
-                      <button
-                        className="dv-footerSquare"
-                        onClick={() => window.open(demoUrl, "_blank")}
-                        aria-label="Open VizWalk"
-                        type="button"
-                      >
-                        <img src={vizwalkIcon} alt="" className="dv-footerSquareImg" />
-                      </button>
-
-                      {/* ✅ ONLY SHOW if demoUrl exists */}
-                      {demoUrl && (
-                        <button
-                          className="dv-footerDemoBtn"
-                          onClick={() => window.open(demoUrl, "_blank")}
-                          type="button"
-                        >
-                          <img src={demoIcon} alt="" className="dv-demoIcon" />
-                          <span>View Demo</span>
-                        </button>
-                      )}
+                    {/* ✅ SLIDING CONTENT: Text & Buttons */}
+                    <div className="dv-sliding-content">
+                      <h3 className="dv-project-name">
+                        {r.videoName || r.buildName || "Project Name"}
+                      </h3>
+                      <p className="dv-project-meta">
+                        {r.constructionType || r.industry || "Design"} |{" "}
+                        {r.areaSqft ? `${String(r.areaSqft).replace(/,/g, "")} Sqft` : "—"}
+                      </p>
+                      <div className="dv-card-footer">
+                        {ytUrl && (
+                          <button
+                            className="dv-footerSquare"
+                            onClick={() => window.open(ytUrl, "_blank", "noopener,noreferrer")}
+                            type="button"
+                          >
+                            <img src={ytIcon} alt="" className="dv-footerSquareImg dv-ytImg" />
+                          </button>
+                        )}
+                        {demoUrl && (
+                          <button
+                            className="dv-footerSquare"
+                            onClick={() => window.open(demoUrl, "_blank", "noopener,noreferrer")}
+                            type="button"
+                          >
+                            <img src={vizwalkIcon} alt="" className="dv-footerSquareImg" />
+                          </button>
+                        )}
+                        {demoUrl && (
+                          <button
+                            className="dv-footerDemoBtn"
+                            onClick={() => window.open(demoUrl, "_blank", "noopener,noreferrer")}
+                            type="button"
+                          >
+                            <img src={demoIcon} alt="" className="dv-demoIcon" />
+                            <span>View Demo</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
+
+                    {/* ✅ FIXED ARROW: Outside sliding div */}
+                    <button
+                      className="dvGalleryArrowBtn"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openScreenshotGallery(r);
+                      }}
+                    >
+                      <img src={openArrowPng} alt="Open Gallery" />
+                    </button>
                   </div>
                 </article>
               );
@@ -257,7 +284,6 @@ export default function DemoVideos() {
           <div className="dv-no-results">No projects found.</div>
         )}
       </main>
-
       <Footer />
     </div>
   );

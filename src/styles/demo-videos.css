@@ -1,27 +1,9 @@
-/* src/styles/demo-videos.css */
-
 /* BASE PAGE STYLES */
 .dv-page-container {
   background: #ffffff;
   min-height: 100vh;
   width: 100%;
   font-family: "Inter", sans-serif;
-}
-
-.dv-top-promo {
-  background: #ffc702;
-  color: #000;
-  text-align: center;
-  padding: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  position: relative;
-}
-
-.dv-promo-close {
-  position: absolute;
-  right: 20px;
-  cursor: pointer;
 }
 
 .dv-main-content {
@@ -38,7 +20,6 @@
   gap: 12px;
 }
 
-/* light heading override */
 .dv-title-group .dv-heading {
   font-size: 48px;
   margin: 0;
@@ -102,16 +83,13 @@
   border-color: #999;
 }
 
-/* ✅ compact search like your ref */
 .dv-search-box {
   display: flex;
   align-items: center;
   gap: 10px;
-
   height: 40px;
   width: 260px;
   padding: 0 14px;
-
   background: transparent;
   border: 1px solid #8f8f8f;
   border-radius: 4px;
@@ -133,22 +111,31 @@
   color: #333;
 }
 
-.dv-search-box input::placeholder {
-  color: #666;
-}
-
-/* GRID & CARDS (16:9 RATIO) */
+/* GRID */
 .dv-projects-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px 28px;
 }
 
+/* CARD */
+.dv-project-card {
+  border-radius: 6px;
+  background: transparent;
+  transition: box-shadow 0.35s ease;
+  padding-bottom: 15px;
+}
+
+.dv-project-card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.10);
+}
+
+/* MEDIA & OVERLAY */
 .dv-card-media {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 8px;
+  border-radius: 2px;
   overflow: hidden;
   background: #f5f5f5;
   margin-bottom: 16px;
@@ -158,48 +145,77 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
-/* View Project pill */
-.dv-viewpill {
+.dv-card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dv-project-card:hover .dv-card-media::after {
+  opacity: 1;
+}
+
+/* PLAY BUTTON */
+.dvPlayBtn {
   position: absolute;
   right: 18px;
   bottom: 18px;
-
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 6px;
-
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.18);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
-
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-
-  font-size: 14px;
-  font-weight: 600;
-  color: #111;
+  width: 54px;
+  height: 54px;
+  background: transparent;
+  border: 0;
   cursor: pointer;
+  display: grid;
+  place-items: center;
+  z-index: 3;
 }
 
-.dv-viewpill-ico {
-  font-size: 18px;
-  line-height: 1;
+.dvPlayTri {
+  width: 0;
+  height: 0;
+  border-left: 22px solid #ffffff;
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  transition: border-left-color 0.25s ease;
 }
 
-/* TEXT DETAILS */
+.dv-project-card:hover .dvPlayTri {
+  border-left-color: #F3C21A;
+}
+
+/* ✅ DETAILS (FIXED CONTAINER) */
 .dv-card-details {
+  position: relative;
+  display: block;
+}
+
+/* ✅ SLIDING CONTENT (Title, Meta, Footer) */
+.dv-sliding-content {
   display: flex;
   flex-direction: column;
+  transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+  padding-right: 45px; /* Prevent text overlap with fixed arrow */
 }
 
+.dv-project-card:hover .dv-sliding-content {
+  transform: translateX(14px);
+}
+
+/* TEXT STYLES */
 .dv-project-name {
   font-size: 30px;
-  font-weight: 300; /* ✅ closer to figma */
+  font-weight: 300;
   color: #111;
   margin: 0 0 6px 0;
+  line-height: 1.1;
 }
 
 .dv-project-meta {
@@ -208,67 +224,69 @@
   margin: 0 0 10px 0;
 }
 
-/* ✅ FOOTER matches Figma scale exactly */
+/* ✅ FIXED GALLERY ARROW */
+.dvGalleryArrowBtn {
+  position: absolute;
+  top: 4px;
+  right: 0;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  z-index: 5;
+}
+
+.dvGalleryArrowBtn img {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+}
+
+/* FOOTER BUTTONS */
 .dv-card-footer {
   display: flex;
   align-items: center;
-  gap: 8px;          /* ✅ Figma gap */
-  margin-top: 1px;
+  gap: 8px;
 }
 
-/* square icon buttons (32x32) */
 .dv-footerSquare {
   width: 32px;
   height: 32px;
-  border-radius: 3px;                 /* ✅ Figma radius */
+  border-radius: 3px;
   border: 0.5px solid rgba(0, 0, 0, 0.35);
   background: #fff;
-
   display: grid;
   place-items: center;
   cursor: pointer;
-  padding: 0;
 }
 
-/* icon inside square */
 .dv-footerSquareImg {
   width: 18px;
   height: 18px;
   object-fit: contain;
 }
 
-/* YouTube slightly larger inside 32x32 */
-.dv-ytImg {
-  width: 20px;
-  height: 20px;
-}
-
-/* View Demo pill (32px height) */
 .dv-footerDemoBtn {
-  height: 32px;           /* ✅ Figma height */
-  padding: 8px 10px;      /* ✅ Figma padding L/R */
+  height: 32px;
+  padding: 0 10px;
   border-radius: 3px;
   border: 0.5px solid rgba(0, 0, 0, 0.35);
   background: #fff;
-
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-
+  gap: 8px;
   font-size: 16px;
   font-weight: 600;
   color: #222;
-
   cursor: pointer;
-  white-space: nowrap;
-  line-height: 1;
 }
 
-/* View demo icon inside pill */
 .dv-demoIcon {
   width: 18px;
   height: 18px;
-  object-fit: contain;
 }
 
 /* LOADER */
@@ -288,20 +306,13 @@
 }
 
 @keyframes dv-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 /* RESPONSIVE */
 @media (max-width: 1100px) {
-  .dv-projects-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .dv-projects-grid { grid-template-columns: repeat(2, 1fr); }
 }
-
 @media (max-width: 700px) {
-  .dv-projects-grid {
-    grid-template-columns: 1fr;
-  }
+  .dv-projects-grid { grid-template-columns: 1fr; }
 }
