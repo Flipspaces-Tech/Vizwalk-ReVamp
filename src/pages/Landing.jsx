@@ -16,6 +16,8 @@ import "../pages/Landing.css";
 import Footer from "../components/Footer.jsx";
 
 import demoIcon from "../assets/view demo.png";
+import arrowPng from "../assets/Redirect Arrow.png"; // <- change filename/path
+
 
 
 /** ====== SHEET (CSV) ====== */
@@ -194,73 +196,58 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom, onOpenVizwa
   const hasVizdom = Boolean(String(item.vizdomId || "").trim());
 
   return (
-    <article className="fpProjectCard"> {/* Hover starts here */}
+    <article className="fpProjectCard">
       <div className="fpCardMedia">
         <ImageWithFallback className="fpCardImg" src={item.thumb} alt={item.buildName} />
         
+        {/* UPDATED: This button now opens the Screenshot Gallery page as requested */}
         <button
           className="fpViewPill"
           onClick={(e) => {
             e.stopPropagation();
-            onOpenVizwalk();
+            onOpenScreenshotGallery(); // Now linked to the gallery
           }}
           type="button"
         >
-          View Project <span className="fpViewPillIco">↗</span>
+          View Project
+          <img className="fpViewPillArrow" src={arrowPng} alt="" aria-hidden="true" />
         </button>
       </div>
 
-      <div className="fpCardDetails"> {/* This container slides right */}
+      <div className="fpCardDetails">
         <h3 className="fpProjectName">{item.buildName || "Project"}</h3>
-
         <p className="fpProjectMeta">
           {(item.constructionType || item.industry || "—")} | {formatSqft(item.areaSqft || "")}
         </p>
 
         <div className="fpCardFooter">
-  {/* YouTube */}
-  {hasYoutube ? (
-    <button
-      className="fpFooterSquare"
-      onClick={() => window.open(item.youtube, "_blank", "noopener,noreferrer")}
-      aria-label="Open YouTube"
-      type="button"
-    >
-      <img src={yt1} alt="" className="fpFooterSquareImg fpYtImg" />
-    </button>
-  ) : (
-    <span className="fpFooterSquare fpFooterSquare--disabled" aria-hidden="true">
-      <img src={yt1} alt="" className="fpFooterSquareImg fpYtImg" />
-    </span>
-  )}
+          {/* YouTube Icon */}
+          {hasYoutube ? (
+            <button className="fpFooterSquare" onClick={() => window.open(item.youtube, "_blank")}>
+              <img src={yt1} alt="" className="fpFooterSquareImg fpYtImg" />
+            </button>
+          ) : null}
 
-  {/* Vizdom */}
-  {hasVizdom ? (
-    <button
-      className="fpFooterSquare"
-      onClick={(e) => { e.stopPropagation(); onOpenVizdom(); }}
-      aria-label="Open Vizdom"
-      type="button"
-    >
-      <img src={vz1} alt="" className="fpFooterSquareImg" />
-    </button>
-  ) : (
-    <span className="fpFooterSquare fpFooterSquare--disabled" aria-hidden="true">
-      <img src={vz1} alt="" className="fpFooterSquareImg" />
-    </span>
-  )}
+          {/* Vizdom Icon */}
+          {hasVizdom ? (
+            <button className="fpFooterSquare" onClick={(e) => { e.stopPropagation(); onOpenVizdom(); }}>
+              <img src={vz1} alt="" className="fpFooterSquareImg" />
+            </button>
+          ) : null}
 
-  {/* View Demo (only if you actually want it always visible, otherwise keep conditional) */}
-  <button
-    className="fpFooterDemoBtn"
-    onClick={(e) => { e.stopPropagation(); onOpenScreenshotGallery(); }}
-    type="button"
-  >
-    <img src={demoIcon} alt="" className="fpDemoIcon" />
-    <span>View Demo</span>
-  </button>
-</div>
-
+          {/* View Demo: This typically triggers the Virtual Walkthrough/Experience */}
+          <button
+            className="fpFooterDemoBtn"
+            onClick={(e) => { 
+              e.stopPropagation(); 
+              onOpenVizwalk(); 
+            }}
+            type="button"
+          >
+            <img src={demoIcon} alt="" className="fpDemoIcon" />
+            <span>View Demo</span>
+          </button>
+        </div>
       </div>
     </article>
   );

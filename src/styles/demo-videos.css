@@ -246,7 +246,7 @@
 /* View Demo pill (32px height) */
 .dv-footerDemoBtn {
   height: 32px;           /* ✅ Figma height */
-  padding: 8px 20px;      /* ✅ Figma padding L/R */
+  padding: 8px 10px;      /* ✅ Figma padding L/R */
   border-radius: 3px;
   border: 0.5px solid rgba(0, 0, 0, 0.35);
   background: #fff;
