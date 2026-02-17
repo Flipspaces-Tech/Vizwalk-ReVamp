@@ -33,22 +33,27 @@ export default function LandingNavbar({
 
   const isProjectsActive =
     pathname === "/live-projects" ||
+    pathname === "/showcase" ||
     (pathname === "/" && hash === "#featured-projects");
 
   const isLearnActive = pathname.startsWith("/learn");
-
   const isDemoActive = pathname.startsWith("/demo-videos");
 
+  // ✅ open internal routes in a NEW tab
+  const openNewTab = (path) => {
+    const url = `${window.location.origin}${path}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  // (kept in case you still use it elsewhere)
   const goOrScroll = (id) => {
     const el = document.getElementById(id);
     if (el) return el.scrollIntoView({ behavior: "smooth" });
-
-    // go to landing with hash
     navigate(`/#${id}`);
   };
 
+  // (kept in case you still use it elsewhere)
   const goTo = (path) => {
-    // keep SPA navigation for active state
     navigate(path);
   };
 
@@ -60,7 +65,8 @@ export default function LandingNavbar({
           <div className="vwTopBar">
             <div className="vwContainer vwTopBarInner">
               <div className="vwTopBarText">
-                Make Sure Choose the region closest to you for a seamless experience
+                Make Sure Choose the region closest to you for a seamless
+                experience
               </div>
               <button
                 type="button"
@@ -83,13 +89,13 @@ export default function LandingNavbar({
         {/* Dark navbar */}
         <div className="vwNav">
           <div className="vwContainer vwNavInner">
-            {/* Left: Logo Area */}
+            {/* Left: Logo Area (opens in NEW tab) */}
             <a
               className="vwLogoGroup"
               href="/"
               onClick={(e) => {
                 e.preventDefault();
-                navigate("/");
+                openNewTab("/");
               }}
             >
               <img className="vwLogoIcon" src={vizIcon} alt="Vizwalk Logo" />
@@ -101,10 +107,7 @@ export default function LandingNavbar({
             <div className="vwNavLinks">
               <button
                 className={`vwNavLink ${isHomeActive ? "isActive" : ""}`}
-                onClick={() => {
-                  // HOME should go to landing top (no hash)
-                  navigate("/");
-                }}
+                onClick={() => openNewTab("/")}
               >
                 HOME
               </button>
@@ -123,7 +126,7 @@ export default function LandingNavbar({
                       className="vwDdItem"
                       onClick={() => {
                         setDd(false);
-                        goOrScroll("featured-projects");
+                        openNewTab("/showcase");
                       }}
                     >
                       Showcase Projects
@@ -133,7 +136,7 @@ export default function LandingNavbar({
                       className="vwDdItem"
                       onClick={() => {
                         setDd(false);
-                        goTo("/live-projects");
+                        openNewTab("/live-projects");
                       }}
                     >
                       Live Projects
@@ -144,14 +147,14 @@ export default function LandingNavbar({
 
               <button
                 className={`vwNavLink ${isLearnActive ? "isActive" : ""}`}
-                onClick={() => goTo("/learn")}
+                onClick={() => openNewTab("/learn")}
               >
                 LEARN
               </button>
 
               <button
                 className={`vwNavLink ${isDemoActive ? "isActive" : ""}`}
-                onClick={() => goTo("/demo-videos")}
+                onClick={() => openNewTab("/demo-videos")}
               >
                 DEMO VIDEOS
               </button>
@@ -175,7 +178,9 @@ export default function LandingNavbar({
                 </button>
 
                 <button
-                  className={`vwRegionBtn ${selectedServer === "us" ? "active" : ""}`}
+                  className={`vwRegionBtn ${
+                    selectedServer === "us" ? "active" : ""
+                  }`}
                   onClick={() => setSelectedServer?.("us")}
                 >
                   <img

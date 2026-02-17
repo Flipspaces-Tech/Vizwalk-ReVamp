@@ -9,7 +9,7 @@ import ScreenshotGallery from "./pages/ScreenshotGallery";
 import Login from "./pages/Login";
 import DemoVideos from "./pages/DemoVideos.jsx";
 import Learn from "./pages/Learn.jsx";
-
+import Showcase from "./pages/Showcase.jsx"; // ✅ ADD THIS
 
 const Experience = lazy(() => import("./pages/Experience"));
 
@@ -25,6 +25,16 @@ export default function App() {
             element={
               <RequireAuth>
                 <Landing />
+              </RequireAuth>
+            }
+          />
+
+          {/* ✅ NEW: Showcase page */}
+          <Route
+            path="/showcase"
+            element={
+              <RequireAuth>
+                <Showcase />
               </RequireAuth>
             }
           />
@@ -50,8 +60,7 @@ export default function App() {
           />
 
           <Route path="/demo-videos" element={<DemoVideos />} />
-          <Route path="/learn" element={<Learn/>} />
-
+          <Route path="/learn" element={<Learn />} />
 
           {/* ✅ Important */}
           <Route path="*" element={<Navigate to="/login" replace />} />
