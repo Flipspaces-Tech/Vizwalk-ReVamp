@@ -8,10 +8,15 @@
 }
 
 .sg-container{
-  width: min(1410px, 92vw);
-  margin: 0 auto;
-  padding: 26px 0 60px;
+  width: 1410px;
+  margin: 28px auto 60px;      /* ✅ space around box */
+  padding: 26px 32px 60px;     /* ✅ add left/right padding */
+  background: #FDFDFD;         /* ✅ box fill */
+  border: 2px solid #F1F1F1;
+  box-sizing: border-box;
+  margin-top: 100px;
 }
+
 
 .sg-back{
   border: none;
@@ -24,6 +29,8 @@
   color: #111;
   opacity: 0.85;
   margin-bottom: 18px;
+  margin-left: 20px;
+  font-size: 14px;
 }
 .sg-back span{ font-weight: 400; }
 
@@ -35,11 +42,17 @@
   max-height: 328px;
   margin-bottom: 50px;
   width: 1270px;
+
+  /* ✅ FIX #1: CENTER THE WHOLE GRID */
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.sg-left{ padding-top: 6px;
-height: 328px;
-width: 682px; }
+.sg-left{
+  padding-top: 6px;
+  height: 328px;
+  width: 622px;
+}
 
 .sg-loading{
   padding: 10px 0;
@@ -111,19 +124,16 @@ width: 682px; }
   margin-top: 18px;
   display: grid;
   gap: 16px;
-  width: 682px;
+  width: 622px;
   height: 212px;
 }
 
 .sg-action{
-
   width: 100%;
   display: grid;
   grid-template-columns: 44px 1fr;
   gap: 14px;
   align-items: center;
-  
-  
 
   padding: 14px 16px;
   border-radius: 6px;
@@ -132,7 +142,6 @@ width: 682px; }
   cursor: pointer;
   text-align: left;
   height: 60px;
-  
 }
 .sg-action:disabled{
   opacity: 0.55;
@@ -167,16 +176,19 @@ width: 682px; }
 }
 
 /* Hero */
-.sg-hero{width: 550px;
+.sg-hero{
+  width: 583px;
   height: 328px;
-  border-radius: 14px;
+  border-radius: 3px;
   overflow: hidden;
   border: 1px solid rgba(0,0,0,0.10);
   background: #fff;
 }
+
+/* ✅ FIX #2: MAKE IMAGE MATCH CONTAINER */
 .sg-heroImg{
-  width: 583px;
-  height: 328px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
 }
@@ -189,6 +201,10 @@ width: 682px; }
   overflow: hidden;
   background: #fff;
   width: 1270px;
+
+  /* ✅ FIX #1 (again): CENTER THE PANEL */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .sg-panelTop{
@@ -238,10 +254,16 @@ width: 682px; }
 
 .sg-panelBody{
   padding: 14px;
+
+  /* ✅ FIX #3: FIGMA-LIKE CENTERED EMPTY STATE */
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Groups */
-.sg-groups{ display: grid; gap: 14px; }
+.sg-groups{ display: grid; gap: 14px; width: 100%; }
 
 .sg-group{
   border: 1px solid rgba(0,0,0,0.08);
@@ -342,20 +364,27 @@ width: 682px; }
 
 /* Empty */
 .sg-empty{
-  padding: 36px 14px;
+  /* ✅ since panelBody is flex-centered now, keep this clean */
+  padding: 0;
   color: rgba(0,0,0,0.55);
   font-weight: 600;
+  text-align: center;
 }
 
 /* Responsive */
 @media (max-width: 980px){
   .sg-topGrid{
     grid-template-columns: 1fr;
+    width: 100%;              /* ✅ mobile */
   }
-  .sg-heroImg{
-    height: 280px;
+  .sg-panel{
+    width: 100%;              /* ✅ mobile */
+  }
+  .sg-hero{
+    width: 100%;
   }
 }
+
 /* ✅ Figma-like chips row */
 .sg-chips-figma{
   margin-top: 14px;
@@ -393,6 +422,7 @@ width: 682px; }
 
 /* optional: slightly nicer flag size */
 .sg-serverPill .sg-flag{ font-size: 16px; }
+
 .sg-action{
   height: 60px;
   padding: 8px 16px;     /* reduce padding */

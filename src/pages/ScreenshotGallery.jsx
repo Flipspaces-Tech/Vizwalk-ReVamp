@@ -4,6 +4,7 @@ import "../styles/screenshot-gallery.css";
 
 import placeholderImg from "../assets/Flipspace - Logo - Black.png";
 import LandingNavbar from "../components/LandingNavbar.jsx";
+import Footer from "../components/Footer.jsx";
 import { useAuth } from "../auth/AuthProvider";
 
 import downloadIcon from "../assets/download.png";
@@ -362,7 +363,6 @@ export default function ScreenshotGallery() {
           setScreenshotsGroups((prev) => mergeGroups(prev, json.groups || []));
         } else {
           console.warn("listscreenshots error", json);
-          // ✅ IMPORTANT: never clear old UI on background refresh
           if (!background && !hasAnyScreenshots) setScreenshotsGroups([]);
         }
       } catch (err) {
@@ -382,16 +382,12 @@ export default function ScreenshotGallery() {
 
   // Auto-refresh every 5s in background
   useEffect(() => {
-    const interval = setInterval(
-      () => fetchScreenshots({ background: true }),
-      5000
-    );
+    const interval = setInterval(() => fetchScreenshots({ background: true }), 5000);
     return () => clearInterval(interval);
   }, [fetchScreenshots]);
 
   /** ====== ACTIONS ====== */
-  const openImage = (url) =>
-    url && window.open(url, "_blank", "noopener,noreferrer");
+  const openImage = (url) => url && window.open(url, "_blank", "noopener,noreferrer");
 
   const dl = (url) => {
     if (!url) return;
@@ -428,9 +424,8 @@ export default function ScreenshotGallery() {
     window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
   };
 
-  // ✅ Refresh click handler: bust cache + fetch
   const handleRefresh = async () => {
-    setRefreshKey(String(Date.now())); // bust images only when refresh clicked
+    setRefreshKey(String(Date.now()));
     await fetchScreenshots({ background: true });
   };
 
@@ -481,16 +476,16 @@ export default function ScreenshotGallery() {
                 </div>
 
                 <div className="sg-chips sg-chips-figma">
-  <div className="sg-subText">
-    <span>{category}</span>
-    <span className="sg-subSep">|</span>
-    <span>{areaDisplay || "—"}</span>
-  </div>
+                  <div className="sg-subText">
+                    <span>{category}</span>
+                    <span className="sg-subSep">|</span>
+                    <span>{areaDisplay || "—"}</span>
+                  </div>
 
-  <div className="sg-serverPill">
-    <span className="sg-flag">🇮🇳</span> {serverLabel}
-  </div>
-</div>
+                  <div className="sg-serverPill">
+                    <span className="sg-flag">🇮🇳</span> {serverLabel}
+                  </div>
+                </div>
 
                 <div className="sg-actions">
                   <button
@@ -499,7 +494,11 @@ export default function ScreenshotGallery() {
                     disabled={!headerItem?.youtube}
                     onClick={() =>
                       headerItem?.youtube &&
-                      window.open(headerItem.youtube, "_blank", "noopener,noreferrer")
+                      window.open(
+                        headerItem.youtube,
+                        "_blank",
+                        "noopener,noreferrer"
+                      )
                     }
                   >
                     <span className="sg-actionIconWrap">
@@ -534,10 +533,8 @@ export default function ScreenshotGallery() {
                       <img className="sg-actionIcon" src={vizwalkIcon} alt="" />
                     </span>
                     <span className="sg-actionText">
-                      <span className="sg-actionTitle">Go To Vizwalk</span>
-                      <span className="sg-actionSub">
-                        View VizWalk in Action
-                      </span>
+                      <span className="sg-actionTitle">Open Vizwalk</span>
+                      <span className="sg-actionSub">View VizWalk in Action</span>
                     </span>
                   </button>
                 </div>
@@ -660,6 +657,9 @@ export default function ScreenshotGallery() {
 
         <div style={{ height: 40 }} />
       </div>
+
+      {/* ✅ Footer */}
+      <Footer />
     </div>
   );
 }
