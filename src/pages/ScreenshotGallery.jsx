@@ -14,7 +14,7 @@ import vizwalkIcon from "../assets/Viz logo.png";
 const GDRIVE_API_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
-const GID = "0";
+const GID = "1024074012";
 
 /** ====== UTILS ====== */
 function getQuery(key, def = "") {
