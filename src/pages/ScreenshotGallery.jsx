@@ -11,6 +11,10 @@ import downloadIcon from "../assets/download.png";
 import ytIcon from "../assets/yt1.png";
 import demoIcon from "../assets/view demo.png";
 import vizwalkIcon from "../assets/Viz logo.png";
+import openIcon from "../assets/a1.png"; // <-- change to your actual icon file
+import maximizeIcon from "../assets/full-screen.png"; // <-- use your actual maximize icon file
+
+
 
 const GDRIVE_API_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
@@ -194,7 +198,7 @@ function ImageWithFallback({ src, alt, className, cacheBustKey = "" }) {
 }
 
 const TABS = [
-  { key: "walkthroughs", label: "Walkthroughs", disabled: true },
+  // { key: "walkthroughs", label: "Walkthroughs", disabled: true },
   { key: "screenshots", label: "Screenshots", disabled: false },
 ];
 
@@ -471,7 +475,9 @@ export default function ScreenshotGallery() {
                     type="button"
                     onClick={() => window.open("/vizdom", "_blank")}
                   >
-                    Go to Vizdom <span className="sg-ext">↗</span>
+                    Go to Vizdom
+                  <img className="sg-vizdomIcon" src={openIcon} alt="" />
+
                   </button>
                 </div>
 
@@ -483,8 +489,14 @@ export default function ScreenshotGallery() {
                   </div>
 
                   <div className="sg-serverPill">
-                    <span className="sg-flag">🇮🇳</span> {serverLabel}
-                  </div>
+  <img
+    className="sg-flagImg"
+    src={server === "us" ? "https://flagcdn.com/w40/us.png" : "https://flagcdn.com/w40/in.png"}
+    alt={server === "us" ? "US" : "IN"}
+  />
+  {serverLabel}
+</div>
+
                 </div>
 
                 <div className="sg-actions">
@@ -633,17 +645,34 @@ export default function ScreenshotGallery() {
                               cacheBustKey={refreshKey}
                             />
 
-                            <button
-                              type="button"
-                              className="sg-shotDl"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                dl(img.url);
-                              }}
-                              title="Download"
-                            >
-                              <img src={downloadIcon} alt="" />
-                            </button>
+                            <div className="sg-shotActions">
+  {/* Maximize / Open */}
+  <button
+    type="button"
+    className="sg-shotBtn"
+    onClick={(e) => {
+      e.stopPropagation();
+      openImage(img.url);
+    }}
+    title="Maximize"
+  >
+    <img src={maximizeIcon} alt="" />
+  </button>
+
+  {/* Download */}
+  <button
+    type="button"
+    className="sg-shotBtn"
+    onClick={(e) => {
+      e.stopPropagation();
+      dl(img.url);
+    }}
+    title="Download"
+  >
+    <img src={downloadIcon} alt="" />
+  </button>
+</div>
+
                           </div>
                         ))}
                       </div>

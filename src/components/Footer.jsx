@@ -6,7 +6,7 @@ import flipspacesLogo from "../assets/logo.png";
 
 export default function Footer() {
   return (
-    <footer className="vwFooter">
+    <footer >
       <div className="vwFooterContainer">
         {/* Top */}
         <div className="vwFooterTop">
