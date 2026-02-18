@@ -4,7 +4,7 @@ import { useAuth } from "../auth/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./login.css";
 
-import loginBg from "../assets/bg_2.jpg";
+import loginBg from "../assets/bg_3.jpg";
 import vizwalkLogo from "../assets/L1.png";
 
 function sanitizeNext(nextRaw) {
@@ -157,11 +157,13 @@ export default function Login() {
         {/* LEFT IMAGE PANEL */}
         <div className="vwAuthLeft" style={{ backgroundImage: `url(${bgAbs})` }}>
           <div className="vwLeftAccent" aria-hidden="true" />
+          
           <div className="vwSloganCard">
             <div className="vwSloganLine1">Bring</div>
             <div className="vwSloganLine2">Spaces</div>
             <div className="vwSloganLine3">To Life</div>
           </div>
+          <div className="vwLeftAccent1" aria-hidden="true" />
         </div>
 
         {/* RIGHT FORM PANEL */}
