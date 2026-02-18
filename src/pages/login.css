@@ -165,7 +165,7 @@ body { margin: 0; }
   border-radius: 4px;
   padding: 0 10px;
   outline: none;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--vw-text);
   background: #fff;
 }
@@ -330,6 +330,8 @@ body { margin: 0; }
   color: #777;
   text-align: center;
   width: 582px;
+  font-weight: 400;
+  font-family: var(--vw-font);
 }
 .vwTermLink--dark{
   color: #444;
@@ -379,4 +381,28 @@ body { margin: 0; }
 }
 .body{
 font-family: var(--font-sans);
+}
+/* logo wrapper (top-right) */
+.vwCornerLogo{
+  position: absolute;
+  top: 4px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;              /* spacing between the 2 images */
+  margin-right: -75px;
+}
+
+/* left icon */
+.vwCornerLogoMark{
+  height: 34px;           /* adjust */
+  width: auto;
+  display: block;
+}
+
+/* right text/logo */
+.vwCornerLogoWord{
+  height: 34px;           /* match icon height OR tweak */
+  width: auto;
+  display: block;
 }

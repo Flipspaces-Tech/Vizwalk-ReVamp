@@ -7,6 +7,10 @@ import "./login.css";
 import loginBg from "../assets/bg_3.jpg";
 import vizwalkLogo from "../assets/L1.png";
 
+import logoMark from "../assets/Viz logo.png";     // left icon (V)
+import logoWord from "../assets/Viz logo_01.png";     // right text (vizwalk + powered by...)
+
+
 function sanitizeNext(nextRaw) {
   if (!nextRaw) return "/";
   if (nextRaw.startsWith("http://") || nextRaw.startsWith("https://")) return "/";
@@ -168,7 +172,11 @@ export default function Login() {
 
         {/* RIGHT FORM PANEL */}
         <div className="vwAuthRight">
-          <img className="vwCornerLogo" src={vizwalkLogo} alt="Vizwalk" />
+          <div className="vwCornerLogo" aria-label="Vizwalk logo">
+            <img className="vwCornerLogoMark" src={logoMark} alt="" />
+            <img className="vwCornerLogoWord" src={logoWord} alt="vizwalk" />
+          </div>
+
 
           <div className="vwFormWrap">
             {verifiedUI ? (
