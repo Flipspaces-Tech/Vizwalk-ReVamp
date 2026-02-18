@@ -172,7 +172,7 @@ height: 28px; /* Adjusted to match scale */
   border: none;
   text-align: left;
   padding: 10px 16px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   color: #333;
   cursor: pointer;
@@ -309,4 +309,91 @@ height: 28px; /* Adjusted to match scale */
 .vwIconBtn:hover {
   border-color: #fff;
   background: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== Projects Dropdown (match Figma compact) ===== */
+.vwDd { position: relative; }
+
+/* panel */
+.vwDdMenu{
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+
+  width: 200px;                 /* ✅ Figma-like small */
+  padding: 8px;                 /* ✅ tight */
+  border-radius: 8px;           /* ✅ smaller radius */
+
+  background: #3F3932;   /* darker, like figma */
+  box-shadow: 0 10px 22px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.08);
+
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  z-index: 99999;
+}
+
+/* item row */
+.vwDdItem{
+  position: relative;
+  width: 100%;
+  border: none;
+  background: transparent;
+
+  text-align: left;
+  cursor: pointer;
+
+  padding: 10px 10px 10px 12px; /* ✅ compact */
+  border-radius: 6px;
+
+  font-size: 16px;              /* ✅ matches figma small */
+  font-weight: 300;
+  letter-spacing: 0.01em;
+
+  color: rgba(255,255,255,0.85);
+}
+
+/* divider like figma */
+.vwDdItem + .vwDdItem{
+  margin-top: 2px;
+  padding-top: 12px;
+}
+.vwDdItem + .vwDdItem::before{
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 2px;
+  height: 1px;
+  background: rgba(255,255,255,0.10);
+}
+
+/* hover subtle (not huge highlight) */
+.vwDdItem:hover{
+  color: #fff;
+  background: rgba(255,255,255,0.06);
+  
+}
+
+/* yellow left accent bar ONLY on hover/active */
+.vwDdItem:hover::after,
+.vwDdItem.isActive::after{
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 7px;
+  bottom: 7px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--vwYellow);
+  margin-left: -5px;
+}
+
+/* active row slightly stronger */
+.vwDdItem.isActive{
+  color: #fff;
+  background: rgba(255,255,255,0.08);
 }

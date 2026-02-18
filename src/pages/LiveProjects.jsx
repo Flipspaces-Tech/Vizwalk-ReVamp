@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import LandingNavbar from "../components/LandingNavbar.jsx";
 import Footer from "../components/Footer.jsx";
-import { useAuth } from "../auth/AuthProvider";
+import { useAuth } from "../auth/AuthProvider.jsx";
 
 import yt1 from "../assets/yt1.png";
 import vz1 from "../assets/vz1.png";
@@ -17,7 +17,7 @@ import "../pages/Landing.css"; // ✅ uses your existing Featured Projects CSS
 
 /** ====== SHEET (CSV) ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
-const GID = "1024074012"; // Featured Projects Page gid
+const GID = "738570445"; // Featured Projects Page gid
 
 /** ====== CSV PARSER ====== */
 function parseCSV(text) {
@@ -419,7 +419,7 @@ export default function Showcase() {
           <div className="fpHeader">
             <div className="fpHeaderLeft">
               <div className="fpTitleRow">
-                <div className="fpTitle">Featured Projects</div>
+                <div className="fpTitle">Live Projects</div>
                 <div className="fpServerBadge">
                   <img
                     src={selectedServer === "india" ? indiaIcon : usIcon}
@@ -437,7 +437,7 @@ export default function Showcase() {
               </div>
 
               <div className="fpSub">
-                Explore our projects showcasing tech-enabled interior design expertise
+                Access the On-going projects in our library
               </div>
             </div>
           </div>

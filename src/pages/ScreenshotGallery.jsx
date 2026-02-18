@@ -106,6 +106,7 @@ const COLS = {
     "thumb",
   ],
   youtube: ["walkthrough link", "youtube link", "youtube"],
+  demo: ["demo link", "demo", "demo video link"], // ✅ ADD THIS
 };
 
 const idxOf = (headers, keys) => {
@@ -289,6 +290,8 @@ export default function ScreenshotGallery() {
         const iDesignStyle = idxOf(headers, COLS.designStyle);
         const iImage = idxOf(headers, COLS.image);
         const iYouTube = idxOf(headers, COLS.youtube);
+        const iDemo = idxOf(headers, COLS.demo); // ✅ ADD
+
         const iVizdomId = idxOf(headers, COLS.vizdomId);
 
         const items = body
@@ -307,6 +310,8 @@ export default function ScreenshotGallery() {
               thumb: safeGet(r, iImage),
               youtube: safeGet(r, iYouTube),
               vizdomId: safeGet(r, iVizdomId),
+              demo: safeGet(r, iDemo),
+
             };
           })
           .filter(Boolean);
@@ -524,21 +529,25 @@ export default function ScreenshotGallery() {
                     </span>
                   </button>
 
-                  <button
-                    type="button"
-                    className="sg-action"
-                    onClick={() => window.open("/demo-videos", "_blank")}
-                  >
-                    <span className="sg-actionIconWrap">
-                      <img className="sg-actionIcon" src={demoIcon} alt="" />
+                 {headerItem?.demo ? (
+                <button
+                  type="button"
+                  className="sg-action"
+                  onClick={() => window.open(headerItem.demo, "_blank", "noopener,noreferrer")}
+                >
+                  <span className="sg-actionIconWrap">
+                    <img className="sg-actionIcon" src={demoIcon} alt="" />
+                  </span>
+                  <span className="sg-actionText">
+                    <span className="sg-actionTitle">Demo Video</span>
+                    <span className="sg-actionSub">
+                      A Tech showcase video for the project
                     </span>
-                    <span className="sg-actionText">
-                      <span className="sg-actionTitle">Demo Video</span>
-                      <span className="sg-actionSub">
-                        A Tech showcase video for the project
-                      </span>
-                    </span>
-                  </button>
+                  </span>
+                </button>
+              ) : null}
+
+
 
                   <button type="button" className="sg-action" onClick={openVizwalk}>
                     <span className="sg-actionIconWrap">

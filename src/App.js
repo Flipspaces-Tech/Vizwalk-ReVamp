@@ -9,7 +9,8 @@ import ScreenshotGallery from "./pages/ScreenshotGallery";
 import Login from "./pages/Login";
 import DemoVideos from "./pages/DemoVideos.jsx";
 import Learn from "./pages/Learn.jsx";
-import Showcase from "./pages/Showcase.jsx"; // ✅ ADD THIS
+import Showcase from "./pages/Showcase.jsx";
+import LiveProjects from "./pages/LiveProjects.jsx"; // ✅ ADD THIS
 
 const Experience = lazy(() => import("./pages/Experience"));
 
@@ -29,12 +30,22 @@ export default function App() {
             }
           />
 
-          {/* ✅ NEW: Showcase page */}
+          {/* ✅ Showcase page */}
           <Route
             path="/showcase"
             element={
               <RequireAuth>
                 <Showcase />
+              </RequireAuth>
+            }
+          />
+
+          {/* ✅ Live Projects page */}
+          <Route
+            path="/live-projects"
+            element={
+              <RequireAuth>
+                <LiveProjects />
               </RequireAuth>
             }
           />

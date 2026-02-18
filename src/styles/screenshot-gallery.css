@@ -127,8 +127,9 @@
   display: grid;
   gap: 16px;
   width: 622px;
-  height: 212px;
+  height: auto;     /* ✅ was 212px */
 }
+
 
 .sg-action{
   width: 100%;
