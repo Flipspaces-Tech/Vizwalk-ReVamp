@@ -4,7 +4,6 @@
 :root{
   --vw-font: "Poppins", Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   --vw-yellow: #f5be2e;
-
   --vw-text: #222;
 }
 
@@ -13,26 +12,34 @@
 html, body { height: 100%; }
 body { margin: 0; }
 
-/* ✅ FULL SCREEN CONTAINER */
+/* FULL SCREEN CONTAINER */
 .vwAuthShell{
   font-family: var(--vw-font);
   min-height: 100vh;
   width: 100vw;
-  background: #ffffff;
+  background: #bfbfbf;   /* ✅ outer grey like screenshot */
   display: block;
-  padding: 0;                 /* ✅ remove padding that shrinks */
+  padding: 0;
 }
 
-/* ✅ FULL SCREEN SPLIT */
+/* FULL SCREEN SPLIT + INNER FRAME FEEL */
 .vwAuthFrame{
-  width: 100vw;               /* ✅ full width */
-  height: 100vh;              /* ✅ full height */
-  background: #fff;
-  border: 0;                  /* ✅ remove frame border */
+  width: 100vw;
+  height: 100vh;
   display: grid;
   grid-template-columns: 46% 54%;
   overflow: hidden;
+
+  /* ✅ create the “frame” feel using padding */
   padding: 10px;
+  background: #bfbfbf;
+  background: white;
+}
+
+/* The actual white canvas inside */
+.vwAuthLeft,
+.vwAuthRight{
+  background: #fff;
 }
 
 /* =========================
@@ -90,54 +97,56 @@ body { margin: 0; }
    ========================= */
 .vwAuthRight{
   position: relative;
-  background: #ffffff;
   padding: 28px 34px 22px;
 }
 
+/* logo */
 .vwCornerLogo{
   position: absolute;
   top: 16px;
   right: 18px;
-  width: 120px;
-  height: auto;
+  width: 262px;
+  height: 58px;
   opacity: 1;
   filter: none;
 }
 
+/* content wrap */
 .vwFormWrap{
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: min(440px, 92%);
-  margin: 0 auto;
+  width: 582px;             /* ✅ lock width like ref */
+  margin-left: 0;           /* left aligned like ref */
   transform: translateY(-10px);
+  transform: translateX(35%);
 }
 
+/* title */
 .vwRightTitle{
-  text-align: center;
-  font-size: 22px;
+  font-size: 48px;
   font-weight: 600;
   color: var(--vw-text);
-  margin-bottom: 20px;
+  margin-bottom: 74px;
 }
 
+/* label */
 .vwFieldLabel{
-  font-size: 11px;
+  font-size: 20px;
   color: #777;
-  margin-bottom: 6px;
-  font-weight: 500;
+  margin-bottom: 8px;
 }
 
 /* input */
 .vwInput--light{
-  width: 100%;
-  height: 34px;
+  width: 582px;
+  height: 56px;
   border: 1px solid #cfcfcf;
-  border-radius: 2px;
+  border-radius: 4px;
   padding: 0 10px;
   outline: none;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--vw-text);
   background: #fff;
 }
@@ -149,11 +158,11 @@ body { margin: 0; }
 
 /* remember circle */
 .vwRememberLight{
-  margin-top: 10px;
+  margin-top: 12px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
+  gap: 10px;
+  font-size: 14px;
   color: #777;
   user-select: none;
 }
@@ -166,8 +175,8 @@ body { margin: 0; }
 
 .vwRememberLight::before{
   content: "";
-  width: 11px;
-  height: 11px;
+  width: 14px;
+  height: 14px;
   border-radius: 999px;
   border: 1.6px solid #9a9a9a;
   display: inline-block;
@@ -180,56 +189,59 @@ body { margin: 0; }
 
 /* CTA */
 .vwCta--light{
-  margin-top: 14px;
-  width: 100%;
-  height: 34px;
+  margin-top: 18px;
+  width: 582px;
+  height: 50px;
   border: none;
-  border-radius: 2px;
+  border-radius: 5px;
   background: var(--vw-yellow);
   color: #1b1b1b;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 14px;
+  /* font-weight: 600; */
   cursor: pointer;
 }
 
+/* ✅ EXACT disabled look */
 .vwCta--light:disabled{
-  background: #ececec;
-  color: #9b9b9b;
+  background: #e6e6e6;
+  color: #8f8f8f;
   opacity: 1;
   cursor: not-allowed;
   box-shadow: none;
 }
 
+/* hint + msg */
 .vwHint--dark{
-  margin-top: 10px;
+  margin-top: 12px;
   text-align: center;
-  font-size: 10px;
+  font-size: 14px;
   color: #7a7a7a;
+  width: 582px;
 }
 
 .vwMsg--dark{
-  margin-top: 10px;
+  margin-top: 12px;
   text-align: center;
   font-size: 12px;
   font-weight: 600;
   color: #444;
 }
 
-/* OTP */
+/* OTP row */
 .vwOtpRow--light{
-  margin-top: 6px;
+  margin-top: 10px;
   display: flex;
-  justify-content: center;
-  gap: 8px;
+  gap: 20px;
+  width: 582px;       /* ✅ lock to same width */
 }
 
 .vwOtpBox--light{
-  width: 28px;
-  height: 26px;
+  width: 80px;
+  height: 56px;
   border: 1px solid #cfcfcf;
-  border-radius: 2px;
+  border-radius: 4px;
   text-align: center;
-  font-size: 12px;
+  font-size: 20px;
   font-weight: 600;
   outline: none;
   color: var(--vw-text);
@@ -241,13 +253,15 @@ body { margin: 0; }
   box-shadow: 0 0 0 3px rgba(245,190,46,0.18);
 }
 
+/* ✅ timer + resend perfectly centered under boxes */
 .vwOtpMeta{
-  margin-top: 8px;
+  margin-top: 20px;
+  width: 582px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 20px;
   color: #777;
 }
 
@@ -255,7 +269,7 @@ body { margin: 0; }
   background: transparent;
   border: none;
   padding: 0;
-  font-size: 11px;
+  font-size: 20px;
   color: #333;
   text-decoration: underline;
   cursor: pointer;
@@ -287,16 +301,16 @@ body { margin: 0; }
 }
 @keyframes vwSpin{ to { transform: rotate(360deg); } }
 
-/* Terms bottom */
+/* ✅ Terms perfectly centered */
 .vwTerms--dark{
   position: absolute;
   bottom: 14px;
   left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
+  transform: translateX(-45%);
+  font-size: 14px;
   color: #777;
   text-align: center;
-  width: min(520px, 92%);
+  width: 582px;
 }
 .vwTermLink--dark{
   color: #444;
@@ -305,15 +319,35 @@ body { margin: 0; }
 }
 
 /* Responsive */
+@media (max-width: 1100px){
+  .vwFormWrap,
+  .vwInput--light,
+  .vwCta--light,
+  .vwHint--dark,
+  .vwOtpRow--light,
+  .vwOtpMeta,
+  .vwTerms--dark{
+    width: min(520px, 90%);
+  }
+
+  .vwOtpBox--light{
+    width: 72px;
+  }
+}
+
 @media (max-width: 900px){
   .vwAuthFrame{
     grid-template-columns: 1fr;
+    padding: 10px;
   }
   .vwAuthLeft{
     min-height: 280px;
   }
   .vwAuthRight{
     min-height: 420px;
+  }
+  .vwFormWrap{
+    margin: 0 auto;
   }
   .vwTerms--dark{
     position: static;

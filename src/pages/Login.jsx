@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./login.css";
 
 import loginBg from "../assets/bg_2.jpg";
-import vizwalkLogo from "../assets/logo.png";
+import vizwalkLogo from "../assets/L1.png";
 
 function sanitizeNext(nextRaw) {
   if (!nextRaw) return "/";
@@ -21,6 +21,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [remember, setRemember] = useState(true);
 
+  // ✅ 6-digit OTP with paste support
   const OTP_LEN = 6;
   const [otpDigits, setOtpDigits] = useState(Array(OTP_LEN).fill(""));
   const otpRefs = useRef([]);
@@ -28,6 +29,7 @@ export default function Login() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
+  // Verified UI
   const [verifiedUI, setVerifiedUI] = useState(false);
   const [holdRedirect, setHoldRedirect] = useState(false);
 
@@ -43,10 +45,12 @@ export default function Login() {
     return sanitizeNext(qpNext || stateNext || "/");
   }, [loc.search, loc.state]);
 
+  // ✅ Redirect only when not holding (so verified screen stays visible)
   useEffect(() => {
     if (session && !holdRedirect) nav(next, { replace: true });
   }, [session, holdRedirect, nav, next]);
 
+  // ✅ safe absolute url for background
   const bgUrl = String(loginBg || "");
   const bgAbs = bgUrl.startsWith("/") ? bgUrl : `/${bgUrl}`;
 
@@ -135,6 +139,7 @@ export default function Login() {
       return;
     }
 
+    // ✅ Show verified screen and delay redirect
     setVerifiedUI(true);
     setHoldRedirect(true);
 
@@ -149,7 +154,7 @@ export default function Login() {
   return (
     <div className="vwAuthShell">
       <div className="vwAuthFrame">
-        {/* LEFT */}
+        {/* LEFT IMAGE PANEL */}
         <div className="vwAuthLeft" style={{ backgroundImage: `url(${bgAbs})` }}>
           <div className="vwLeftAccent" aria-hidden="true" />
           <div className="vwSloganCard">
@@ -159,7 +164,7 @@ export default function Login() {
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT FORM PANEL */}
         <div className="vwAuthRight">
           <img className="vwCornerLogo" src={vizwalkLogo} alt="Vizwalk" />
 
@@ -173,6 +178,7 @@ export default function Login() {
             ) : showOtp ? (
               <>
                 <div className="vwRightTitle">OTP</div>
+
                 <label className="vwFieldLabel">Enter OTP</label>
 
                 <div className="vwOtpRow vwOtpRow--light">
@@ -211,6 +217,7 @@ export default function Login() {
             ) : (
               <>
                 <div className="vwRightTitle">Signin</div>
+
                 <label className="vwFieldLabel">Enter your Flipspaces ID</label>
 
                 <input
