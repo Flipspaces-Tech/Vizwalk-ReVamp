@@ -1,332 +1,323 @@
 /* src/pages/login.css */
-
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 
 :root{
   --vw-font: "Poppins", Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  --vw-yellow: #f5be2e;
+
+  --vw-text: #222;
 }
 
-/* ===== Background ===== */
-.vwLogin {
-  font-family: var(--vw-font);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-height: 100vh;
-  width: 100%;
-  position: relative;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
+*{ box-sizing: border-box; }
 
-  /* ✅ Background is set INLINE in JSX now */
+html, body { height: 100%; }
+body { margin: 0; }
+
+/* ✅ FULL SCREEN CONTAINER */
+.vwAuthShell{
+  font-family: var(--vw-font);
+  min-height: 100vh;
+  width: 100vw;
+  background: #ffffff;
+  display: block;
+  padding: 0;                 /* ✅ remove padding that shrinks */
+}
+
+/* ✅ FULL SCREEN SPLIT */
+.vwAuthFrame{
+  width: 100vw;               /* ✅ full width */
+  height: 100vh;              /* ✅ full height */
+  background: #fff;
+  border: 0;                  /* ✅ remove frame border */
+  display: grid;
+  grid-template-columns: 46% 54%;
+  overflow: hidden;
+  padding: 10px;
+}
+
+/* =========================
+   LEFT
+   ========================= */
+.vwAuthLeft{
+  position: relative;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
-  background-color: #111; /* fallback */
 }
 
-.vwLogin img { max-width: 100%; height: auto; }
-
-/* Overlay */
-.vwLoginOverlay {
+/* yellow accent */
+.vwLeftAccent{
   position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(1deg, rgba(0,0,0,0.35), rgba(0,0,0,0.72));
+  top: 22px;
+  right: 22px;
+  width: 10px;
+  height: 64px;
+  background: var(--vw-yellow);
+  border-radius: 2px;
+  opacity: 0.95;
 }
 
-/* Center stack */
-.vwLoginCenter {
-  position: relative;
-  z-index: 2;
-  width: min(900px, 92vw);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
-  padding: 24px 16px 28px;
+/* slogan */
+.vwSloganCard{
+  position: absolute;
+  left: 38px;
+  bottom: 46px;
+  width: 210px;
+  padding: 18px 16px;
+  border: 1px solid rgba(255,255,255,0.30);
+  background: rgba(255,255,255,0.16);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
-/* ===== Header image ===== */
-.vwHero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-.vwHeroLogo {
-  width: 180px;
-  max-width: 86vw;
-  height: auto;
-  display: block;
-  object-fit: contain;
-  filter: drop-shadow(0 10px 22px rgba(0,0,0,0.45));
-}
-
-/* ===== Glass Card ===== */
-.vwLoginCard {
-  width: min(440px, 92vw);
-  border-radius: 14px;
-  padding: 26px 28px 18px;
-
-  background: rgba(55,55,55,0.48);
-  border: 1px solid rgba(255,255,255,0.12);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-
-  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
-}
-
-/* ===== Text ===== */
-.vwCardTitle{
-  margin: 0 0 12px;
-  font-size: 16px;
+.vwSloganLine1,
+.vwSloganLine3{
+  font-size: 34px;
+  line-height: 1.02;
   font-weight: 500;
-  letter-spacing: 0.2px;
-  color: rgba(255,255,255,0.82);
+  color: rgba(255,255,255,0.90);
 }
 
-.vwCardTitle--center {
+.vwSloganLine2{
+  font-size: 38px;
+  line-height: 1.02;
+  font-weight: 700;
+  color: rgba(255,255,255,0.96);
+}
+
+/* =========================
+   RIGHT
+   ========================= */
+.vwAuthRight{
+  position: relative;
+  background: #ffffff;
+  padding: 28px 34px 22px;
+}
+
+.vwCornerLogo{
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 120px;
+  height: auto;
+  opacity: 1;
+  filter: none;
+}
+
+.vwFormWrap{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: min(440px, 92%);
+  margin: 0 auto;
+  transform: translateY(-10px);
+}
+
+.vwRightTitle{
   text-align: center;
-  font-size: 13px;
+  font-size: 22px;
   font-weight: 600;
-  color: rgba(255,255,255,0.70);
-  margin-bottom: 0;
+  color: var(--vw-text);
+  margin-bottom: 20px;
 }
 
-.vwHint {
-  margin-top: 12px;
-  text-align: center;
-  font-size: 14px;
-  color: rgba(255,255,255,0.58);
+.vwFieldLabel{
+  font-size: 11px;
+  color: #777;
+  margin-bottom: 6px;
+  font-weight: 500;
 }
 
-.vwMsg {
-  margin-top: 12px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.82);
-}
-
-/* ===== Email Input ===== */
-.vwInput{
+/* input */
+.vwInput--light{
   width: 100%;
-  height: 54px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.86);
-  padding: 0 18px;
+  height: 34px;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+  padding: 0 10px;
   outline: none;
-  font-size: 14px;
-  font-weight: 400;
-}
-.vwInput::placeholder{
-  color: rgba(255,255,255,0.42);
-  font-weight: 400;
+  font-size: 12px;
+  color: var(--vw-text);
+  background: #fff;
 }
 
-.vwInput:focus {
-  border-color: rgba(245,190,46,0.55);
-  box-shadow: 0 0 0 5px rgba(245,190,46,0.14);
+.vwInput--light:focus{
+  border-color: #bdbdbd;
+  box-shadow: 0 0 0 3px rgba(245,190,46,0.18);
 }
 
-/* ===== Remember ===== */
-.vwRemember{
-  margin-top: 14px;
+/* remember circle */
+.vwRememberLight{
+  margin-top: 10px;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  color: rgba(255,255,255,0.65);
-  font-size: 13px;
-  font-weight: 400;
+  gap: 8px;
+  font-size: 11px;
+  color: #777;
+  user-select: none;
 }
 
-.vwRemember input {
+.vwRememberLight input{
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-.vwRemember::before {
+.vwRememberLight::before{
   content: "";
-  width: 16px;
-  height: 16px;
+  width: 11px;
+  height: 11px;
   border-radius: 999px;
-  border: 2px solid rgba(255,255,255,0.35);
+  border: 1.6px solid #9a9a9a;
   display: inline-block;
-  box-sizing: border-box;
 }
 
-.vwRemember:has(input:checked)::before {
-  border-color: rgba(245,190,46,0.95);
-  background: radial-gradient(circle at 50% 50%, rgba(245,190,46,0.95) 0 45%, transparent 46% 100%);
+.vwRememberLight:has(input:checked)::before{
+  border-color: #666;
+  background: radial-gradient(circle, #666 0 45%, transparent 46% 100%);
 }
 
-.vwRememberText {
-  color: rgba(255,255,255,0.70);
-}
-
-/* ===== CTA ===== */
-.vwCta{
-  margin-top: 16px;
-  width: 100%;
-  height: 56px;
-  border-radius: 14px;
-  border: none;
-  background: #f5be2e;
-  color: #1a1a1a;
-  font-weight: 600;
-  font-size: 15px;
-  letter-spacing: 0.2px;
-  cursor: pointer;
-  box-shadow: 0 16px 44px rgba(245,165,36,0.18);
-}
-
-.vwCta:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.vwCta--compact{
-  height: 44px;
-  border-radius: 12px;
-  font-size: 14px;
+/* CTA */
+.vwCta--light{
   margin-top: 14px;
-}
-
-/* ===== OTP ===== */
-.vwOtpEmail{
-  margin-top: 6px;
-  text-align: center;
-  font-size: 13px;
-  color: rgba(245,190,46,0.90);
+  width: 100%;
+  height: 34px;
+  border: none;
+  border-radius: 2px;
+  background: var(--vw-yellow);
+  color: #1b1b1b;
+  font-size: 12px;
   font-weight: 600;
+  cursor: pointer;
 }
 
-.vwOtpRow{
-  margin-top: 12px;
+.vwCta--light:disabled{
+  background: #ececec;
+  color: #9b9b9b;
+  opacity: 1;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.vwHint--dark{
+  margin-top: 10px;
+  text-align: center;
+  font-size: 10px;
+  color: #7a7a7a;
+}
+
+.vwMsg--dark{
+  margin-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+}
+
+/* OTP */
+.vwOtpRow--light{
+  margin-top: 6px;
   display: flex;
   justify-content: center;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
-.vwOtpBox{
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  font-size: 14px;
+.vwOtpBox--light{
+  width: 28px;
+  height: 26px;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
   text-align: center;
-  font-weight: 700;
-
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.86);
-  outline: none;
-}
-
-.vwOtpBox:focus{
-  border-color: rgba(245,190,46,0.60);
-  box-shadow: 0 0 0 4px rgba(245,190,46,0.16);
-}
-
-.vwTinyRow{
-  margin-top: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  color: rgba(255,255,255,0.55);
   font-size: 12px;
+  font-weight: 600;
+  outline: none;
+  color: var(--vw-text);
+  background: #fff;
 }
 
-.vwTinyLink{
+.vwOtpBox--light:focus{
+  border-color: #bdbdbd;
+  box-shadow: 0 0 0 3px rgba(245,190,46,0.18);
+}
+
+.vwOtpMeta{
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #777;
+}
+
+.vwLinkBtn{
   background: transparent;
   border: none;
   padding: 0;
-  color: rgba(255,255,255,0.68);
-  font-weight: 600;
+  font-size: 11px;
+  color: #333;
+  text-decoration: underline;
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 
-.vwTinyLink:disabled{
-  opacity: 0.6;
-  cursor: not-allowed;
+.vwLinkBtn:disabled{ opacity: 0.6; cursor: not-allowed; }
+
+/* verified */
+.vwVerifiedSimple{ text-align: center; }
+
+.vwVerifiedTitle{
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--vw-text);
 }
-
-.vwDot{ opacity: 0.55; }
-
-/* ===== Terms ===== */
-.vwTerms {
+.vwVerifiedSub{
   margin-top: 6px;
-  text-align: center;
   font-size: 12px;
-  color: rgba(255,255,255,0.55);
+  color: #666;
 }
-
-.vwTermLink {
-  color: rgba(255,255,255,0.78);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-/* ===== Verified ===== */
-.vwVerifiedCard{
-  margin-top: 8px;
-  width: 100%;
-  border-radius: 14px;
-  padding: 34px 18px 26px;
-  text-align: center;
-
-  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
-  box-shadow: 0 18px 60px rgba(0,0,0,0.45);
-  border: 1px solid rgba(255,255,255,0.18);
-}
-
-.vwVerifiedIconWrap{
-  width: 86px;
-  height: 86px;
-  margin: 0 auto 14px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.18);
-  display: grid;
-  place-items: center;
-}
-
-.vwVerifiedIcon{
-  width: 48px;
-  height: 48px;
-}
-
-.vwVerifiedText{
-  font-size: 26px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.96);
-}
-
-.vwVerifiedDesc{
-  margin-top: 8px;
-  font-size: 13px;
-  color: rgba(255,255,255,0.82);
-}
-
-.vwVerifiedSpinner{
-  margin: 18px auto 0;
+.vwVerifiedSpinnerDark{
+  margin: 14px auto 0;
   width: 18px;
   height: 18px;
   border-radius: 999px;
-  border: 3px solid rgba(255,255,255,0.35);
-  border-top-color: rgba(255,255,255,0.95);
+  border: 3px solid rgba(0,0,0,0.15);
+  border-top-color: rgba(0,0,0,0.55);
   animation: vwSpin 0.9s linear infinite;
 }
+@keyframes vwSpin{ to { transform: rotate(360deg); } }
 
-@keyframes vwSpin{
-  to { transform: rotate(360deg); }
+/* Terms bottom */
+.vwTerms--dark{
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #777;
+  text-align: center;
+  width: min(520px, 92%);
+}
+.vwTermLink--dark{
+  color: #444;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 900px){
+  .vwAuthFrame{
+    grid-template-columns: 1fr;
+  }
+  .vwAuthLeft{
+    min-height: 280px;
+  }
+  .vwAuthRight{
+    min-height: 420px;
+  }
+  .vwTerms--dark{
+    position: static;
+    transform: none;
+    margin: 16px auto 0;
+  }
 }

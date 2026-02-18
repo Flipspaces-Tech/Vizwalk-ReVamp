@@ -21,7 +21,6 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [remember, setRemember] = useState(true);
 
-  // ✅ 6-digit OTP with paste support
   const OTP_LEN = 6;
   const [otpDigits, setOtpDigits] = useState(Array(OTP_LEN).fill(""));
   const otpRefs = useRef([]);
@@ -29,10 +28,7 @@ export default function Login() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
-  // Verified UI (green card)
   const [verifiedUI, setVerifiedUI] = useState(false);
-
-  // Hold redirect so “Verified!” is visible
   const [holdRedirect, setHoldRedirect] = useState(false);
 
   const nav = useNavigate();
@@ -47,15 +43,10 @@ export default function Login() {
     return sanitizeNext(qpNext || stateNext || "/");
   }, [loc.search, loc.state]);
 
-  // ✅ Redirect only when not holding (so verified screen stays visible)
   useEffect(() => {
     if (session && !holdRedirect) nav(next, { replace: true });
   }, [session, holdRedirect, nav, next]);
 
-  const mode = verifiedUI ? "verified" : step; // email | otp | verified
-
-  // ✅ IMPORTANT FIX: force absolute URL for the background in prod
-  // CRA builds return "/static/media/..jpg" already, but this guards edge cases.
   const bgUrl = String(loginBg || "");
   const bgAbs = bgUrl.startsWith("/") ? bgUrl : `/${bgUrl}`;
 
@@ -144,7 +135,6 @@ export default function Login() {
       return;
     }
 
-    // ✅ Show “Verified!” screen and delay redirect
     setVerifiedUI(true);
     setHoldRedirect(true);
 
@@ -153,134 +143,122 @@ export default function Login() {
     }, 900);
   };
 
+  const showOtp = !verifiedUI && step === "otp";
+  const showEmail = !verifiedUI && step === "email";
+
   return (
-    <div
-      className={`vwLogin vwLogin--${mode}`}
-      style={{ backgroundImage: `url(${bgAbs})` }}   // ✅ FIXED
-    >
-      <div className="vwLoginOverlay" />
-
-      <div className="vwLoginCenter">
-        {/* Header logo */}
-        <div className="vwHero">
-          <img className="vwHeroLogo" src={vizwalkLogo} alt="Vizwalk" />
+    <div className="vwAuthShell">
+      <div className="vwAuthFrame">
+        {/* LEFT */}
+        <div className="vwAuthLeft" style={{ backgroundImage: `url(${bgAbs})` }}>
+          <div className="vwLeftAccent" aria-hidden="true" />
+          <div className="vwSloganCard">
+            <div className="vwSloganLine1">Bring</div>
+            <div className="vwSloganLine2">Spaces</div>
+            <div className="vwSloganLine3">To Life</div>
+          </div>
         </div>
 
-        <div className="vwLoginCard">
-          {verifiedUI ? (
-            <div className="vwVerifiedCard">
-              <div className="vwVerifiedIconWrap">
-                <svg className="vwVerifiedIcon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M20 12a8 8 0 1 1-16 0a8 8 0 0 1 16 0Z"
-                    stroke="rgba(255,255,255,0.75)"
-                    strokeWidth="2"
-                  />
-                  <path
-                    d="m8 12.2 2.3 2.3L16.5 9"
-                    stroke="rgba(255,255,255,0.9)"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+        {/* RIGHT */}
+        <div className="vwAuthRight">
+          <img className="vwCornerLogo" src={vizwalkLogo} alt="Vizwalk" />
+
+          <div className="vwFormWrap">
+            {verifiedUI ? (
+              <div className="vwVerifiedSimple">
+                <div className="vwVerifiedTitle">Verified!</div>
+                <div className="vwVerifiedSub">Redirecting you to the dashboard…</div>
+                <div className="vwVerifiedSpinnerDark" aria-label="Loading" />
               </div>
+            ) : showOtp ? (
+              <>
+                <div className="vwRightTitle">OTP</div>
+                <label className="vwFieldLabel">Enter OTP</label>
 
-              <div className="vwVerifiedText">Verified!</div>
-              <div className="vwVerifiedDesc">Redirecting you to the dashboard...</div>
-              <div className="vwVerifiedSpinner" aria-label="Loading" />
-            </div>
-          ) : step === "otp" ? (
-            <>
-              <div className="vwCardTitle vwCardTitle--center">Enter the 6-digit code sent to</div>
-              <div className="vwOtpEmail">{email}</div>
+                <div className="vwOtpRow vwOtpRow--light">
+                  {otpDigits.map((d, idx) => (
+                    <input
+                      key={idx}
+                      ref={(el) => (otpRefs.current[idx] = el)}
+                      className="vwOtpBox vwOtpBox--light"
+                      value={d}
+                      onChange={(e) => handleOtpChange(idx, e.target.value)}
+                      onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                      onPaste={handleOtpPaste}
+                      inputMode="numeric"
+                      maxLength={1}
+                    />
+                  ))}
+                </div>
 
-              <div className="vwOtpRow">
-                {otpDigits.map((d, idx) => (
-                  <input
-                    key={idx}
-                    ref={(el) => (otpRefs.current[idx] = el)}
-                    className="vwOtpBox"
-                    value={d}
-                    onChange={(e) => handleOtpChange(idx, e.target.value)}
-                    onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                    onPaste={handleOtpPaste}
-                    inputMode="numeric"
-                    maxLength={1}
-                  />
-                ))}
-              </div>
+                <div className="vwOtpMeta">
+                  <span className="vwOtpTimer">00:30 sec</span>
+                  <button className="vwLinkBtn" disabled={busy} onClick={onSend}>
+                    Resend
+                  </button>
+                </div>
 
-              <button
-                className="vwCta vwCta--compact"
-                disabled={busy || otpValue.length !== OTP_LEN}
-                onClick={onVerify}
-              >
-                {busy ? "Verifying…" : "Verify OTP"}
-              </button>
-
-              <div className="vwTinyRow">
-                <button className="vwTinyLink" disabled={busy} onClick={onSend}>
-                  Resend OTP
-                </button>
-                <span className="vwDot">•</span>
                 <button
-                  className="vwTinyLink"
-                  disabled={busy}
-                  onClick={() => {
-                    setStep("email");
-                    setOtpDigits(Array(OTP_LEN).fill(""));
-                    setMsg("");
-                  }}
+                  className="vwCta vwCta--light"
+                  disabled={busy || otpValue.length !== OTP_LEN}
+                  onClick={onVerify}
                 >
-                  Change email
+                  {busy ? "Signing in…" : "Signin"}
                 </button>
-              </div>
 
-              {msg ? <div className="vwMsg">{msg}</div> : null}
-            </>
-          ) : (
-            <>
-              <div className="vwCardTitle">Sign in with your Flipspaces ID</div>
+                {msg ? <div className="vwMsg vwMsg--dark">{msg}</div> : null}
+              </>
+            ) : (
+              <>
+                <div className="vwRightTitle">Signin</div>
+                <label className="vwFieldLabel">Enter your Flipspaces ID</label>
 
-              <input
-                className="vwInput"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example.abc@flipspaces.com"
-                autoComplete="email"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    if (!busy && email.trim()) onSend();
-                  }
-                }}
-              />
-
-              <label className="vwRemember">
                 <input
-                  type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
+                  className="vwInput vwInput--light"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example.abc@flipspaces.com"
+                  autoComplete="email"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (!busy && email.trim()) onSend();
+                    }
+                  }}
                 />
-                <span className="vwRememberText">Remember Me</span>
-              </label>
 
-              <button className="vwCta" disabled={busy || !email.trim()} onClick={onSend}>
-                {busy ? "Sending…" : "Send OTP"}
-              </button>
+                <label className="vwRememberLight">
+                  <input
+                    type="checkbox"
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
+                  />
+                  <span>Remember Me</span>
+                </label>
 
-              <div className="vwHint">We’ll send a verification code to your email</div>
+                <button
+                  className="vwCta vwCta--light"
+                  disabled={busy || !email.trim()}
+                  onClick={onSend}
+                >
+                  {busy ? "Sending…" : "Send OTP"}
+                </button>
 
-              {msg ? <div className="vwMsg">{msg}</div> : null}
-            </>
-          )}
-        </div>
+                <div className="vwHint vwHint--dark">
+                  We’ll send a verification code to your email
+                </div>
 
-        <div className="vwTerms">
-          By continuing, you agree to our{" "}
-          <span className="vwTermLink">Terms of Service</span> and{" "}
-          <span className="vwTermLink">Privacy Policy</span>
+                {msg ? <div className="vwMsg vwMsg--dark">{msg}</div> : null}
+              </>
+            )}
+          </div>
+
+          <div className="vwTerms vwTerms--dark">
+            By continuing you agree to our{" "}
+            <span className="vwTermLink vwTermLink--dark">Terms of Service</span>{" "}
+            and{" "}
+            <span className="vwTermLink vwTermLink--dark">Privacy Policy</span>
+          </div>
         </div>
       </div>
     </div>
