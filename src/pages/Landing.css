@@ -67,9 +67,9 @@ html, body, #root {
 .hero2Overlay{
   position: absolute;
   inset: 0;
-  background:
+  /* background:
     radial-gradient(1000px 600px at 50% 50%, rgba(0,0,0,0.15), rgba(0,0,0,0.55)),
-    linear-gradient(90deg, rgba(0,0,0,0.55), rgba(0,0,0,0.25), rgba(0,0,0,0.55));
+    linear-gradient(90deg, rgba(0,0,0,0.55), rgba(0,0,0,0.25), rgba(0,0,0,0.55)); */
 }
 
 /* Center content */
@@ -236,32 +236,44 @@ html, body, #root {
   
 }
 
-/* Server badge */
-.fpServerBadge {
-  width: 126px;
+/* Make fpServerBadge look like sg-serverPill */
+.fpServerBadge{
   height: 28px;
+  padding: 0 6px;
+  border-radius: 2px;
+  /* border: 1px solid #d6d6d6; */
+  background: #EAEAEA;
+
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
-  background: #F8EE86;
-  border: 1px solid #F5DD6B;
-  color: #000;
+  gap: 10px;
+
   font-size: 14px;
+  font-weight: 600;
+  color: #111;
+
+  /* important: remove “boxy” behaviour */
+  width: auto;
+  min-width: 126px;   /* optional: keeps a similar size */
+  justify-content: center;
+  white-space: nowrap;
 }
 
-.fpServerBadgeIcon {
-  width: 16px;
-  height: 16px;
+.fpServerBadgeIcon{
+  width: 18px;
+  height: 18px;
   object-fit: contain;
   display: block;
 }
 
-.fpServerBadgeText {
-  width: 84px;
-  height: 16px;
+.fpServerBadgeText{
+  /* remove fixed sizes */
+  width: auto;
+  height: auto;
   font-size: 14px;
+  line-height: 1;
 }
+
 
 /* Controls row */
 .fpControls {

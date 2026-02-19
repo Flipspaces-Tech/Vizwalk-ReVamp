@@ -25,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const GID = "1024074012"; // Featured Projects Page gid
 
-const HERO_MP4 = "https://s3-vizwalk-dev.flipspaces.app/uploads/Demo.mp4";
+const HERO_MP4 = "https://s3-vizwalk-dev.flipspaces.app/uploads/Vizwalk+background+2.mov";
 
 /** ====== CSV PARSER ====== */
 function parseCSV(text) {
@@ -504,12 +504,17 @@ export default function Landing() {
               type="button"
               className="hero2Btn hero2BtnPrimary"
               onClick={() =>
-                document.getElementById("featured-projects")?.scrollIntoView({ behavior: "smooth" })
+                window.open(
+                  "https://youtu.be/pcZQg3qBuHc?si=KYTAb2V6fXGWAirJ",
+                  "_blank",
+                  "noopener,noreferrer"
+                )
               }
             >
               <span className="hero2YT" aria-hidden="true" />
               Watch Demo
             </button>
+
 
             <button
               type="button"
