@@ -1,13 +1,7 @@
 // src/pages/experience/Experience.jsx
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 
-// ====== FILL THIS IN after you deploy the Apps Script web app (must end with /exec) ======
+// ====== Apps Script Web App (must end with /exec) ======
 const GDRIVE_API_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
 
@@ -18,14 +12,8 @@ function getQuery(key, def = "") {
 
 // ✅ phase-specific text (defaults match your dashboard)
 const LOADER_TEXT = {
-  connecting: getQuery(
-    "msg1",
-    "Starting connection to Vizwalk server, please wait"
-  ),
-  launching: getQuery(
-    "msg2",
-    "Almost there, hold tight—awesomeness loading"
-  ),
+  connecting: getQuery("msg1", "Starting connection to Vizwalk server, please wait"),
+  launching: getQuery("msg2", "Almost there, hold tight—awesomeness loading"),
   finalizing: getQuery("msg3", "Sharpening pixels and buffing the details…"),
 };
 
@@ -39,6 +27,7 @@ const toBool = (v) => {
   }
   return !!v;
 };
+
 // If UE tells us desired hover before UIControlApp is ready, store it and apply later
 let pendingHoverEnabled = null;
 
@@ -61,38 +50,41 @@ async function getJsonVerbose(url, params = {}) {
   try {
     const data = await resp.clone().json();
     if (!resp.ok || data?.ok === false) {
+      // bubble Apps Script error string if present
       throw new Error(data?.error || `HTTP ${resp.status}`);
     }
     return data;
   } catch {
     text = await resp.text().catch(() => "");
     throw new Error(
-      `Expected JSON from Apps Script but got: ${
-        text?.slice(0, 300) || "(no body)"
-      } (HTTP ${resp?.status})`
+      `Expected JSON from Apps Script but got: ${text?.slice(0, 300) || "(no body)"} (HTTP ${resp?.status})`
     );
   }
 }
 
-// Resolve appId:
+// ✅ Resolve appId:
 // 1) URL ?appId=... (highest priority)
-// 2) Google Sheet via Apps Script: action=getappid&build=<build>
+// 2) Google Sheet via Apps Script: action=getappid&build=<build>&ver=<ver>&gid=<gid>&tab=<tab>
 // 3) Last-resort hardcoded fallback
 async function resolveAppId(buildName, buildVersion) {
   const urlOverride = getQuery("appId", "").trim();
   if (urlOverride) return urlOverride;
 
+  // ✅ IMPORTANT: forward gid/tab if present (so Experience uses same sheet source)
+  const gid = getQuery("gid", "").trim(); // e.g. 738570445 or 1024074012
+  const tab = getQuery("tab", "").trim(); // optional
+
   const data = await getJsonVerbose(GDRIVE_API_URL, {
     action: "getappid",
     build: buildName,
-    ver: buildVersion || "",   // 👈 send version
+    ver: buildVersion || "",
+    gid, // ✅ forward
+    tab, // ✅ forward (optional)
   });
-  if (data?.appId && typeof data.appId === "string") return data.appId;
 
+  if (data?.appId && typeof data.appId === "string") return data.appId;
   throw new Error("No appId in response JSON");
 }
-
-
 
 /** =============== 3-phase loader overlay (PNG/GIF; with corner text) =============== */
 function LoaderOverlay({ phase }) {
@@ -105,13 +97,17 @@ function LoaderOverlay({ phase }) {
     const img = imgRef.current;
     if (!img || !img.naturalWidth || !img.naturalHeight) return;
 
-    const vw = window.innerWidth,
-      vh = window.innerHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
     const viewAR = vw / vh;
     const imgAR = img.naturalWidth / img.naturalHeight;
 
     const neededScaleX = viewAR > imgAR ? viewAR / imgAR : 1;
     setScaleX(neededScaleX);
+
+    // If you later want Y scaling logic, you can add it here.
+    // Keeping your existing state in place so nothing breaks.
+    setScaleY(1);
   }, []);
 
   React.useEffect(() => {
@@ -237,7 +233,6 @@ export default function Experience() {
   const pendingSequenceRef = useRef(false);
   const sequenceRunningRef = useRef(false);
 
-
   // loader phase
   const [phase, setPhase] = useState("connecting");
 
@@ -245,21 +240,16 @@ export default function Experience() {
   const [appIdError, setAppIdError] = useState("");
   const [resolvedAppIdPreview, setResolvedAppIdPreview] = useState("");
 
+  const sessionId = useMemo(() => getQuery("session", "session-" + Date.now()), []);
 
-  const sessionId = useMemo(
-    () => getQuery("session", "session-" + Date.now()),
-    []
-  );
-    // ===== QUERY PARAMS =====
-    const buildName = useMemo(() => getQuery("build", "Build"), []);
-    const buildVersion = useMemo(() => getQuery("ver", ""), []);
+  // ===== QUERY PARAMS =====
+  const buildName = useMemo(() => getQuery("build", "Build"), []);
+  const buildVersion = useMemo(() => getQuery("ver", ""), []);
 
-    // ===== DERIVED combined key =====
-    const buildKey = useMemo(() => {
-      return buildVersion ? `${buildName} ${buildVersion}` : buildName;
-    }, [buildName, buildVersion]);
-
-
+  // ===== DERIVED combined key =====
+  const buildKey = useMemo(() => {
+    return buildVersion ? `${buildName} ${buildVersion}` : buildName;
+  }, [buildName, buildVersion]);
 
   // --- Helper: infer a clean filename from a URL or fall back to timestamp
   const filenameFromUrl = (url, fallbackExt = ".png") => {
@@ -269,9 +259,7 @@ export default function Experience() {
       const clean = last.split("?")[0] || "";
       if (clean) return clean;
     } catch {}
-    return `screenshot-${new Date()
-      .toISOString()
-      .replace(/[:.]/g, "-")}${fallbackExt}`;
+    return `screenshot-${new Date().toISOString().replace(/[:.]/g, "-")}${fallbackExt}`;
   };
 
   // --- Helper: does a string look like a direct image URL?
@@ -295,36 +283,33 @@ export default function Experience() {
     window.open(finalUrl, "_blank", "noopener,noreferrer");
   };
 
-  const downloadUrlSmart = useCallback(
-    async (url, filenameHint) => {
-      const name = filenameHint || filenameFromUrl(url);
+  const downloadUrlSmart = useCallback(async (url, filenameHint) => {
+    const name = filenameHint || filenameFromUrl(url);
 
-      if (isHttpInsecure(url)) {
-        proxyHttpsDownload(url);
-        return true;
-      }
+    if (isHttpInsecure(url)) {
+      proxyHttpsDownload(url);
+      return true;
+    }
 
-      try {
-        const res = await fetch(url, { mode: "cors" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const blob = await res.blob();
+    try {
+      const res = await fetch(url, { mode: "cors" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
 
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = name;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(a.href);
-        return true;
-      } catch (e) {
-        console.warn("CORS/Fetch failed, opening URL directly:", e);
-        window.open(url, "_blank", "noopener,noreferrer");
-        return false;
-      }
-    },
-    [] // no deps
-  );
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+      return true;
+    } catch (e) {
+      console.warn("CORS/Fetch failed, opening URL directly:", e);
+      window.open(url, "_blank", "noopener,noreferrer");
+      return false;
+    }
+  }, []);
 
   const downloadDataUrl = useCallback(async (dataUrl, filename) => {
     try {
@@ -431,96 +416,62 @@ export default function Experience() {
   }, [videoWrapRef]);
 
   const runIKeyClickSequence = useCallback(() => {
-  if (sequenceRunningRef.current) return;
-  sequenceRunningRef.current = true;
+    if (sequenceRunningRef.current) return;
+    sequenceRunningRef.current = true;
 
-  // STEP 1: I (OPEN)
-  sendKeyI("keydown");
-  sendKeyI("keyup");
+    // STEP 1: I (OPEN)
+    sendKeyI("keydown");
+    sendKeyI("keyup");
 
-  // STEP 2: Left-click after a short delay
-  setTimeout(() => {
-    sendLeftClick();
-
-    // STEP 3: I (CLOSE) after another delay
+    // STEP 2: Left-click after a short delay
     setTimeout(() => {
-      sendKeyI("keydown");
-      sendKeyI("keyup");
+      sendLeftClick();
 
-      sequenceRunningRef.current = false;
-    }, 100); // delay between click and second I
-  }, 200); // delay between first I and click
-}, [sendKeyI, sendLeftClick]);
+      // STEP 3: I (CLOSE) after another delay
+      setTimeout(() => {
+        sendKeyI("keydown");
+        sendKeyI("keyup");
 
-// Extract the best (last) valid image URL from a concatenated string.
-// Example input: "http://ec2...amazonaws.comhttps://s3.../file.png"
-// Extract the best (last) valid URL from a concatenated string.
-// Example input: "http://ec2...amazonaws.comhttps://s3.../file.png"
-// Extract last valid URL from glued strings like:
-// "http://ec2...amazonaws.comhttps://s3.../file.png"
-const extractBestImageUrl = (raw) => {
-  if (typeof raw !== "string") return "";
-  const s = raw.trim();
-  if (!s) return "";
+        sequenceRunningRef.current = false;
+      }, 100); // delay between click and second I
+    }, 200); // delay between first I and click
+  }, [sendKeyI, sendLeftClick]);
 
-  // Split whenever a new http/https URL begins
-  const parts = s
-    .split(/(?=https?:\/\/)/g)
-    .map((x) => x.trim())
-    .filter(Boolean);
+  // Extract last valid URL from glued strings like:
+  // "http://ec2...amazonaws.comhttps://s3.../file.png"
+  const extractBestImageUrl = (raw) => {
+    if (typeof raw !== "string") return "";
+    const s = raw.trim();
+    if (!s) return "";
 
-  // Prefer the last part that looks like an image
-  for (let i = parts.length - 1; i >= 0; i--) {
-    if (/\.(png|jpe?g|jpeg|webp|gif)(\?.*)?$/i.test(parts[i])) return parts[i];
-  }
+    // Split whenever a new http/https URL begins
+    const parts = s
+      .split(/(?=https?:\/\/)/g)
+      .map((x) => x.trim())
+      .filter(Boolean);
 
-  // Otherwise, return the last URL-ish part
-  return parts[parts.length - 1] || s;
-};
+    // Prefer the last part that looks like an image
+    for (let i = parts.length - 1; i >= 0; i--) {
+      if (/\.(png|jpe?g|jpeg|webp|gif)(\?.*)?$/i.test(parts[i])) return parts[i];
+    }
 
-
-
-
-
-
-
-
-
+    // Otherwise, return the last URL-ish part
+    return parts[parts.length - 1] || s;
+  };
 
   const handleResponseApp = useCallback(
     async (response) => {
       try {
         console.log("Received unreal message:", response);
 
-        // Helper: decide whether to send to Drive (EC2 http://) or download directly (https)
-
-        
-        // const forwardImageUrl = async (url) => {
-        //   const val = (url || "").trim();
-        //   if (!val) return;
-        //   if (isHttpInsecure(val)) {
-        //     // http:// EC2 → Apps Script → Drive
-        //     await uploadScreenshotUrlToDrive(val, buildKey, sessionId);
-
-        //   } else {
-        //     // https:// etc → normal browser download
-        //     await downloadUrlSmart(val, filenameFromUrl(val));
-        //   }
-        // };
-
-
         const forwardImageUrl = async (url) => {
-  const extracted = extractBestImageUrl(url).trim();
-  console.log("forwardImageUrl raw:", url);
-  console.log("forwardImageUrl extracted:", extracted);
-  if (!extracted) return;
+          const extracted = extractBestImageUrl(url).trim();
+          console.log("forwardImageUrl raw:", url);
+          console.log("forwardImageUrl extracted:", extracted);
+          if (!extracted) return;
 
-  await uploadScreenshotUrlToDrive(extracted, buildKey, sessionId);
-};
-
-
-
-
+          await uploadScreenshotUrlToDrive(extracted, buildKey, sessionId);
+        };
 
         // -------------------------------------------------
         // 0) Raw string payloads
@@ -591,8 +542,7 @@ const extractBestImageUrl = (raw) => {
           typeof msg.value === "string"
         ) {
           const raw =
-            (typeof msg.savedScreenshotUrl === "string" &&
-              msg.savedScreenshotUrl) ||
+            (typeof msg.savedScreenshotUrl === "string" && msg.savedScreenshotUrl) ||
             (typeof msg.value === "string" && msg.value) ||
             "";
 
@@ -603,8 +553,7 @@ const extractBestImageUrl = (raw) => {
               await forwardImageUrl(val);
             } else {
               // data:image/...;base64,....
-              const urlFilename =
-                val.split("/").pop()?.split("?")[0] || filenameFromUrl(val);
+              const urlFilename = val.split("/").pop()?.split("?")[0] || filenameFromUrl(val);
               await downloadDataUrl(val, urlFilename);
             }
             return;
@@ -617,8 +566,7 @@ const extractBestImageUrl = (raw) => {
           if (looksLikeHttpImageUrl(val)) {
             await forwardImageUrl(val);
           } else {
-            const urlFilename =
-              val.split("/").pop()?.split("?")[0] || filenameFromUrl(val);
+            const urlFilename = val.split("/").pop()?.split("?")[0] || filenameFromUrl(val);
             await downloadDataUrl(val, urlFilename);
           }
           return;
@@ -644,18 +592,14 @@ const extractBestImageUrl = (raw) => {
         // -------------------------------------------------
         // 4) Raw image payloads (data URLs / base64)
         // -------------------------------------------------
-        let data =
-          msg.dataUrl || msg.base64 || msg.imageData || msg.png || msg.jpg;
+        let data = msg.dataUrl || msg.base64 || msg.imageData || msg.png || msg.jpg;
         if (data) {
           if (typeof data === "string" && !data.startsWith("data:image/")) {
             data = "data:image/png;base64," + data;
           }
 
           const filename =
-            msg.filename ||
-            `screenshot-${new Date()
-              .toISOString()
-              .replace(/[:.]/g, "-")}.png`;
+            msg.filename || `screenshot-${new Date().toISOString().replace(/[:.]/g, "-")}.png`;
           await downloadDataUrl(data, filename);
 
           if (GDRIVE_API_URL && GDRIVE_API_URL.startsWith("http")) {
@@ -663,7 +607,7 @@ const extractBestImageUrl = (raw) => {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                buildName: buildKey, 
+                buildName: buildKey,
                 sessionId,
                 imageDataUrl: data,
                 stamp: filename.replace(/\.png$/i, ""),
@@ -676,9 +620,7 @@ const extractBestImageUrl = (raw) => {
               setFirstUploadDone(true);
               const galleryUrl = `${window.location.origin}/gallery?build=${encodeURIComponent(
                 buildName
-              )}&ver=${encodeURIComponent(buildVersion || "")}&session=${encodeURIComponent(
-                sessionId
-              )}`;
+              )}&ver=${encodeURIComponent(buildVersion || "")}&session=${encodeURIComponent(sessionId)}`;
 
               window.open(galleryUrl, "_blank", "noopener,noreferrer");
             } else if (!res?.ok) {
@@ -695,22 +637,12 @@ const extractBestImageUrl = (raw) => {
         console.error("handleResponseApp error:", e, response);
       }
     },
-    [
-      downloadDataUrl,
-      downloadUrlSmart,
-      buildName,
-      sessionId,
-      firstUploadDone,
-      runIKeyClickSequence,
-    ]
+    [downloadDataUrl, downloadUrlSmart, buildName, buildVersion, sessionId, firstUploadDone, runIKeyClickSequence, buildKey]
   );
 
   const hardDisconnect = useCallback(() => {
     try {
-      PixelStreamingApp?.removeResponseEventListener?.(
-        "handle_responses",
-        handleResponseApp
-      );
+      PixelStreamingApp?.removeResponseEventListener?.("handle_responses", handleResponseApp);
     } catch {}
     try {
       PixelStreamingUiApp?.stream?.disconnect?.();
@@ -821,12 +753,7 @@ const extractBestImageUrl = (raw) => {
     } catch {}
 
     connectingRef.current = false;
-  }, [
-    attachVideoAutoplaySafe,
-    handleResponseApp,
-    hardDisconnect,
-    buildName,
-  ]);
+  }, [attachVideoAutoplaySafe, handleResponseApp, hardDisconnect, buildName, buildVersion]);
 
   const toggleMouseHover = useCallback(() => {
     setHoverEnabled((prev) => {
@@ -859,17 +786,17 @@ const extractBestImageUrl = (raw) => {
 
     // Track the first REAL user interaction; run queued sequence if needed
     const onPointerDown = (e) => {
-  // ignore synthetic events; only real user clicks
-  if (!e.isTrusted) return;
+      // ignore synthetic events; only real user clicks
+      if (!e.isTrusted) return;
 
-  if (!userInteractedRef.current) {
-    userInteractedRef.current = true;
-    if (pendingSequenceRef.current) {
-      pendingSequenceRef.current = false;
-      runIKeyClickSequence();
-    }
-  }
-};
+      if (!userInteractedRef.current) {
+        userInteractedRef.current = true;
+        if (pendingSequenceRef.current) {
+          pendingSequenceRef.current = false;
+          runIKeyClickSequence();
+        }
+      }
+    };
 
     window.addEventListener("pointerdown", onPointerDown, { capture: true });
 
@@ -897,20 +824,13 @@ const extractBestImageUrl = (raw) => {
     return () => {
       mountedRef.current = false;
       window.removeEventListener("keydown", onKey, { capture: true });
-      window.removeEventListener("pointerdown", onPointerDown, {
-        capture: true,
-      });
+      window.removeEventListener("pointerdown", onPointerDown, { capture: true });
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("pageshow", onPageShow);
       window.removeEventListener("pagehide", onPageHide);
       hardDisconnect();
     };
-  }, [
-    startPlay,
-    toggleMouseHover,
-    hardDisconnect,
-    runIKeyClickSequence,
-  ]);
+  }, [startPlay, toggleMouseHover, hardDisconnect, runIKeyClickSequence]);
 
   return (
     <div className="experience-page">
@@ -934,6 +854,7 @@ const extractBestImageUrl = (raw) => {
           <b>AppId lookup failed:</b> {appIdError}
         </div>
       )}
+
       {resolvedAppIdPreview && phase !== "ready" && (
         <div
           style={{
@@ -966,25 +887,6 @@ const extractBestImageUrl = (raw) => {
           willChange: "transform",
         }}
       />
-
-      {/* Optional manual control */}
-      {/* <button
-        onClick={toggleMouseHover}
-        style={{
-          position: "fixed",
-          bottom: 20,
-          right: 20,
-          zIndex: 1e7,
-          padding: "8px 12px",
-          borderRadius: 8,
-          border: "1px solid #333",
-          background: "#1a1a1a",
-          color: "#fff",
-          cursor: "pointer",
-        }}
-      >
-        {hoverEnabled ? "Mouse Hover: ON (Alt+0)" : "Mouse Hover: OFF (Alt+0)"}
-      </button> */}
     </div>
   );
 }

@@ -19,13 +19,15 @@ import maximizeIcon from "../assets/full-screen.png"; // <-- use your actual max
 const GDRIVE_API_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
-const GID = "1024074012";
+const DEFAULT_GID = "1024074012"; // Featured Projects fallback
 
-/** ====== UTILS ====== */
 function getQuery(key, def = "") {
   const u = new URL(window.location.href);
   return u.searchParams.get(key) || def;
 }
+
+const GID = getQuery("gid", DEFAULT_GID); // ✅ NOW IT USES THE RIGHT SHEET
+
 
 function parseCSV(text) {
   if (!text) return [];
@@ -345,7 +347,8 @@ export default function ScreenshotGallery() {
         setLoadingHeader(false);
       }
     })();
-  }, [buildQuery, verQuery]);
+  }, [buildQuery, verQuery, GID]);
+
 
   const hasAnyScreenshots = useMemo(
     () => (screenshotsGroups || []).some((g) => (g?.items || []).length > 0),
@@ -409,29 +412,34 @@ export default function ScreenshotGallery() {
   };
 
   const openVizwalk = () => {
-    if (!headerItem) return;
+  if (!headerItem) return;
 
-    const bust = Date.now();
-    const projectLabel = headerItem.projectName || headerItem.buildName || "project";
-    const sessionId = `${projectLabel
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+  const bust = Date.now();
+  const projectLabel = headerItem.projectName || headerItem.buildName || "project";
+  const sessionId = `${projectLabel
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
 
-    const id = projectLabel
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+  const id = projectLabel
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 
-    const params = new URLSearchParams({
-      project: id,
-      s: bust,
-      session: sessionId,
-      build: headerItem.buildName || headerItem.projectName || "Build",
-      ver: headerItem.buildVersion || "",
-    });
+  // ✅ IMPORTANT: forward gid to Experience
+  const gidFromUrl = getQuery("gid", DEFAULT_GID);
 
-    window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
-  };
+  const params = new URLSearchParams({
+    project: id,
+    s: bust,
+    session: sessionId,
+    build: headerItem.buildName || headerItem.projectName || "Build",
+    ver: headerItem.buildVersion || "",
+    gid: String(gidFromUrl), // ✅ pass along
+  });
+
+  window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
+};
+
 
   const handleRefresh = async () => {
     setRefreshKey(String(Date.now()));

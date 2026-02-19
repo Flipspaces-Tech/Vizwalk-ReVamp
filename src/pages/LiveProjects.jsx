@@ -394,6 +394,7 @@ export default function Showcase() {
     const params = new URLSearchParams({
       build: item.buildName || item.projectName || "Build",
       ver: item.buildVersion || "",
+      gid: String(GID), // ✅ IMPORTANT: send correct sheet gid
     });
     window.open(`/gallery?${params.toString()}`, "_blank", "noopener,noreferrer");
   };
