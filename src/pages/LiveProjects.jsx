@@ -475,7 +475,7 @@ export default function Showcase() {
           ) : (
             <>
               <div className="fpGrid">
-                {(showAll2 ? filtered : filtered.slice(0, 6)).map((item, idx) => (
+                {(showAll2 ? filtered : filtered).map((item, idx) => (
                   <FeaturedCard
                     key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
                     item={item}
@@ -489,13 +489,13 @@ export default function Showcase() {
                 <div className="fpEmpty">No projects found matching your criteria.</div>
               )}
 
-              {!showAll2 && filtered.length > 6 && (
+              {/* {!showAll2 && filtered.length > 6 && (
                 <div className="fpBottom">
                   <button type="button" className="fpViewAllLink" onClick={() => setShowAll2(true)}>
                     View All Projects <span>↗</span>
                   </button>
                 </div>
-              )}
+              )} */}
             </>
           )}
         </div>

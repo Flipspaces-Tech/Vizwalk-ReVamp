@@ -18,6 +18,9 @@ import Footer from "../components/Footer.jsx";
 import demoIcon from "../assets/view demo.png";
 import arrowPng from "../assets/Redirect Arrow.png"; // View Project arrow (PNG)
 
+import { useNavigate } from "react-router-dom";
+
+
 /** ====== SHEET (CSV) ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
 const GID = "1024074012"; // Featured Projects Page gid
@@ -343,6 +346,8 @@ export default function Landing() {
   const [activeCategory2, setActiveCategory2] = useState("All");
   const [searchQuery2, setSearchQuery2] = useState("");
   const [showAll2, setShowAll2] = useState(false);
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     setActiveCategory2("All");
@@ -590,9 +595,14 @@ export default function Landing() {
 
           {!showAll2 && filtered.length > 6 && (
             <div className="fpBottom">
-              <button type="button" className="fpViewAllLink" onClick={() => setShowAll2(true)}>
+              <button
+                type="button"
+                className="fpViewAllLink"
+                onClick={() => navigate("/showcase")}
+              >
                 View All Projects <span>↗</span>
               </button>
+
             </div>
           )}
         </div>

@@ -467,7 +467,7 @@ html, body, #root {
   gap: 18px;
   font-size: 22px;
   font-weight: 300;
-  letter-spacing: 0.18em;
+  letter-spacing: 3%;
   color: #111;
   padding: 0 0 8px;
   line-height: 1;
@@ -479,7 +479,7 @@ html, body, #root {
   left: 50%;
   transform: translateX(-50%);
   bottom: 0;
-  width: 340px;
+  width: 209px;
   height: 2px;
   background: rgba(0,0,0,0.35);
 }
