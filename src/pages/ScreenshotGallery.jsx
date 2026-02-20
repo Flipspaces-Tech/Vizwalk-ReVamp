@@ -3,18 +3,23 @@ import React, { useEffect, useMemo, useState, useCallback } from "react";
 import "../styles/screenshot-gallery.css";
 
 import placeholderImg from "../assets/Flipspace - Logo - Black.png";
+import backIcon from "../assets/back.png"; // ✅ your back icon
+
 import LandingNavbar from "../components/LandingNavbar.jsx";
 import Footer from "../components/Footer.jsx";
 import { useAuth } from "../auth/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 import downloadIcon from "../assets/download.png";
 import ytIcon from "../assets/yt1.png";
 import demoIcon from "../assets/view demo.png";
 import vizwalkIcon from "../assets/Viz logo.png";
-import openIcon from "../assets/a1.png"; // <-- change to your actual icon file
-import maximizeIcon from "../assets/full-screen.png"; // <-- use your actual maximize icon file
+import openIcon from "../assets/a1.png";
+import maximizeIcon from "../assets/full-screen.png";
 
-
+// ✅ Use your in-house server icons
+import indiaIcon from "../assets/india.png";
+import usIcon from "../assets/usa.png";
 
 const GDRIVE_API_URL =
   "https://script.google.com/macros/s/AKfycbxcVqr7exlAGvAVSh672rB_oG7FdL0W0ymkRb_6L7A8awu7gqYDInR_6FLczLNkpr0B/exec";
@@ -26,8 +31,7 @@ function getQuery(key, def = "") {
   return u.searchParams.get(key) || def;
 }
 
-const GID = getQuery("gid", DEFAULT_GID); // ✅ NOW IT USES THE RIGHT SHEET
-
+const GID = getQuery("gid", DEFAULT_GID); // ✅ uses the right sheet gid
 
 function parseCSV(text) {
   if (!text) return [];
@@ -108,7 +112,7 @@ const COLS = {
     "thumb",
   ],
   youtube: ["walkthrough link", "youtube link", "youtube"],
-  demo: ["demo link", "demo", "demo video link"], // ✅ ADD THIS
+  demo: ["demo link", "demo", "demo video link"],
 };
 
 const idxOf = (headers, keys) => {
@@ -200,10 +204,7 @@ function ImageWithFallback({ src, alt, className, cacheBustKey = "" }) {
   );
 }
 
-const TABS = [
-  // { key: "walkthroughs", label: "Walkthroughs", disabled: true },
-  { key: "screenshots", label: "Screenshots", disabled: false },
-];
+const TABS = [{ key: "screenshots", label: "Screenshots", disabled: false }];
 
 /** ====== MERGE keep old add new ====== */
 function mergeGroups(prev = [], next = []) {
@@ -238,6 +239,7 @@ function mergeGroups(prev = [], next = []) {
 }
 
 export default function ScreenshotGallery() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("screenshots");
   const { user, signOut } = useAuth();
 
@@ -292,8 +294,7 @@ export default function ScreenshotGallery() {
         const iDesignStyle = idxOf(headers, COLS.designStyle);
         const iImage = idxOf(headers, COLS.image);
         const iYouTube = idxOf(headers, COLS.youtube);
-        const iDemo = idxOf(headers, COLS.demo); // ✅ ADD
-
+        const iDemo = idxOf(headers, COLS.demo);
         const iVizdomId = idxOf(headers, COLS.vizdomId);
 
         const items = body
@@ -311,9 +312,8 @@ export default function ScreenshotGallery() {
               designStyle: safeGet(r, iDesignStyle),
               thumb: safeGet(r, iImage),
               youtube: safeGet(r, iYouTube),
-              vizdomId: safeGet(r, iVizdomId),
               demo: safeGet(r, iDemo),
-
+              vizdomId: safeGet(r, iVizdomId),
             };
           })
           .filter(Boolean);
@@ -348,7 +348,6 @@ export default function ScreenshotGallery() {
       }
     })();
   }, [buildQuery, verQuery, GID]);
-
 
   const hasAnyScreenshots = useMemo(
     () => (screenshotsGroups || []).some((g) => (g?.items || []).length > 0),
@@ -399,7 +398,10 @@ export default function ScreenshotGallery() {
   }, [fetchScreenshots]);
 
   /** ====== ACTIONS ====== */
-  const openImage = (url) => url && window.open(url, "_blank", "noopener,noreferrer");
+  const openImage = (url) => {
+    if (!url) return;
+    window.location.assign(url); // ✅ same tab
+  };
 
   const dl = (url) => {
     if (!url) return;
@@ -411,35 +413,42 @@ export default function ScreenshotGallery() {
     setTimeout(() => document.body.removeChild(iframe), 60000);
   };
 
+  // ✅ Vizdom (external) same tab
+  const handleOpenVizdom = () => {
+    const id = String(headerItem?.vizdomId || "").trim();
+    if (!id) return;
+    const url = `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(id)}`;
+    window.location.assign(url);
+  };
+
   const openVizwalk = () => {
-  if (!headerItem) return;
+    if (!headerItem) return;
 
-  const bust = Date.now();
-  const projectLabel = headerItem.projectName || headerItem.buildName || "project";
-  const sessionId = `${projectLabel
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+    const bust = Date.now();
+    const projectLabel = headerItem.projectName || headerItem.buildName || "project";
+    const sessionId = `${projectLabel
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")}-${new Date().toISOString().replace(/[:.]/g, "-")}`;
 
-  const id = projectLabel
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+    const id = projectLabel
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
 
-  // ✅ IMPORTANT: forward gid to Experience
-  const gidFromUrl = getQuery("gid", DEFAULT_GID);
+    // forward gid to Experience
+    const gidFromUrl = getQuery("gid", DEFAULT_GID);
 
-  const params = new URLSearchParams({
-    project: id,
-    s: bust,
-    session: sessionId,
-    build: headerItem.buildName || headerItem.projectName || "Build",
-    ver: headerItem.buildVersion || "",
-    gid: String(gidFromUrl), // ✅ pass along
-  });
+    const params = new URLSearchParams({
+      project: id,
+      s: bust,
+      session: sessionId,
+      build: headerItem.buildName || headerItem.projectName || "Build",
+      ver: headerItem.buildVersion || "",
+      gid: String(gidFromUrl),
+    });
 
-  window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
-};
-
+    navigate(`/experience?${params.toString()}`); // ✅ same tab
+  };
 
   const handleRefresh = async () => {
     setRefreshKey(String(Date.now()));
@@ -462,16 +471,28 @@ export default function ScreenshotGallery() {
       <LandingNavbar user={user} signOut={signOut} />
 
       <div className="sg-container">
+        {/* ✅ Back: uses stored back url if available, else fallback */}
         <button
           className="sg-back"
           type="button"
-          onClick={() =>
-            window.history.length > 1
-              ? window.history.back()
-              : (window.location.href = "/")
-          }
+          onClick={() => {
+            const backUrl = sessionStorage.getItem("SG_BACK_URL");
+
+            if (backUrl) {
+              window.location.assign(backUrl); // ✅ guaranteed
+              return;
+            }
+
+            if (window.history.state && window.history.state.idx > 0) {
+              navigate(-1);
+              return;
+            }
+
+            navigate("/projects");
+          }}
         >
-          ← <span>Back to Projects</span>
+          <img className="sg-backIcon" src={backIcon} alt="" />
+          <span>Back to Projects</span>
         </button>
 
         <div className="sg-topGrid">
@@ -486,11 +507,12 @@ export default function ScreenshotGallery() {
                   <button
                     className="sg-vizdomBtn"
                     type="button"
-                    onClick={() => window.open("/vizdom", "_blank")}
+                    onClick={handleOpenVizdom}
+                    disabled={!headerItem?.vizdomId}
+                    title={!headerItem?.vizdomId ? "Vizdom ID missing in sheet" : ""}
                   >
                     Go to Vizdom
-                  <img className="sg-vizdomIcon" src={openIcon} alt="" />
-
+                    <img className="sg-vizdomIcon" src={openIcon} alt="" />
                   </button>
                 </div>
 
@@ -502,14 +524,13 @@ export default function ScreenshotGallery() {
                   </div>
 
                   <div className="sg-serverPill">
-  <img
-    className="sg-flagImg"
-    src={server === "us" ? "https://flagcdn.com/w40/us.png" : "https://flagcdn.com/w40/in.png"}
-    alt={server === "us" ? "US" : "IN"}
-  />
-  {serverLabel}
-</div>
-
+                    <img
+                      className="sg-flagImg"
+                      src={server === "us" ? usIcon : indiaIcon}
+                      alt={server === "us" ? "US" : "IN"}
+                    />
+                    {serverLabel}
+                  </div>
                 </div>
 
                 <div className="sg-actions">
@@ -518,12 +539,7 @@ export default function ScreenshotGallery() {
                     className="sg-action"
                     disabled={!headerItem?.youtube}
                     onClick={() =>
-                      headerItem?.youtube &&
-                      window.open(
-                        headerItem.youtube,
-                        "_blank",
-                        "noopener,noreferrer"
-                      )
+                      headerItem?.youtube && window.location.assign(headerItem.youtube)
                     }
                   >
                     <span className="sg-actionIconWrap">
@@ -537,25 +553,23 @@ export default function ScreenshotGallery() {
                     </span>
                   </button>
 
-                 {headerItem?.demo ? (
-                <button
-                  type="button"
-                  className="sg-action"
-                  onClick={() => window.open(headerItem.demo, "_blank", "noopener,noreferrer")}
-                >
-                  <span className="sg-actionIconWrap">
-                    <img className="sg-actionIcon" src={demoIcon} alt="" />
-                  </span>
-                  <span className="sg-actionText">
-                    <span className="sg-actionTitle">Demo Video</span>
-                    <span className="sg-actionSub">
-                      A Tech showcase video for the project
-                    </span>
-                  </span>
-                </button>
-              ) : null}
-
-
+                  {headerItem?.demo ? (
+                    <button
+                      type="button"
+                      className="sg-action"
+                      onClick={() => window.location.assign(headerItem.demo)}
+                    >
+                      <span className="sg-actionIconWrap">
+                        <img className="sg-actionIcon" src={demoIcon} alt="" />
+                      </span>
+                      <span className="sg-actionText">
+                        <span className="sg-actionTitle">Demo Video</span>
+                        <span className="sg-actionSub">
+                          A Tech showcase video for the project
+                        </span>
+                      </span>
+                    </button>
+                  ) : null}
 
                   <button type="button" className="sg-action" onClick={openVizwalk}>
                     <span className="sg-actionIconWrap">
@@ -663,33 +677,30 @@ export default function ScreenshotGallery() {
                             />
 
                             <div className="sg-shotActions">
-  {/* Maximize / Open */}
-  <button
-    type="button"
-    className="sg-shotBtn"
-    onClick={(e) => {
-      e.stopPropagation();
-      openImage(img.url);
-    }}
-    title="Maximize"
-  >
-    <img src={maximizeIcon} alt="" />
-  </button>
+                              <button
+                                type="button"
+                                className="sg-shotBtn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openImage(img.url);
+                                }}
+                                title="Maximize"
+                              >
+                                <img src={maximizeIcon} alt="" />
+                              </button>
 
-  {/* Download */}
-  <button
-    type="button"
-    className="sg-shotBtn"
-    onClick={(e) => {
-      e.stopPropagation();
-      dl(img.url);
-    }}
-    title="Download"
-  >
-    <img src={downloadIcon} alt="" />
-  </button>
-</div>
-
+                              <button
+                                type="button"
+                                className="sg-shotBtn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  dl(img.url);
+                                }}
+                                title="Download"
+                              >
+                                <img src={downloadIcon} alt="" />
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -704,7 +715,6 @@ export default function ScreenshotGallery() {
         <div style={{ height: 40 }} />
       </div>
 
-      {/* ✅ Footer */}
       <Footer />
     </div>
   );

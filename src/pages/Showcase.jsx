@@ -1,3 +1,4 @@
+// Showcase.jsx  (Featured Projects page)  ✅ UPDATED (Back works + no new tabs)
 import React, { useEffect, useMemo, useState } from "react";
 
 import LandingNavbar from "../components/LandingNavbar.jsx";
@@ -13,11 +14,11 @@ import arrowPng from "../assets/Redirect Arrow.png";
 import indiaIcon from "../assets/india.png";
 import usIcon from "../assets/usa.png";
 
-import "../pages/Landing.css"; // ✅ uses your existing Featured Projects CSS
+import "../pages/Landing.css";
 
 /** ====== SHEET (CSV) ====== */
 const SHEET_ID = "180yy7lM0CCtiAtSr87uEm3lewU-pIdvLMGl6RXBvf8o";
-const GID = "1024074012"; // Featured Projects Page gid
+const GID = "1024074012";
 
 /** ====== CSV PARSER ====== */
 function parseCSV(text) {
@@ -189,26 +190,25 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom }) {
   const hasVizdom = Boolean(String(item.vizdomId || "").trim());
   const hasDemo = Boolean(String(item.demoLink || "").trim());
 
+  // ✅ SAME TAB (no _blank)
   const openDemo = (e) => {
     e.stopPropagation();
     const url = String(item.demoLink || "").trim();
     if (!url) return;
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.location.assign(url);
   };
 
   const openYoutube = (e) => {
     e.stopPropagation();
-    window.open(item.youtube, "_blank", "noopener,noreferrer");
+    const url = String(item.youtube || "").trim();
+    if (!url) return;
+    window.location.assign(url);
   };
 
   return (
     <article className="fpProjectCard">
       <div className="fpCardMedia">
-        <ImageWithFallback
-          className="fpCardImg"
-          src={item.thumb}
-          alt={item.buildName}
-        />
+        <ImageWithFallback className="fpCardImg" src={item.thumb} alt={item.buildName} />
 
         <button
           className="fpViewPill"
@@ -219,12 +219,7 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom }) {
           type="button"
         >
           View Project
-          <img
-            className="fpViewPillArrow"
-            src={arrowPng}
-            alt=""
-            aria-hidden="true"
-          />
+          <img className="fpViewPillArrow" src={arrowPng} alt="" aria-hidden="true" />
         </button>
       </div>
 
@@ -232,8 +227,7 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom }) {
         <h3 className="fpProjectName">{item.buildName || "Project"}</h3>
 
         <p className="fpProjectMeta">
-          {(item.constructionType || item.industry || "—")} |{" "}
-          {formatSqft(item.areaSqft || "")}
+          {(item.constructionType || item.industry || "—")} | {formatSqft(item.areaSqft || "")}
         </p>
 
         <div className="fpCardFooter">
@@ -274,14 +268,13 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom }) {
   );
 }
 
-/** ====== SHOWCASE PAGE (Navbar + Featured + Footer) ====== */
+/** ====== SHOWCASE PAGE ====== */
 export default function Showcase() {
   const { user, signOut } = useAuth();
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ server state lives at page level so navbar can control it
   const [selectedServer, setSelectedServer] = useState("india");
 
   const [activeCategory2, setActiveCategory2] = useState("All");
@@ -373,36 +366,39 @@ export default function Showcase() {
     const q = norm(searchQuery2);
 
     return items.filter((it) => {
-      // ✅ server filter
       if (selectedServer && it.server && it.server !== selectedServer) return false;
       if (selectedServer && !it.server) return false;
 
-      // ✅ chips filter
       if (activeCategory2 !== "All") {
         const typeOk = String(it.constructionType || "").trim() === activeCategory2;
         if (!typeOk) return false;
       }
 
-      // ✅ search
       if (!q) return true;
       const big = `${it.projectName} ${it.buildName} ${it.buildVersion} ${it.areaSqft} ${it.industry} ${it.designStyle} ${it.sbu}`;
       return norm(big).includes(q);
     });
   }, [items, selectedServer, activeCategory2, searchQuery2]);
 
+  // ✅ IMPORTANT: store back url + open gallery in SAME TAB + pass gid
   const handleOpenScreenshotGallery = (item) => {
+    sessionStorage.setItem("SG_BACK_URL", window.location.pathname + window.location.search);
+
     const params = new URLSearchParams({
       build: item.buildName || item.projectName || "Build",
       ver: item.buildVersion || "",
+      gid: String(GID),
     });
-    window.open(`/gallery?${params.toString()}`, "_blank", "noopener,noreferrer");
+
+    window.location.assign(`/gallery?${params.toString()}`);
   };
 
+  // ✅ SAME TAB (no _blank)
   const handleOpenVizdom = (item) => {
     const id = String(item?.vizdomId || "").trim();
     if (!id) return;
     const url = `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(id)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.location.assign(url);
   };
 
   return (
@@ -420,6 +416,7 @@ export default function Showcase() {
             <div className="fpHeaderLeft">
               <div className="fpTitleRow">
                 <div className="fpTitle">Featured Projects</div>
+
                 <div className="fpServerBadge">
                   <img
                     src={selectedServer === "india" ? indiaIcon : usIcon}
@@ -430,10 +427,6 @@ export default function Showcase() {
                     {selectedServer === "india" ? "India Server" : "US Server"}
                   </span>
                 </div>
-
-                {/* NOTE: The badge image is handled in Landing page previously,
-                   but here we keep the same look by just reusing the same styles.
-                   If you want the IN/US icon badge here too, we can add it. */}
               </div>
 
               <div className="fpSub">
@@ -488,14 +481,6 @@ export default function Showcase() {
               {filtered.length === 0 && (
                 <div className="fpEmpty">No projects found matching your criteria.</div>
               )}
-
-              {/* {!showAll2 && filtered.length > 6 && (
-                <div className="fpBottom">
-                  <button type="button" className="fpViewAllLink" onClick={() => setShowAll2(true)}>
-                    View All Projects <span>↗</span>
-                  </button>
-                </div>
-              )} */}
             </>
           )}
         </div>
@@ -506,7 +491,6 @@ export default function Showcase() {
   );
 }
 
-/** ====== PAGE WRAPPER STYLE ====== */
 const sx = {
   page: {
     minHeight: "100vh",

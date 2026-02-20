@@ -500,20 +500,17 @@ export default function Landing() {
           </div>
 
           <div className="hero2Btns">
-            <button
-              type="button"
-              className="hero2Btn hero2BtnPrimary"
-              onClick={() =>
-                window.open(
-                  "https://youtu.be/pcZQg3qBuHc?si=KYTAb2V6fXGWAirJ",
-                  "_blank",
-                  "noopener,noreferrer"
-                )
-              }
-            >
-              <span className="hero2YT" aria-hidden="true" />
-              Watch Demo
-            </button>
+           <button
+            type="button"
+            className="hero2Btn hero2BtnPrimary"
+            onClick={() => {
+              window.location.href =
+                "https://s3-vizwalk-dev.flipspaces.app/uploads/VW-Platform-Pres.mp4";
+            }}
+          >
+            <span className="hero2YT" aria-hidden="true" />
+            Watch Demo
+          </button>
 
 
             <button

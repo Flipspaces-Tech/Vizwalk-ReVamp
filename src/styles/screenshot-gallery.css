@@ -498,3 +498,24 @@
   display: block;
   opacity: 0.9;
 }
+.sg-back{
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: #111;
+  opacity: 0.85;
+  margin-bottom: 18px;
+  margin-left: 30px;
+  font-size: 14px;
+}
+
+.sg-backIcon{
+  width: 14px;      /* tweak if needed */
+  height: 14px;
+  object-fit: contain;
+  display: inline-block;
+}
