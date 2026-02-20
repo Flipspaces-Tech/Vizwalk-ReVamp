@@ -1,4 +1,4 @@
-// LiveProjects.jsx  ✅ UPDATED (Back works + no new tabs)
+// LiveProjects.jsx ✅ SAME TAB everywhere + Back works (SG_BACK_URL)
 import React, { useEffect, useMemo, useState } from "react";
 
 import LandingNavbar from "../components/LandingNavbar.jsx";
@@ -208,18 +208,28 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom }) {
   return (
     <article className="fpProjectCard">
       <div className="fpCardMedia">
-        <ImageWithFallback className="fpCardImg" src={item.thumb} alt={item.buildName} />
+        <ImageWithFallback
+          className="fpCardImg"
+          src={item.thumb}
+          alt={item.buildName}
+        />
 
+        {/* ✅ SAME TAB gallery */}
         <button
           className="fpViewPill"
           onClick={(e) => {
             e.stopPropagation();
-            onOpenScreenshotGallery();
+            onOpenScreenshotGallery(item);
           }}
           type="button"
         >
           View Project
-          <img className="fpViewPillArrow" src={arrowPng} alt="" aria-hidden="true" />
+          <img
+            className="fpViewPillArrow"
+            src={arrowPng}
+            alt=""
+            aria-hidden="true"
+          />
         </button>
       </div>
 
@@ -227,7 +237,8 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom }) {
         <h3 className="fpProjectName">{item.buildName || "Project"}</h3>
 
         <p className="fpProjectMeta">
-          {(item.constructionType || item.industry || "—")} | {formatSqft(item.areaSqft || "")}
+          {(item.constructionType || item.industry || "—")} |{" "}
+          {formatSqft(item.areaSqft || "")}
         </p>
 
         <div className="fpCardFooter">
@@ -247,7 +258,7 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom }) {
               className="fpFooterSquare"
               onClick={(e) => {
                 e.stopPropagation();
-                onOpenVizdom();
+                onOpenVizdom(item);
               }}
               type="button"
               aria-label="Open Vizdom"
@@ -276,15 +287,12 @@ export default function LiveProjects() {
   const [loading, setLoading] = useState(true);
 
   const [selectedServer, setSelectedServer] = useState("india");
-
   const [activeCategory2, setActiveCategory2] = useState("All");
   const [searchQuery2, setSearchQuery2] = useState("");
-  const [showAll2, setShowAll2] = useState(false);
 
   useEffect(() => {
     setActiveCategory2("All");
     setSearchQuery2("");
-    setShowAll2(false);
   }, [selectedServer]);
 
   useEffect(() => {
@@ -380,9 +388,12 @@ export default function LiveProjects() {
     });
   }, [items, selectedServer, activeCategory2, searchQuery2]);
 
-  // ✅ IMPORTANT: store back url + open gallery in SAME TAB + pass gid
+  // ✅ SAME TAB gallery + store back url + pass gid
   const handleOpenScreenshotGallery = (item) => {
-    sessionStorage.setItem("SG_BACK_URL", window.location.pathname + window.location.search);
+    sessionStorage.setItem(
+      "SG_BACK_URL",
+      window.location.pathname + window.location.search
+    );
 
     const params = new URLSearchParams({
       build: item.buildName || item.projectName || "Build",
@@ -393,7 +404,7 @@ export default function LiveProjects() {
     window.location.assign(`/gallery?${params.toString()}`);
   };
 
-  // ✅ SAME TAB
+  // ✅ SAME TAB vizdom
   const handleOpenVizdom = (item) => {
     const id = String(item?.vizdomId || "").trim();
     if (!id) return;
@@ -440,10 +451,7 @@ export default function LiveProjects() {
                   key={t}
                   type="button"
                   className={`dv-chip ${t === activeCategory2 ? "dv-chip--active" : ""}`}
-                  onClick={() => {
-                    setActiveCategory2(t);
-                    setShowAll2(false);
-                  }}
+                  onClick={() => setActiveCategory2(t)}
                 >
                   {t}
                 </button>
@@ -451,7 +459,12 @@ export default function LiveProjects() {
             </div>
 
             <div className="fpSearchWrap">
-              <img src={searchIcon} alt="Search" className="fpSearchIconImg" draggable={false} />
+              <img
+                src={searchIcon}
+                alt="Search"
+                className="fpSearchIconImg"
+                draggable={false}
+              />
               <input
                 value={searchQuery2}
                 onChange={(e) => setSearchQuery2(e.target.value)}
@@ -466,12 +479,12 @@ export default function LiveProjects() {
           ) : (
             <>
               <div className="fpGrid">
-                {(showAll2 ? filtered : filtered).map((item, idx) => (
+                {filtered.map((item, idx) => (
                   <FeaturedCard
                     key={`${item.buildName || "p"}-${item.buildVersion || ""}-${idx}`}
                     item={item}
-                    onOpenScreenshotGallery={() => handleOpenScreenshotGallery(item)}
-                    onOpenVizdom={() => handleOpenVizdom(item)}
+                    onOpenScreenshotGallery={handleOpenScreenshotGallery}
+                    onOpenVizdom={handleOpenVizdom}
                   />
                 ))}
               </div>

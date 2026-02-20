@@ -4,6 +4,9 @@ import vizIcon from "../assets/vw1.png";
 import vIcon from "../assets/Viz logo_01_w.png";
 import "../styles/navbar-v2.css";
 
+import indiaFlag from "../assets/india.png";
+import usFlag from "../assets/usa.png";
+
 export default function LandingNavbar({
   user,
   signOut,
@@ -39,22 +42,10 @@ export default function LandingNavbar({
   const isLearnActive = pathname.startsWith("/learn");
   const isDemoActive = pathname.startsWith("/demo-videos");
 
-  // ✅ open internal routes in a NEW tab
-  const openNewTab = (path) => {
-    const url = `${window.location.origin}${path}`;
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
-
-  // (kept in case you still use it elsewhere)
-  const goOrScroll = (id) => {
-    const el = document.getElementById(id);
-    if (el) return el.scrollIntoView({ behavior: "smooth" });
-    navigate(`/#${id}`);
-  };
-
-  // (kept in case you still use it elsewhere)
-  const goTo = (path) => {
-    navigate(path);
+  // ✅ helper: go home (same tab)
+  const goHome = () => {
+    setDd(false);
+    navigate("/");
   };
 
   return (
@@ -89,13 +80,13 @@ export default function LandingNavbar({
         {/* Dark navbar */}
         <div className="vwNav">
           <div className="vwContainer vwNavInner">
-            {/* Left: Logo Area (opens in NEW tab) */}
+            {/* Left: Logo Area (same tab) */}
             <a
               className="vwLogoGroup"
               href="/"
               onClick={(e) => {
                 e.preventDefault();
-                openNewTab("/");
+                goHome();
               }}
             >
               <img className="vwLogoIcon" src={vizIcon} alt="Vizwalk Logo" />
@@ -107,7 +98,10 @@ export default function LandingNavbar({
             <div className="vwNavLinks">
               <button
                 className={`vwNavLink ${isHomeActive ? "isActive" : ""}`}
-                onClick={() => openNewTab("/")}
+                onClick={() => {
+                  setDd(false);
+                  navigate("/");
+                }}
               >
                 HOME
               </button>
@@ -126,7 +120,7 @@ export default function LandingNavbar({
                       className="vwDdItem"
                       onClick={() => {
                         setDd(false);
-                        openNewTab("/showcase");
+                        navigate("/showcase");
                       }}
                     >
                       Showcase Projects
@@ -136,7 +130,7 @@ export default function LandingNavbar({
                       className="vwDdItem"
                       onClick={() => {
                         setDd(false);
-                        openNewTab("/live-projects");
+                        navigate("/live-projects");
                       }}
                     >
                       Live Projects
@@ -147,14 +141,20 @@ export default function LandingNavbar({
 
               <button
                 className={`vwNavLink ${isLearnActive ? "isActive" : ""}`}
-                onClick={() => openNewTab("/learn")}
+                onClick={() => {
+                  setDd(false);
+                  navigate("/learn");
+                }}
               >
                 LEARN
               </button>
 
               <button
                 className={`vwNavLink ${isDemoActive ? "isActive" : ""}`}
-                onClick={() => openNewTab("/demo-videos")}
+                onClick={() => {
+                  setDd(false);
+                  navigate("/demo-videos");
+                }}
               >
                 DEMO VIDEOS
               </button>
@@ -170,7 +170,7 @@ export default function LandingNavbar({
                   onClick={() => setSelectedServer?.("india")}
                 >
                   <img
-                    src="https://flagcdn.com/w40/in.png"
+                    src={indiaFlag}
                     alt="IN"
                     className="vwFlagIcon"
                   />
@@ -184,36 +184,13 @@ export default function LandingNavbar({
                   onClick={() => setSelectedServer?.("us")}
                 >
                   <img
-                    src="https://flagcdn.com/w40/us.png"
+                    src={usFlag}
                     alt="US"
                     className="vwFlagIcon"
                   />
                   US
                 </button>
               </div>
-
-              <button className="vwIconBtn" title="Theme Settings">
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="5"></circle>
-                  <line x1="12" y1="1" x2="12" y2="3"></line>
-                  <line x1="12" y1="21" x2="12" y2="23"></line>
-                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                  <line x1="1" y1="12" x2="3" y2="12"></line>
-                  <line x1="21" y1="12" x2="23" y2="12"></line>
-                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-              </button>
 
               <button
                 className="vwIconBtn"

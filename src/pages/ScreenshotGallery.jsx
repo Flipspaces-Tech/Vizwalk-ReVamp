@@ -447,7 +447,8 @@ export default function ScreenshotGallery() {
       gid: String(gidFromUrl),
     });
 
-    navigate(`/experience?${params.toString()}`); // ✅ same tab
+    window.open(`/experience?${params.toString()}`, "_blank", "noopener,noreferrer");
+    // navigate(`/experience?${params.toString()}`);
   };
 
   const handleRefresh = async () => {

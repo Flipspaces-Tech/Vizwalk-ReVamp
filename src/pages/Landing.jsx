@@ -198,16 +198,28 @@ function FeaturedCard({ item, onOpenScreenshotGallery, onOpenVizdom }) {
   const hasVizdom = Boolean(String(item.vizdomId || "").trim());
   const hasDemo = Boolean(String(item.demoLink || "").trim());
 
-  const openDemo = (e) => {
+  // const openDemo = (e) => {
+  //   e.stopPropagation();
+  //   const url = String(item.demoLink || "").trim();
+  //   if (!url) return;
+  //   window.open(url, "_blank", "noopener,noreferrer");
+  // };
+
+  // const openYoutube = (e) => {
+  //   e.stopPropagation();
+  //   window.open(item.youtube, "_blank", "noopener,noreferrer");
+  // };
+
+    const openDemo = (e) => {
     e.stopPropagation();
     const url = String(item.demoLink || "").trim();
     if (!url) return;
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.location.href = url; // ✅ same tab
   };
 
   const openYoutube = (e) => {
     e.stopPropagation();
-    window.open(item.youtube, "_blank", "noopener,noreferrer");
+    window.location.href = item.youtube; // ✅ same tab
   };
 
   return (
@@ -451,19 +463,29 @@ export default function Landing() {
   }, [items, selectedServer, activeCategory2, searchQuery2]);
 
   const handleOpenScreenshotGallery = (item) => {
-    const params = new URLSearchParams({
-      build: item.buildName || item.projectName || "Build",
-      ver: item.buildVersion || "",
-    });
-    window.open(`/gallery?${params.toString()}`, "_blank", "noopener,noreferrer");
-  };
+  const params = new URLSearchParams({
+    build: item.buildName || item.projectName || "Build",
+    ver: item.buildVersion || "",
+  });
 
-  const handleOpenVizdom = (item) => {
+  // ✅ same tab
+  window.location.href = `/gallery?${params.toString()}`;
+};
+
+  // const handleOpenVizdom = (item) => {
+  //   const id = String(item?.vizdomId || "").trim();
+  //   if (!id) return;
+  //   const url = `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(id)}`;
+  //   window.open(url, "_blank", "noopener,noreferrer");
+  // };
+
+    const handleOpenVizdom = (item) => {
     const id = String(item?.vizdomId || "").trim();
     if (!id) return;
     const url = `https://vizdom.flipspaces.app/user/project/${encodeURIComponent(id)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.location.href = url; // ✅ same tab
   };
+
 
   if (loading) return <div style={{ ...sx.page, padding: 24 }}>Loading…</div>;
 
